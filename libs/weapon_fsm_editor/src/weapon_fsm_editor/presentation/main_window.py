@@ -24,6 +24,7 @@ from .graph.machine_view import MachineWidget
 from .panels.event_panel import EventPanel
 from .panels.gun_control_panel import GunControlPanel
 from .panels.summary_panel import SummaryPanel
+from .weapon_document_editor.editor import WeaponDocumentEditor
 
 
 def _format_runtime_variables(variables: dict[str, object]) -> str:
@@ -44,7 +45,7 @@ class MainWindow(QMainWindow):
         self._weapon: WeaponConfig | None = None
 
         self.gun_editor = QTextEdit()
-        self.weapon_editor = QTextEdit()
+        self.weapon_editor = WeaponDocumentEditor(self)
         self.behavior_widget = MachineWidget("Weapon Behavior")
         self.event_panel = EventPanel()
         self.summary_panel = SummaryPanel()
@@ -169,6 +170,7 @@ class MainWindow(QMainWindow):
             self._gun = gun
             self._weapon = weapon
             self._simulation = SimulationService(gun, weapon)
+            self.weapon_editor.set_gun_config(self._gun)
 
             self.event_panel.set_events(list(gun.events))
             self.gun_control_panel.reset_trigger()

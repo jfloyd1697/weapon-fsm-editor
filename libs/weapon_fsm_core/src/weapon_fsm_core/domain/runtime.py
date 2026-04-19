@@ -1,35 +1,9 @@
 import traceback
 from dataclasses import dataclass, field
-import random
 
+from .commands import RuntimeCommand, RuntimeEnvironment, GunRuntimeCommand
 from .model import ActionDef, GunConfig, GuardDef, TransitionDef, WeaponConfig
-
-
-@dataclass(frozen=True)
-class ScheduledEvent:
-    event_id: str
-    delay_ms: int
-
-
-@dataclass(frozen=True)
-class RuntimeCommand:
-    type: str
-    payload: dict[str, object] = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class TransitionResult:
-    accepted: bool
-    event_id: str
-    previous_state: str
-    current_state: str
-    transition: TransitionDef | None = None
-    emitted_events: tuple[str, ...] = ()
-    scheduled_events: tuple[ScheduledEvent, ...] = ()
-    commands: tuple[RuntimeCommand, ...] = ()
-    variables_before: dict[str, object] = field(default_factory=dict)
-    variables_after: dict[str, object] = field(default_factory=dict)
-    reason: str | None = None
+from .runtime_types import ScheduledEvent, TransitionResult
 
 
 @dataclass
@@ -63,16 +37,20 @@ class WeaponRuntime:
 
     def handle_event(self, event_id: str) -> TransitionResult:
         previous_state = self.current_state
+        state_at_start = self.current_state
         variables_before = dict(self.variables)
-
-        if event_id == "trigger_pressed":
-            self.trigger_pressed = True
-            self.variables["trigger_down"] = True
-        elif event_id == "trigger_released":
-            self.trigger_pressed = False
-            self.variables["trigger_down"] = False
+        pending_before = list(self.pending_events)
+        last_transition_before = self.last_transition_id
+        trigger_pressed_before = self.trigger_pressed
 
         try:
+            if event_id == "trigger_pressed":
+                self.trigger_pressed = True
+                self.variables["trigger_down"] = True
+            elif event_id == "trigger_released":
+                self.trigger_pressed = False
+                self.variables["trigger_down"] = False
+
             for transition in self.weapon.transitions_from(self.current_state):
                 if transition.trigger != event_id:
                     continue
@@ -116,7 +94,14 @@ class WeaponRuntime:
                     variables_before=variables_before,
                     variables_after=dict(self.variables),
                 )
+
         except Exception:
+            self.current_state = state_at_start
+            self.variables = dict(variables_before)
+            self.pending_events = pending_before
+            self.last_transition_id = last_transition_before
+            self.trigger_pressed = trigger_pressed_before
+
             return TransitionResult(
                 accepted=False,
                 event_id=event_id,
@@ -124,18 +109,21 @@ class WeaponRuntime:
                 current_state=self.current_state,
                 variables_before=variables_before,
                 variables_after=dict(self.variables),
-                reason=f"Error during transition: {traceback.format_exc()}",
+                reason=(
+                    f"Error processing event '{event_id}' from state "
+                    f"'{state_at_start}': {traceback.format_exc()}"
+                ),
             )
-
-        return TransitionResult(
-            accepted=False,
-            event_id=event_id,
-            previous_state=previous_state,
-            current_state=self.current_state,
-            variables_before=variables_before,
-            variables_after=dict(self.variables),
-            reason=f"No transition for event '{event_id}' from state '{self.current_state}'",
-        )
+        else:
+            return TransitionResult(
+                accepted=False,
+                event_id=event_id,
+                previous_state=previous_state,
+                current_state=self.current_state,
+                variables_before=variables_before,
+                variables_after=dict(self.variables),
+                reason=f"No transition for event '{event_id}' from state '{state_at_start}'",
+            )
 
     def consume_due_events(self, elapsed_ms: int) -> list[str]:
         ready: list[str] = []
@@ -165,86 +153,14 @@ class WeaponRuntime:
     def _run_actions(
         self,
         actions: tuple[ActionDef, ...],
-    ) -> tuple[list[str], list[ScheduledEvent], list[RuntimeCommand]]:
-        emitted: list[str] = []
-        scheduled: list[ScheduledEvent] = []
-        commands: list[RuntimeCommand] = []
+    ) -> tuple[list[str], list[ScheduledEvent], list[GunRuntimeCommand]]:
+        env = RuntimeEnvironment(
+            weapon=self.weapon,
+            variables=self.variables,
+        )
 
         for action in actions:
-            action_type = action.type
+            command = RuntimeCommand.from_action(action)
+            command.execute(env)
 
-            if action_type == "play_audio":
-                commands.append(RuntimeCommand("play_audio", dict(action.arguments)))
-
-            elif action_type == "play_audio_loop":
-                commands.append(RuntimeCommand("play_audio_loop", dict(action.arguments)))
-
-            elif action_type == "play_random_audio":
-                payload = dict(action.arguments)
-                clips = payload.get("clips", [])
-                if isinstance(clips, list) and clips:
-                    payload["clip"] = random.choice(clips)
-                commands.append(RuntimeCommand("play_random_audio", payload))
-
-            elif action_type == "stop_audio":
-                commands.append(RuntimeCommand("stop_audio", dict(action.arguments)))
-
-            elif action_type == "start_light_sequence":
-                commands.append(RuntimeCommand("start_light_sequence", dict(action.arguments)))
-
-            elif action_type == "stop_light_sequence":
-                commands.append(RuntimeCommand("stop_light_sequence", dict(action.arguments)))
-
-            elif action_type == "set_var":
-                name = str(action.argument("name"))
-                if "value_from_var" in action.arguments:
-                    source_name = str(action.argument("value_from_var"))
-                    self.variables[name] = self.variables.get(source_name)
-                else:
-                    self.variables[name] = action.argument("value")
-
-            elif action_type == "add_var":
-                name = str(action.argument("name"))
-                delta = action.argument("value", 0)
-                current = self.variables.get(name, 0)
-                self.variables[name] = current + delta
-
-            elif action_type == "adjust_ammo":
-                delta = int(action.argument("delta", 0))
-                ammo = int(self.variables.get("ammo", 0))
-                mag_capacity = int(self.variables.get("mag_capacity", ammo))
-                self.variables["ammo"] = max(0, min(mag_capacity, ammo + delta))
-
-            elif action_type == "set_ammo":
-                value = int(action.argument("value", self.variables.get("ammo", 0)))
-                mag_capacity = int(self.variables.get("mag_capacity", value))
-                self.variables["ammo"] = max(0, min(mag_capacity, value))
-
-            elif action_type == "set_ammo_full":
-                mag_capacity = int(self.variables.get("mag_capacity", 0))
-                self.variables["ammo"] = mag_capacity
-
-            elif action_type == "emit_event":
-                event_id = action.argument("event")
-                if event_id:
-                    emitted.append(str(event_id))
-
-            elif action_type == "schedule_event":
-                event_id = action.argument("event")
-                delay_ms = int(action.argument("delay_ms", 0))
-                if event_id:
-                    scheduled.append(ScheduledEvent(str(event_id), delay_ms))
-
-            elif action_type == "chance_event":
-                chance = float(action.argument("chance", 0.0))
-                event_id = action.argument("event")
-                if event_id and random.random() <= chance:
-                    emitted.append(str(event_id))
-
-            elif action_type == "log":
-                commands.append(RuntimeCommand("log", dict(action.arguments)))
-
-            else:
-                commands.append(RuntimeCommand(action_type, dict(action.arguments)))
-
-        return emitted, scheduled, commands
+        return env.emitted_events, env.scheduled_events, env.gun_commands

@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QLabel,
     QVBoxLayout,
-    QWidget,
+    QWidget, QTextEdit,
 )
 
 from weapon_fsm_core.application.simulate_event import SimulationService
@@ -15,7 +15,7 @@ class SummaryPanel(QWidget):
 
         self.state = QLabel("-")
         self.last_transition = QLabel("-")
-        self.pending_events = QLabel("-")
+        self.pending_events = QTextEdit()
 
         self._variable_labels: dict[str, QLabel] = {}
         self._variables_group = QGroupBox("Runtime Variables")
@@ -49,7 +49,7 @@ class SummaryPanel(QWidget):
         self.last_transition.setText(runtime.last_transition_id or "-")
 
         if runtime.pending_events:
-            pending_text = ", ".join(
+            pending_text = "\n".join(
                 f"{event.event_id}({event.delay_ms} ms)"
                 for event in runtime.pending_events
             )
