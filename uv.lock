@@ -2,14 +2,15 @@ version = 1
 revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
+    "python_full_version >= '3.11'",
+    "python_full_version < '3.11'",
 ]
 
 [manifest]
 members = [
     "weapon-fsm-core",
     "weapon-fsm-editor",
+    "weapon-fsm-hardware",
     "weapon-fsm-workspace",
 ]
 
@@ -946,6 +947,7 @@ dependencies = [
     { name = "pyqt6-webengine" },
     { name = "pyvis" },
     { name = "weapon-fsm-core" },
+    { name = "weapon-fsm-hardware" },
 ]
 
 [package.metadata]
@@ -954,7 +956,19 @@ requires-dist = [
     { name = "pyqt6-webengine", specifier = ">=6.7" },
     { name = "pyvis", specifier = ">=0.3.2" },
     { name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" },
+    { name = "weapon-fsm-hardware", editable = "libs/weapon_fsm_hardware" },
 ]
+
+[[package]]
+name = "weapon-fsm-hardware"
+version = "0.1.0"
+source = { editable = "libs/weapon_fsm_hardware" }
+dependencies = [
+    { name = "weapon-fsm-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" }]
 
 [[package]]
 name = "weapon-fsm-workspace"

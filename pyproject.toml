@@ -27,8 +27,10 @@ dev = [
 members = [
   "libs/weapon_fsm_core",
   "libs/weapon_fsm_editor",
+  "libs/weapon_fsm_hardware",
 ]
 
 [tool.uv.sources]
 weapon-fsm-core = { workspace = true }
 weapon-fsm-editor = { workspace = true }
+weapon-fsm-hardware = { workspace = true }

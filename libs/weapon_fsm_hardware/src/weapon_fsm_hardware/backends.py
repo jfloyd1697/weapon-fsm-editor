@@ -11,9 +11,11 @@ class AudioBackend(Protocol):
         path: str,
         mode: str,
         interrupt: str,
-    ) -> None: ...
+    ) -> None:
+        print(vars())
 
-    def stop_audio(self) -> None: ...
+    def stop_audio(self) -> None:
+        print(vars())
 
 
 class LightBackend(Protocol):
@@ -25,4 +27,5 @@ class LightBackend(Protocol):
         mode: str,
     ) -> None: ...
 
-    def stop_light(self) -> None: ...
+    def stop_light(self) -> None:
+        print(vars())
