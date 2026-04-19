@@ -1,0 +1,54 @@
+initial_state: idle
+variables: {}
+states:
+  - id: idle
+    label: Idle
+    on_entry:
+      - type: play_audio_loop
+        clip: idle_loop
+  - id: rev_start
+    label: Rev Start
+    on_entry:
+      - type: stop_audio
+        channel: primary
+      - type: play_audio
+        clip: rev_start
+      - type: schedule_event
+        event: rev_ready
+        delay_ms: 250
+  - id: rev_hold
+    label: Rev Hold
+    on_entry:
+      - type: play_audio_loop
+        clip: rev_hold_loop
+  - id: rev_stop
+    label: Rev Stop
+    on_entry:
+      - type: stop_audio
+        channel: primary
+      - type: play_audio
+        clip: rev_stop
+      - type: schedule_event
+        event: return_idle
+        delay_ms: 250
+transitions:
+  - id: start_rev
+    source: idle
+    target: rev_start
+    trigger: trigger_pressed
+  - id: hold_rev
+    source: rev_start
+    target: rev_hold
+    trigger: rev_ready
+  - id: stop_rev_hold
+    source: rev_hold
+    target: rev_stop
+    trigger: trigger_released
+  - id: stop_rev_early
+    source: rev_start
+    target: rev_stop
+    trigger: trigger_released
+  - id: back_idle
+    source: rev_stop
+    target: idle
+    trigger: return_idle

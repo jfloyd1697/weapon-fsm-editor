@@ -1,0 +1,118 @@
+initial_state: ready
+variables:
+  ammo: 5
+  mag_capacity: 5
+states:
+  - id: equipping
+    label: Equipping
+    on_entry:
+      - type: play_audio
+        clip: equip
+      - type: schedule_event
+        event: equip_complete
+        delay_ms: 400
+  - id: ready
+    label: Ready
+    on_entry:
+      - type: start_light_sequence
+        sequence: ready
+  - id: firing
+    label: Firing
+    on_entry:
+      - type: play_audio
+        clip: fire
+      - type: start_light_sequence
+        sequence: muzzle_flash
+      - type: adjust_ammo
+        delta: -1
+      - type: chance_event
+        event: jammed
+        probability: 0.05
+      - type: schedule_event
+        event: fire_cycle
+        delay_ms: 80
+  - id: reloading
+    label: Reloading
+    on_entry:
+      - type: play_audio
+        clip: reload
+      - type: start_light_sequence
+        sequence: reload
+      - type: schedule_event
+        event: reload_complete
+        delay_ms: 1200
+  - id: empty
+    label: Empty
+    on_entry:
+      - type: play_audio
+        clip: dry_fire
+      - type: start_light_sequence
+        sequence: empty
+  - id: jammed
+    label: Jammed
+    on_entry:
+      - type: play_audio
+        clip: jam
+transitions:
+  - id: equip_begin
+    source: ready
+    target: equipping
+    trigger: weapon_selected
+  - id: equip_done
+    source: equipping
+    target: ready
+    trigger: equip_complete
+  - id: fire_with_ammo
+    source: ready
+    target: firing
+    trigger: trigger_pressed
+    guard:
+      var_gt:
+        name: ammo
+        value: 0
+  - id: dry_fire_ready
+    source: ready
+    target: empty
+    trigger: trigger_pressed
+    guard:
+      var_eq:
+        name: ammo
+        value: 0
+  - id: fire_done_ready
+    source: firing
+    target: ready
+    trigger: fire_cycle
+    guard:
+      var_gt:
+        name: ammo
+        value: 0
+  - id: fire_done_empty
+    source: firing
+    target: empty
+    trigger: fire_cycle
+    guard:
+      var_eq:
+        name: ammo
+        value: 0
+  - id: jam_from_firing
+    source: firing
+    target: jammed
+    trigger: jammed
+  - id: reload_from_ready
+    source: ready
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_from_empty
+    source: empty
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_from_jammed
+    source: jammed
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_done
+    source: reloading
+    target: ready
+    trigger: reload_complete
+    actions:
+      - type: set_ammo_full

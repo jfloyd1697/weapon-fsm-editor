@@ -1,0 +1,68 @@
+initial_state: alive
+variables:
+  health: 3
+  max_health: 3
+states:
+  - id: alive
+    label: Alive
+  - id: hurt
+    label: Hurt
+    on_entry:
+      - type: play_random_audio
+        clips: [hurt1, hurt2, hurt3]
+      - type: add_var
+        name: health
+        value: -1
+      - type: schedule_event
+        event: hurt_resolved
+        delay_ms: 250
+  - id: dead
+    label: Dead
+    on_entry:
+      - type: play_audio
+        clip: death
+  - id: reloading
+    label: Refilling Health
+    on_entry:
+      - type: play_audio
+        clip: reload
+      - type: schedule_event
+        event: reload_complete
+        delay_ms: 1000
+transitions:
+  - id: take_damage
+    source: alive
+    target: hurt
+    trigger: trigger_pressed
+  - id: hurt_to_alive
+    source: hurt
+    target: alive
+    trigger: hurt_resolved
+    guard:
+      var_gt:
+        name: health
+        value: 0
+  - id: hurt_to_dead
+    source: hurt
+    target: dead
+    trigger: hurt_resolved
+    guard:
+      var_lte:
+        name: health
+        value: 0
+  - id: reload_alive
+    source: alive
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_dead
+    source: dead
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_done
+    source: reloading
+    target: alive
+    trigger: reload_complete
+    actions:
+      - type: set_var
+        name: health
+        value_from_var: max_health

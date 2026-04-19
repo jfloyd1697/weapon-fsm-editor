@@ -1,0 +1,95 @@
+weapon:
+  mag_capacity: 5
+  initial_ammo: 5
+  initial_state: ready
+  states:
+    - id: equipping
+      label: Equipping
+      on_entry:
+        - type: play_sound
+          sound: equip
+        - type: schedule_event
+          event: equip_complete
+          delay_ms: 400
+    - id: ready
+      label: Ready
+      on_entry:
+        - type: set_light_pattern
+          pattern: ready
+    - id: firing
+      label: Firing
+      on_entry:
+        - type: play_sound
+          sound: fire
+        - type: set_light_pattern
+          pattern: muzzle_flash
+        - type: adjust_ammo
+          delta: -1
+        - type: schedule_event
+          event: fire_complete
+          delay_ms: 80
+    - id: reloading
+      label: Reloading
+      on_entry:
+        - type: play_sound
+          sound: reload
+        - type: set_light_pattern
+          pattern: reload
+        - type: schedule_event
+          event: reload_complete
+          delay_ms: 1200
+    - id: empty
+      label: Empty
+      on_entry:
+        - type: play_sound
+          sound: dry_fire
+        - type: set_light_pattern
+          pattern: empty
+
+  transitions:
+    - id: equip_begin
+      source: ready
+      target: equipping
+      trigger: on_equip
+    - id: equip_done
+      source: equipping
+      target: ready
+      trigger: equip_complete
+    - id: fire_with_ammo
+      source: ready
+      target: firing
+      trigger: trigger_pressed
+      guard:
+        ammo_gt: 0
+    - id: dry_fire_ready
+      source: ready
+      target: empty
+      trigger: trigger_pressed
+      guard:
+        ammo_eq: 0
+    - id: fire_done_ready
+      source: firing
+      target: ready
+      trigger: fire_complete
+      guard:
+        ammo_gt: 0
+    - id: fire_done_empty
+      source: firing
+      target: empty
+      trigger: fire_complete
+      guard:
+        ammo_eq: 0
+    - id: reload_from_ready
+      source: ready
+      target: reloading
+      trigger: reload_pressed
+    - id: reload_from_empty
+      source: empty
+      target: reloading
+      trigger: reload_pressed
+    - id: reload_done
+      source: reloading
+      target: ready
+      trigger: reload_complete
+      actions:
+        - type: set_ammo_full

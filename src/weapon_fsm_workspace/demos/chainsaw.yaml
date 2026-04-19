@@ -1,0 +1,76 @@
+weapon:
+  initial_state: idle
+
+  variables:
+    revved: false
+
+  states:
+    - id: idle
+      label: Idle
+      on_entry:
+        - type: play_audio_loop
+          clip: idle_loop
+          interrupt: ignore
+        - type: start_light_sequence
+          sequence: idle
+
+    - id: rev_start
+      label: Rev Start
+      on_entry:
+        - type: stop_audio
+        - type: stop_light_sequence
+        - type: play_audio
+          clip: rev_start
+        - type: start_light_sequence
+          sequence: rev_start
+        - type: schedule_event
+          event: rev_started
+          delay_ms: 250
+
+    - id: rev_hold
+      label: Rev Hold
+      on_entry:
+        - type: play_audio_loop
+          clip: rev_loop
+          interrupt: ignore
+        - type: start_light_sequence
+          sequence: rev_hold
+
+    - id: rev_stop
+      label: Rev Stop
+      on_entry:
+        - type: stop_audio
+        - type: stop_light_sequence
+        - type: play_audio
+          clip: rev_stop
+        - type: start_light_sequence
+          sequence: rev_stop
+        - type: schedule_event
+          event: stop_done
+          delay_ms: 250
+
+  transitions:
+    - id: start_rev
+      source: idle
+      trigger: trigger_pressed
+      target: rev_start
+
+    - id: rev_started
+      source: rev_start
+      trigger: rev_started
+      target: rev_hold
+
+    - id: stop_rev_from_start
+      source: rev_start
+      trigger: trigger_released
+      target: rev_stop
+
+    - id: stop_rev_from_hold
+      source: rev_hold
+      trigger: trigger_released
+      target: rev_stop
+
+    - id: stop_done
+      source: rev_stop
+      trigger: stop_done
+      target: idle

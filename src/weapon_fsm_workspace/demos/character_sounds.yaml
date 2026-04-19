@@ -1,0 +1,85 @@
+weapon:
+  initial_state: alive
+
+  variables:
+    health: 5
+    max_health: 5
+
+  states:
+    - id: alive
+      label: Alive
+
+    - id: hurt
+      label: Hurt
+      on_entry:
+        - type: play_random_audio
+          clips: [hurt_1, hurt_2, hurt_3]
+          interrupt: schedule
+        - type: add_var
+          name: health
+          value: -1
+        - type: schedule_event
+          event: hurt_done
+          delay_ms: 150
+
+    - id: dead
+      label: Dead
+      on_entry:
+        - type: play_audio
+          clip: death
+
+    - id: healing
+      label: Healing
+      on_entry:
+        - type: play_audio
+          clip: reload_health
+        - type: schedule_event
+          event: heal_done
+          delay_ms: 700
+
+  transitions:
+    - id: take_hit
+      source: alive
+      trigger: trigger_pressed
+      guard:
+        var_gt:
+          name: health
+          value: 0
+      target: hurt
+
+    - id: hurt_done_alive
+      source: hurt
+      trigger: hurt_done
+      guard:
+        var_gt:
+          name: health
+          value: 0
+      target: alive
+
+    - id: hurt_done_dead
+      source: hurt
+      trigger: hurt_done
+      guard:
+        var_eq:
+          name: health
+          value: 0
+      target: dead
+
+    - id: heal_from_alive
+      source: alive
+      trigger: reload_pressed
+      target: healing
+
+    - id: heal_from_dead
+      source: dead
+      trigger: reload_pressed
+      target: healing
+
+    - id: heal_done
+      source: healing
+      trigger: heal_done
+      target: alive
+      actions:
+        - type: set_var
+          name: health
+          value_from_var: max_health

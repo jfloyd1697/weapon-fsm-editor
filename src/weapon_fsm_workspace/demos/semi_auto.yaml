@@ -1,0 +1,95 @@
+weapon:
+  initial_state: ready
+
+  variables:
+    ammo: 6
+    mag_capacity: 6
+
+  states:
+    - id: ready
+      label: Ready
+
+    - id: firing
+      label: Firing
+      on_entry:
+        - type: play_audio
+          clip: fire
+        - type: start_light_sequence
+          sequence: muzzle_flash
+        - type: adjust_ammo
+          delta: -1
+        - type: schedule_event
+          event: fire_done
+          delay_ms: 80
+
+    - id: reloading
+      label: Reloading
+      on_entry:
+        - type: play_audio
+          clip: reload
+          interrupt: schedule
+        - type: start_light_sequence
+          sequence: reload
+        - type: schedule_event
+          event: reload_complete
+          delay_ms: 1200
+
+    - id: empty
+      label: Empty
+
+  transitions:
+    - id: fire
+      source: ready
+      trigger: trigger_pressed
+      guard:
+        var_gt:
+          name: ammo
+          value: 0
+      target: firing
+
+    - id: dry_fire_ready
+      source: ready
+      trigger: trigger_pressed
+      guard:
+        var_eq:
+          name: ammo
+          value: 0
+      target: empty
+      actions:
+        - type: play_audio
+          clip: dry_fire
+
+    - id: firing_done_ready
+      source: firing
+      trigger: fire_done
+      guard:
+        var_gt:
+          name: ammo
+          value: 0
+      target: ready
+
+    - id: firing_done_empty
+      source: firing
+      trigger: fire_done
+      guard:
+        var_eq:
+          name: ammo
+          value: 0
+      target: empty
+
+    - id: reload_from_ready
+      source: ready
+      trigger: reload_pressed
+      target: reloading
+
+    - id: reload_from_empty
+      source: empty
+      trigger: reload_pressed
+      target: reloading
+
+    - id: reload_done
+      source: reloading
+      trigger: reload_complete
+      target: ready
+      actions:
+        - type: set_ammo_full

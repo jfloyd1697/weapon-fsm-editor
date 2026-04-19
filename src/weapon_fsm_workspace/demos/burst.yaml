@@ -1,0 +1,58 @@
+initial_state: ready
+variables:
+  burst_remaining: 0
+states:
+  - id: ready
+    label: Ready
+  - id: firing
+    label: Burst Firing
+    on_entry:
+      - type: play_audio
+        clip: fire
+      - type: add_var
+        name: burst_remaining
+        value: -1
+      - type: schedule_event
+        event: burst_cycle
+        delay_ms: 90
+  - id: reloading
+    label: Reloading
+    on_entry:
+      - type: play_audio
+        clip: reload
+      - type: schedule_event
+        event: reload_complete
+        delay_ms: 1200
+transitions:
+  - id: burst_start
+    source: ready
+    target: firing
+    trigger: trigger_pressed
+    actions:
+      - type: set_var
+        name: burst_remaining
+        value: 3
+  - id: burst_continue
+    source: firing
+    target: firing
+    trigger: burst_cycle
+    guard:
+      var_gt:
+        name: burst_remaining
+        value: 0
+  - id: burst_done
+    source: firing
+    target: ready
+    trigger: burst_cycle
+    guard:
+      var_lte:
+        name: burst_remaining
+        value: 0
+  - id: reload_start
+    source: ready
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_done
+    source: reloading
+    target: ready
+    trigger: reload_complete

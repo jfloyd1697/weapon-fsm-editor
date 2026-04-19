@@ -1,0 +1,53 @@
+initial_state: ready
+variables:
+  ammo: 999
+  mag_capacity: 999
+  trigger_down: false
+states:
+  - id: ready
+    label: Ready
+  - id: firing
+    label: Full Auto
+    on_entry:
+      - type: play_audio
+        clip: fire
+      - type: schedule_event
+        event: fire_cycle
+        delay_ms: 70
+  - id: reloading
+    label: Reloading
+    on_entry:
+      - type: play_audio
+        clip: reload
+      - type: schedule_event
+        event: reload_complete
+        delay_ms: 1000
+transitions:
+  - id: fire_start
+    source: ready
+    target: firing
+    trigger: trigger_pressed
+  - id: fire_continue
+    source: firing
+    target: firing
+    trigger: fire_cycle
+    guard:
+      var_eq:
+        name: trigger_down
+        value: true
+  - id: fire_stop
+    source: firing
+    target: ready
+    trigger: fire_cycle
+    guard:
+      var_eq:
+        name: trigger_down
+        value: false
+  - id: reload_start
+    source: ready
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_done
+    source: reloading
+    target: ready
+    trigger: reload_complete

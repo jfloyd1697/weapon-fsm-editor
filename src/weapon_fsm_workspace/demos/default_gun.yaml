@@ -1,0 +1,17 @@
+gun:
+  events:
+    - id: on_equip
+      label: On Equip
+      kind: external
+    - id: trigger_pressed
+      label: Trigger Pressed
+      kind: external
+    - id: trigger_held
+      label: Trigger Held
+      kind: external
+    - id: trigger_released
+      label: Trigger Released
+      kind: external
+    - id: reload_pressed
+      label: Reload Pressed
+      kind: external

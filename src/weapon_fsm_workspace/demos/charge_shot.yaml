@@ -1,0 +1,59 @@
+initial_state: ready
+variables:
+  charge_ready: false
+states:
+  - id: ready
+    label: Ready
+  - id: charging
+    label: Charging
+    on_entry:
+      - type: play_audio_loop
+        clip: charge_loop
+      - type: schedule_event
+        event: charge_complete
+        delay_ms: 800
+  - id: charged
+    label: Charged
+  - id: firing
+    label: Big Shot
+    on_entry:
+      - type: stop_audio
+        channel: primary
+      - type: play_audio
+        clip: charged_fire
+      - type: schedule_event
+        event: fire_cycle
+        delay_ms: 200
+      - type: set_var
+        name: charge_ready
+        value: false
+transitions:
+  - id: charge_start
+    source: ready
+    target: charging
+    trigger: trigger_pressed
+  - id: charge_done
+    source: charging
+    target: charged
+    trigger: charge_complete
+    actions:
+      - type: set_var
+        name: charge_ready
+        value: true
+  - id: charge_release_early
+    source: charging
+    target: ready
+    trigger: trigger_released
+    actions:
+      - type: stop_audio
+        channel: primary
+      - type: play_audio
+        clip: tap_fire
+  - id: charge_release_full
+    source: charged
+    target: firing
+    trigger: trigger_released
+  - id: fire_done
+    source: firing
+    target: ready
+    trigger: fire_cycle
