@@ -13,7 +13,9 @@ dependencies = [
   "PyQt6-WebEngine>=6.7",
   "pyvis>=0.3.2",
   "weapon-fsm-core>=0.1.0",
+  "weapon-fsm-hardware>=0.1.0",
 ]
+
 
 [tool.setuptools]
 package-dir = {"" = "src"}

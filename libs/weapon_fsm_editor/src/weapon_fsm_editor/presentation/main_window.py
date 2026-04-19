@@ -19,7 +19,9 @@ from PyQt6.QtWidgets import (
 from weapon_fsm_core import ProfileRepository, SimulationService
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
+from weapon_fsm_hardware import RuntimeCommandDispatcher
 
+from ..infrastructure.runtime import RuntimeCommandBridge, QtAudioBackend, QtLightBackend
 from .graph.machine_view import MachineWidget
 from .panels.event_panel import EventPanel
 from .panels.gun_control_panel import GunControlPanel
@@ -43,6 +45,11 @@ class MainWindow(QMainWindow):
         self._simulation: SimulationService | None = None
         self._gun: GunConfig | None = None
         self._weapon: WeaponConfig | None = None
+        self._audio_backend = QtAudioBackend(log=self._append_runtime_log)
+        self._light_backend = QtLightBackend(log=self._append_runtime_log)
+        self._command_bridge = RuntimeCommandBridge(
+            RuntimeCommandDispatcher(audio=self._audio_backend, lights=self._light_backend)
+        )
 
         self.gun_editor = QTextEdit()
         self.weapon_editor = WeaponDocumentEditor(self)
@@ -60,6 +67,9 @@ class MainWindow(QMainWindow):
 
         self._build_ui()
         self._load_documents_from_disk(gun_path, weapon_path)
+
+    def _append_runtime_log(self, message: str) -> None:
+        self.log_output.append(message)
 
     def _build_ui(self) -> None:
         toolbar = QToolBar("Main")
@@ -176,6 +186,7 @@ class MainWindow(QMainWindow):
             self.gun_control_panel.reset_trigger()
             self.summary_panel.initialize_for_weapon(self._simulation)
 
+            self._command_bridge.reset()
             self.log_output.clear()
             for issue in issues:
                 self.log_output.append(f"[validation] {issue.path}: {issue.message}")
@@ -191,6 +202,7 @@ class MainWindow(QMainWindow):
         if self._simulation is None:
             return
 
+        self._command_bridge.reset()
         self._simulation.reset()
         self.gun_control_panel.reset_trigger()
         self.log_output.append("[system] weapon equipped")
@@ -244,6 +256,7 @@ class MainWindow(QMainWindow):
                         f"[scheduler] scheduled {scheduled.event_id} in {scheduled.delay_ms} ms"
                     )
 
+                self._command_bridge.dispatch_commands(result.commands)
                 for command in result.commands:
                     self.log_output.append(f"[command] {command.type}: {command.payload}")
             else:
@@ -291,6 +304,7 @@ class MainWindow(QMainWindow):
     def _reset_simulation(self) -> None:
         if self._simulation is None:
             return
+        self._command_bridge.reset()
         self._simulation.reset()
         self.gun_control_panel.reset_trigger()
         self.log_output.append("[system] simulation reset")
