@@ -12,6 +12,18 @@ class EventFile(DataClassYAMLMixin):
 
 
 @dataclass
+class ClipFile(DataClassYAMLMixin):
+    path: str
+    preload: bool = True
+
+
+@dataclass
+class LightSequenceFile(DataClassYAMLMixin):
+    path: str
+    preload: bool = True
+
+
+@dataclass
 class ActionFile(DataClassYAMLMixin):
     type: str
     arguments: dict[str, Any] = field(default_factory=dict)
@@ -25,6 +37,7 @@ class ActionFile(DataClassYAMLMixin):
     delta: int | None = None
     value: int | None = None
     interrupt: str | None = None
+    mode: str | None = None
 
 
 @dataclass
@@ -64,8 +77,14 @@ class GunFile(DataClassYAMLMixin):
 
 @dataclass
 class WeaponFile(DataClassYAMLMixin):
-    mag_capacity: int = 30
-    initial_ammo: int | None = None
     initial_state: str = "ready"
+    variables: dict[str, Any] = field(default_factory=dict)
     states: list[StateFile] = field(default_factory=list)
     transitions: list[TransitionFile] = field(default_factory=list)
+
+
+@dataclass
+class WeaponProfileFile(DataClassYAMLMixin):
+    weapon: WeaponFile = field(default_factory=WeaponFile)
+    clips: dict[str, ClipFile] = field(default_factory=dict)
+    light_sequences: dict[str, LightSequenceFile] = field(default_factory=dict)

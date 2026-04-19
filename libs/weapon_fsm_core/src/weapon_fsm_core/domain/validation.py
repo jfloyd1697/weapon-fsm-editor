@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from .command_schema import ValidationContext
 from .commands import RuntimeCommand
@@ -19,6 +20,7 @@ class ProfileValidator:
         issues.extend(self._validate_weapon(weapon))
         issues.extend(self._validate_triggers(gun, weapon))
         issues.extend(self._validate_guards(weapon, context))
+        issues.extend(self._validate_assets(weapon))
         issues.extend(self._validate_actions(weapon, context))
         return issues
 
@@ -28,7 +30,15 @@ class ProfileValidator:
         variables = set(weapon.variables.keys())
         variables.add("trigger_down")
         states = set(weapon.states.keys())
-        return ValidationContext(states=states, variables=variables, events=events)
+        clips = set(weapon.clips.keys())
+        light_sequences = set(weapon.light_sequences.keys())
+        return ValidationContext(
+            states=states,
+            variables=variables,
+            events=events,
+            clips=clips,
+            light_sequences=light_sequences,
+        )
 
     def _validate_weapon(self, weapon: WeaponConfig) -> list[ValidationIssue]:
         issues: list[ValidationIssue] = []
@@ -74,6 +84,37 @@ class ProfileValidator:
 
         return issues
 
+    def _validate_assets(self, weapon: WeaponConfig) -> list[ValidationIssue]:
+        issues: list[ValidationIssue] = []
+        for name, clip in weapon.clips.items():
+            if not clip.path:
+                issues.append(ValidationIssue(f"clips.{name}.path", "Clip path is required"))
+                continue
+            if weapon.source_path is not None:
+                resolved = Path(weapon.resolve_asset_path(clip.path))
+                if not resolved.exists():
+                    issues.append(
+                        ValidationIssue(
+                            f"clips.{name}.path",
+                            f"Clip '{name}' points to missing file '{clip.path}'",
+                        )
+                    )
+
+        for name, sequence in weapon.light_sequences.items():
+            if not sequence.path:
+                issues.append(ValidationIssue(f"light_sequences.{name}.path", "Light sequence path is required"))
+                continue
+            if weapon.source_path is not None:
+                resolved = Path(weapon.resolve_asset_path(sequence.path))
+                if not resolved.exists():
+                    issues.append(
+                        ValidationIssue(
+                            f"light_sequences.{name}.path",
+                            f"Light sequence '{name}' points to missing file '{sequence.path}'",
+                        )
+                    )
+        return issues
+
     def _validate_guards(
         self,
         weapon: WeaponConfig,
@@ -117,14 +158,10 @@ class ProfileValidator:
                 )
 
         for index, child in enumerate(guard.all):
-            issues.extend(
-                self._validate_guard(child, f"{path}.all.{index}", context)
-            )
+            issues.extend(self._validate_guard(child, f"{path}.all.{index}", context))
 
         for index, child in enumerate(guard.any):
-            issues.extend(
-                self._validate_guard(child, f"{path}.any.{index}", context)
-            )
+            issues.extend(self._validate_guard(child, f"{path}.any.{index}", context))
 
         return issues
 

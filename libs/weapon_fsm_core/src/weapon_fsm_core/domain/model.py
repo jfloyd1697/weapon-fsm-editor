@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -8,6 +9,20 @@ class ActionDef:
 
     def argument(self, name: str, default: object = None) -> object:
         return self.arguments.get(name, default)
+
+
+@dataclass(frozen=True)
+class ClipDef:
+    name: str
+    path: str
+    preload: bool = True
+
+
+@dataclass(frozen=True)
+class LightSequenceDef:
+    name: str
+    path: str
+    preload: bool = True
 
 
 @dataclass(frozen=True)
@@ -106,8 +121,16 @@ class WeaponConfig:
     variables: dict[str, object]
     states: dict[str, StateDef]
     transitions: tuple[TransitionDef, ...]
+    clips: dict[str, ClipDef] = field(default_factory=dict)
+    light_sequences: dict[str, LightSequenceDef] = field(default_factory=dict)
+    source_path: Path | None = None
 
     def transitions_from(self, state_id: str) -> tuple[TransitionDef, ...]:
         return tuple(
             transition for transition in self.transitions if transition.source == state_id
         )
+
+    def resolve_asset_path(self, relative_path: str) -> str:
+        if self.source_path is None:
+            return relative_path
+        return str((self.source_path.parent / relative_path).resolve())

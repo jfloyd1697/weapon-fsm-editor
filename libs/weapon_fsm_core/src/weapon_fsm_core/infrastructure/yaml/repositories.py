@@ -1,11 +1,28 @@
+from pathlib import Path
 from typing import Any
 
 import yaml
 
-from weapon_fsm_core.domain.model import ActionDef, GunConfig, GuardDef, StateDef, TransitionDef, WeaponConfig
+from weapon_fsm_core.domain.model import (
+    ActionDef,
+    ClipDef,
+    GunConfig,
+    GuardDef,
+    LightSequenceDef,
+    StateDef,
+    TransitionDef,
+    WeaponConfig,
+)
 
 
 class ProfileRepository:
+    def load_gun(self, path: str | Path) -> GunConfig:
+        return self.load_gun_text(Path(path).read_text(encoding="utf-8"))
+
+    def load_weapon(self, path: str | Path) -> WeaponConfig:
+        source_path = Path(path)
+        return self.load_weapon_text(source_path.read_text(encoding="utf-8"), source_path=source_path)
+
     def load_gun_text(self, text: str) -> GunConfig:
         raw = yaml.safe_load(text) or {}
         gun_raw = raw.get("gun", raw)
@@ -21,19 +38,53 @@ class ProfileRepository:
 
         return GunConfig(events=tuple(event_ids))
 
-    def load_weapon_text(self, text: str) -> WeaponConfig:
+    def load_weapon_text(
+        self,
+        text: str,
+        source_path: str | Path | None = None,
+    ) -> WeaponConfig:
         raw = yaml.safe_load(text) or {}
         weapon_raw = raw.get("weapon", raw)
         states = self._parse_states(weapon_raw.get("states", []))
         transitions = self._parse_transitions(weapon_raw.get("transitions", []))
         variables = dict(weapon_raw.get("variables", {}))
+        clips = self._parse_clips(raw.get("clips", {}))
+        light_sequences = self._parse_light_sequences(raw.get("light_sequences", {}))
 
+        initial_state = weapon_raw.get("initial_state", "ready")
         return WeaponConfig(
-            initial_state=str(weapon_raw["initial_state"]),
+            initial_state=str(initial_state),
             variables=variables,
             states=states,
             transitions=tuple(transitions),
+            clips=clips,
+            light_sequences=light_sequences,
+            source_path=Path(source_path) if source_path is not None else None,
         )
+
+    def _parse_clips(self, raw_clips: dict[str, Any]) -> dict[str, ClipDef]:
+        clips: dict[str, ClipDef] = {}
+        for name, raw_clip in raw_clips.items():
+            if isinstance(raw_clip, str):
+                path = raw_clip
+                preload = True
+            else:
+                path = str(raw_clip.get("path", ""))
+                preload = bool(raw_clip.get("preload", True))
+            clips[str(name)] = ClipDef(name=str(name), path=path, preload=preload)
+        return clips
+
+    def _parse_light_sequences(self, raw_sequences: dict[str, Any]) -> dict[str, LightSequenceDef]:
+        sequences: dict[str, LightSequenceDef] = {}
+        for name, raw_sequence in raw_sequences.items():
+            if isinstance(raw_sequence, str):
+                path = raw_sequence
+                preload = True
+            else:
+                path = str(raw_sequence.get("path", ""))
+                preload = bool(raw_sequence.get("preload", True))
+            sequences[str(name)] = LightSequenceDef(name=str(name), path=path, preload=preload)
+        return sequences
 
     def _parse_states(self, raw_states: list[dict[str, Any]]) -> dict[str, StateDef]:
         states: dict[str, StateDef] = {}
@@ -74,11 +125,7 @@ class ProfileRepository:
 
         for raw_action in raw_actions:
             action_type = str(raw_action["type"])
-            arguments = {
-                key: value
-                for key, value in raw_action.items()
-                if key != "type"
-            }
+            arguments = {key: value for key, value in raw_action.items() if key != "type"}
             actions.append(ActionDef(type=action_type, arguments=arguments))
 
         return tuple(actions)
@@ -88,12 +135,10 @@ class ProfileRepository:
             return None
 
         all_items = tuple(
-            item for item in (self._parse_guard(entry) for entry in raw.get("all", []))
-            if item is not None
+            item for item in (self._parse_guard(entry) for entry in raw.get("all", [])) if item is not None
         )
         any_items = tuple(
-            item for item in (self._parse_guard(entry) for entry in raw.get("any", []))
-            if item is not None
+            item for item in (self._parse_guard(entry) for entry in raw.get("any", [])) if item is not None
         )
 
         return GuardDef(

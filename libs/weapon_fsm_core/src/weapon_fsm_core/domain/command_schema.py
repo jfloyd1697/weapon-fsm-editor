@@ -9,6 +9,8 @@ class ValidationContext:
     states: set[str]
     variables: set[str]
     events: set[str]
+    clips: set[str]
+    light_sequences: set[str]
 
 
 @dataclass(frozen=True)
@@ -47,8 +49,7 @@ class CommandFieldSpec:
                     f"Unknown validation reference target '{self.reference_target}'"
                 )
             elif value not in pool:
-                issues.append(
-                    f"Unknown {self.reference_target[:-1] if self.reference_target.endswith('s') else self.reference_target} '{value}'"
-                )
+                target_name = self.reference_target[:-1] if self.reference_target.endswith("s") else self.reference_target
+                issues.append(f"Unknown {target_name} '{value}'")
 
         return issues

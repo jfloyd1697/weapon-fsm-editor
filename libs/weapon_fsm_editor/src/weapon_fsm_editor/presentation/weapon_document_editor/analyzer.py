@@ -129,27 +129,74 @@ class WeaponDocumentAnalyzer:
         lines = text.splitlines()
         spans: list[BlockSpan] = []
 
+        root_sections: dict[str, int] = {}
         weapon_start = None
-        states_start = None
-        transitions_start = None
+        state_section_start = None
+        transition_section_start = None
 
         for index, line in enumerate(lines):
             stripped = line.strip()
+            indent = len(line) - len(line.lstrip(" "))
+            if indent == 0 and stripped.endswith(":"):
+                root_sections[stripped[:-1]] = index
             if stripped == "weapon:":
                 weapon_start = index
-            elif stripped == "states:":
-                states_start = index
-            elif stripped == "transitions:":
-                transitions_start = index
+            elif stripped == "states:" and indent == 2:
+                state_section_start = index
+            elif stripped == "transitions:" and indent == 2:
+                transition_section_start = index
 
         if weapon_start is not None:
             spans.append(BlockSpan("weapon", weapon_start, max(weapon_start, len(lines) - 1)))
 
-        spans.extend(self._scan_named_blocks(lines, states_start, "weapon.states"))
-        spans.extend(self._scan_named_blocks(lines, transitions_start, "weapon.transitions"))
+        for section_name in ("clips", "light_sequences"):
+            section_start = root_sections.get(section_name)
+            if section_start is None:
+                continue
+            spans.append(BlockSpan(section_name, section_start, max(section_start, len(lines) - 1)))
+            spans.extend(self._scan_mapping_blocks(lines, section_start, section_name))
+
+        spans.extend(self._scan_named_list_blocks(lines, state_section_start, "weapon.states"))
+        spans.extend(self._scan_named_list_blocks(lines, transition_section_start, "weapon.transitions"))
         return spans
 
-    def _scan_named_blocks(
+    def _scan_mapping_blocks(
+        self,
+        lines: list[str],
+        section_start: int,
+        prefix: str,
+    ) -> list[BlockSpan]:
+        spans: list[BlockSpan] = []
+        current_name: str | None = None
+        current_start: int | None = None
+        section_indent = len(lines[section_start]) - len(lines[section_start].lstrip(" "))
+
+        def flush(end_line: int) -> None:
+            nonlocal current_name, current_start
+            if current_name is None or current_start is None:
+                return
+            spans.append(BlockSpan(f"{prefix}.{current_name}", current_start, end_line))
+            current_name = None
+            current_start = None
+
+        for index in range(section_start + 1, len(lines)):
+            line = lines[index]
+            stripped = line.strip()
+            indent = len(line) - len(line.lstrip(" "))
+            if not stripped:
+                continue
+            if indent <= section_indent:
+                flush(index - 1)
+                break
+            if indent == section_indent + 2 and stripped.endswith(":"):
+                flush(index - 1)
+                current_name = stripped[:-1]
+                current_start = index
+
+        flush(len(lines) - 1)
+        return spans
+
+    def _scan_named_list_blocks(
         self,
         lines: list[str],
         section_start: int | None,
@@ -161,6 +208,7 @@ class WeaponDocumentAnalyzer:
         spans: list[BlockSpan] = []
         current_id: str | None = None
         current_start: int | None = None
+        section_indent = len(lines[section_start]) - len(lines[section_start].lstrip(" "))
 
         def flush(end_line: int) -> None:
             nonlocal current_id, current_start
@@ -175,11 +223,11 @@ class WeaponDocumentAnalyzer:
             stripped = line.strip()
             indent = len(line) - len(line.lstrip(" "))
 
-            if indent == 0 and stripped:
+            if indent <= section_indent and stripped:
                 flush(index - 1)
                 break
 
-            if stripped.startswith("- id:"):
+            if stripped.startswith("- id:") and indent == section_indent + 2:
                 flush(index - 1)
                 current_id = stripped.split(":", 1)[1].strip()
                 current_start = index

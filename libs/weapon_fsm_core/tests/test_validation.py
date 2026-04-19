@@ -1,59 +1,52 @@
-from weapon_fsm_core.domain.model import ActionDef, EventDef, GuardDef, GunConfig, StateDef, TransitionDef, WeaponConfig
+from pathlib import Path
+
+from weapon_fsm_core.domain.model import GunConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
+from weapon_fsm_core.infrastructure.yaml.repositories import ProfileRepository
 
 
-def test_validator_reports_unknown_trigger() -> None:
-    gun = GunConfig(events={"trigger_pressed": EventDef(id="trigger_pressed")})
-    weapon = WeaponConfig(
-        mag_capacity=5,
-        initial_ammo=5,
-        initial_state="ready",
-        states={"ready": StateDef(id="ready", label="Ready")},
-        transitions=(
-            TransitionDef(
-                id="bad",
-                source="ready",
-                target="ready",
-                trigger="not_real",
-            ),
-        ),
+def test_validator_reports_unknown_clip_reference() -> None:
+    gun = GunConfig(events=("trigger_pressed",))
+    weapon = ProfileRepository().load_weapon_text(
+        """
+weapon:
+  initial_state: ready
+  states:
+    - id: ready
+      label: Ready
+      on_entry:
+        - type: play_audio
+          clip: missing_clip
+  transitions: []
+clips: {}
+light_sequences: {}
+"""
     )
 
     issues = ProfileValidator().validate(gun, weapon)
+    assert any("Unknown clip 'missing_clip'" in issue.message for issue in issues)
 
-    assert any("Unknown trigger 'not_real'" in issue.message for issue in issues)
 
-
-def test_validator_accepts_scheduled_event_from_action() -> None:
-    gun = GunConfig(events={"trigger_pressed": EventDef(id="trigger_pressed")})
-    weapon = WeaponConfig(
-        mag_capacity=5,
-        initial_ammo=5,
-        initial_state="ready",
-        states={
-            "ready": StateDef(id="ready", label="Ready"),
-            "firing": StateDef(
-                id="firing",
-                label="Firing",
-                on_entry=(ActionDef(type="schedule_event", arguments={"event": "fire_complete", "delay_ms": 80}),),
-            ),
-        },
-        transitions=(
-            TransitionDef(
-                id="fire",
-                source="ready",
-                target="firing",
-                trigger="trigger_pressed",
-            ),
-            TransitionDef(
-                id="done",
-                source="firing",
-                target="ready",
-                trigger="fire_complete",
-                guard=GuardDef(ammo_gte=0),
-            ),
-        ),
+def test_validator_reports_missing_asset_file(tmp_path: Path) -> None:
+    gun = GunConfig(events=("trigger_pressed",))
+    weapon_path = tmp_path / "weapon.yaml"
+    weapon_path.write_text(
+        """
+weapon:
+  initial_state: ready
+  states:
+    - id: ready
+      label: Ready
+  transitions: []
+clips:
+  ready_hum:
+    path: assets/audio/ready_hum.wav
+light_sequences: {}
+""",
+        encoding="utf-8",
     )
 
+    weapon = ProfileRepository().load_weapon(weapon_path)
     issues = ProfileValidator().validate(gun, weapon)
-    assert not issues
+
+    assert any("points to missing file" in issue.message for issue in issues)

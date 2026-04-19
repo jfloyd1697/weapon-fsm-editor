@@ -1,0 +1,28 @@
+from __future__ import annotations
+
+from typing import Protocol
+
+
+class AudioBackend(Protocol):
+    def play_audio(
+        self,
+        *,
+        clip: str,
+        path: str,
+        mode: str,
+        interrupt: str,
+    ) -> None: ...
+
+    def stop_audio(self) -> None: ...
+
+
+class LightBackend(Protocol):
+    def play_light(
+        self,
+        *,
+        sequence: str,
+        path: str,
+        mode: str,
+    ) -> None: ...
+
+    def stop_light(self) -> None: ...
