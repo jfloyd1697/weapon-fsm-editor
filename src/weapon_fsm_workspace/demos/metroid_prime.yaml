@@ -37,8 +37,6 @@ weapon:
           event: precharge_done
         - type: cancel_scheduled_events
           event: charge_tick
-        - type: stop_audio
-          channel: charge
         - type: stop_light_sequence
 
     - id: precharging
@@ -48,17 +46,25 @@ weapon:
           event: precharge_done
           delay_ms: 120
 
-    - id: charging
-      label: Charging
+    - id: charge_start
+      label: Charge Start
       on_entry:
         - type: play_sound
           clip: charge_start
           channel: oneshot
           interrupt: restart
+        - type: start_light_sequence
+          sequence: charge_glow
+        - type: schedule_event
+          event: charge_tick
+          delay_ms: 10
+
+    - id: charge_loop
+      label: Charge Loop
+      on_entry:
         - type: play_sound
-          clip: charge_loop
-          mode: loop
-          channel: charge
+          clip: charge_start
+          channel: oneshot
           interrupt: restart
         - type: start_light_sequence
           sequence: charge_glow
@@ -94,7 +100,7 @@ weapon:
           value: 0
         - type: schedule_event
           event: shot_done
-          delay_ms: 100
+          delay_ms: 10
 
     - id: charged_shot
       label: Charged Shot
@@ -139,7 +145,7 @@ weapon:
           sequence: reload
         - type: schedule_event
           event: reload_complete
-          delay_ms: 1200
+          delay_ms: 120
 
     - id: empty
       label: Empty
@@ -159,15 +165,25 @@ weapon:
       trigger: trigger_released
       target: normal_shot
 
-    - id: precharge_to_charging
+    - id: precharge_to_charge_start
       source: precharging
       trigger: precharge_done
       guard:
         trigger_pressed: true
-      target: charging
+      target: charge_start
+
+    - id: charge_start_to_loop
+      source: charge_start
+      trigger: charge_tick
+      target: charge_loop
+      guard:
+        trigger_pressed: true
+      actions:
+        - type: cancel_scheduled_events
+          event: charge_tick
 
     - id: charge_done
-      source: charging
+      source: charge_loop
       trigger: charge_tick
       guard:
         all:
@@ -181,7 +197,7 @@ weapon:
           event: charge_tick
 
     - id: charge_tick_continue
-      source: charging
+      source: charge_loop
       trigger: charge_tick
       guard:
         all:
@@ -189,7 +205,7 @@ weapon:
           - var_lt:
               name: charge_ticks
               value_from_var: charge_threshold
-      target: charging
+      target: charge_loop
       actions:
         - type: add_var
           name: charge_ticks
@@ -199,7 +215,7 @@ weapon:
           delay_ms: 10
 
     - id: release_early
-      source: charging
+      source: charge_loop
       trigger: trigger_released
       guard:
         var_lt:
@@ -243,7 +259,7 @@ weapon:
       target: reloading
 
     - id: reload_from_charging
-      source: charging
+      source: charge_loop
       trigger: reload_pressed
       target: reloading
 

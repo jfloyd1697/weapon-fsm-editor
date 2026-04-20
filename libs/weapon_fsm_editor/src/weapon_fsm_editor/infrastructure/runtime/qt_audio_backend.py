@@ -6,10 +6,7 @@ from typing import Callable
 
 from PyQt6.QtCore import QObject, QUrl
 
-try:
-    from PyQt6.QtMultimedia import QSoundEffect
-except ImportError:  # pragma: no cover - depends on local Qt install
-    QSoundEffect = None  # type: ignore[assignment]
+from PyQt6.QtMultimedia import QSoundEffect
 
 
 @dataclass(frozen=True)

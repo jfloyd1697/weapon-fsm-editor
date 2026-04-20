@@ -3,11 +3,11 @@ weapon:
 
   clips:
     shot:
-      path: assets/audio/rapid_fire/shot.wav
+      path: assets/audio/prime-arm-cannon/prime-basic.wav
 
-  light_sequences:
-    muzzle_flash:
-      path: assets/lights/muzzle_flash.yaml
+#  light_sequences:
+#    muzzle_flash:
+#      path: assets/lights/muzzle_flash.yaml
 
   states:
     - id: ready
@@ -35,8 +35,8 @@ weapon:
       actions:
         - type: play_sound
           clip: shot
-        - type: start_light_sequence
-          sequence: muzzle_flash
+#        - type: start_light_sequence
+#          sequence: muzzle_flash
         - type: schedule_event
           event: fire_tick
           delay_ms: 60
