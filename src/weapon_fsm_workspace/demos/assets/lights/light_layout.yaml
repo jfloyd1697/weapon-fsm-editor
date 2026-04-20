@@ -1,0 +1,25 @@
+width: 640
+height: 220
+leds:
+  - id: muzzle_left
+    x: 70
+    y: 110
+    radius: 12
+    label: M1
+  - id: muzzle_right
+    x: 120
+    y: 110
+    radius: 12
+    label: M2
+  - id: chamber
+    x: 240
+    y: 110
+    radius: 10
+  - id: body_mid
+    x: 380
+    y: 110
+    radius: 10
+  - id: stock
+    x: 540
+    y: 110
+    radius: 10
