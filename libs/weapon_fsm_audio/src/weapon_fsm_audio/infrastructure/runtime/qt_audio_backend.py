@@ -1,12 +1,17 @@
-from __future__ import annotations
-
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
 from PyQt6.QtCore import QObject, QUrl
 
-from PyQt6.QtMultimedia import QSoundEffect
+from weapon_fsm_hardware import AudioBackend, LightBackend
+
+try:
+    from PyQt6.QtMultimedia import QSoundEffect
+except ImportError:  # pragma: no cover - depends on local Qt install
+    QSoundEffect = None  # type: ignore[assignment]
+    warnings.warn("QtMultimedia is unavailable; cannot play audio")
 
 
 @dataclass(frozen=True)
@@ -17,7 +22,12 @@ class _PlayRequest:
     interrupt: str
 
 
-class QtAudioBackend(QObject):
+class QAudioBackendMeta(type(QObject), type(AudioBackend)):
+    pass
+
+
+
+class QtAudioBackend(QObject, AudioBackend, metaclass=QAudioBackendMeta):
     def __init__(self, log: Callable[[str], None] | None = None) -> None:
         super().__init__()
         self._log = log or (lambda message: None)
@@ -81,29 +91,34 @@ class QtAudioBackend(QObject):
         self._queued_by_clip.clear()
         self._log("[audio] stop all")
 
+    def stop_clip(self, clip: str) -> None:
+        self._stop_clip(clip)
+        self._queued_by_clip.pop(clip, None)
+        self._log(f"[audio] stop clip={clip}")
+
     def _stop_clip(self, clip: str) -> None:
         for effect in self._active_by_clip.get(clip, []):
             effect.stop()
-            effect.deleteLater()
         self._active_by_clip[clip] = []
 
-    def _on_playing_changed(self, clip: str, effect: QSoundEffect) -> None:
+    def _on_playing_changed(self, clip: str, effect) -> None:  # noqa: ANN001
+        active = self._active_by_clip.get(clip, [])
+        self._active_by_clip[clip] = [item for item in active if item is not effect and item.isPlaying()]
         if effect.isPlaying():
+            self._active_by_clip.setdefault(clip, []).append(effect)
             return
 
-        active = [item for item in self._active_by_clip.get(clip, []) if item is not effect and item.isPlaying()]
-        self._active_by_clip[clip] = active
-        effect.deleteLater()
-
-        pending = self._queued_by_clip.pop(clip, None)
-        if pending is not None and not active:
+        queued = self._queued_by_clip.pop(clip, None)
+        if queued is not None:
             self.play_audio(
-                clip=pending.clip,
-                path=pending.path,
-                mode=pending.mode,
+                clip=queued.clip,
+                path=queued.path,
+                mode=queued.mode,
                 interrupt="interrupt",
             )
 
-    def _on_status_changed(self, clip: str, effect: QSoundEffect) -> None:
+    def _on_status_changed(self, clip: str, effect) -> None:  # noqa: ANN001
+        if QSoundEffect is None:
+            return
         if effect.status() == QSoundEffect.Status.Error:
-            self._log(f"[audio] failed to load clip '{clip}'")
+            self._log(f"[audio] Qt reported an error while playing '{clip}'")

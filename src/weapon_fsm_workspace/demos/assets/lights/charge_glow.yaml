@@ -1,2 +1,40 @@
-sequence:
-  name: charge_glow
+layout:
+  path: ring_layout.json
+
+frames:
+  - duration_ms: 140
+    leds:
+      "0": {color: "#ffb347", intensity: 0.45}
+  - duration_ms: 140
+    leds:
+      "0": {color: "#ffc766", intensity: 0.75}
+      "1": {color: "#ff9f2e", intensity: 0.40}
+      "3": {color: "#ff9f2e", intensity: 0.40}
+      "5": {color: "#ff9f2e", intensity: 0.40}
+      "7": {color: "#ff9f2e", intensity: 0.40}
+  - duration_ms: 140
+    leds:
+      "0": {color: "#ffe08a", intensity: 1.0}
+      "1": {color: "#ffbf4d", intensity: 0.80}
+      "2": {color: "#ff9f2e", intensity: 0.55}
+      "3": {color: "#ffbf4d", intensity: 0.80}
+      "4": {color: "#ff9f2e", intensity: 0.55}
+      "5": {color: "#ffbf4d", intensity: 0.80}
+      "6": {color: "#ff9f2e", intensity: 0.55}
+      "7": {color: "#ffbf4d", intensity: 0.80}
+      "8": {color: "#ff9f2e", intensity: 0.55}
+  - duration_ms: 180
+    leds:
+      "0": {color: "#fff0b3", intensity: 1.0}
+      "1": {color: "#ffd166", intensity: 0.95}
+      "2": {color: "#ffbf4d", intensity: 0.80}
+      "3": {color: "#ffd166", intensity: 0.95}
+      "4": {color: "#ffbf4d", intensity: 0.80}
+      "5": {color: "#ffd166", intensity: 0.95}
+      "6": {color: "#ffbf4d", intensity: 0.80}
+      "7": {color: "#ffd166", intensity: 0.95}
+      "8": {color: "#ffbf4d", intensity: 0.80}
+      "9": {color: "#ff9f2e", intensity: 0.45}
+      "12": {color: "#ff9f2e", intensity: 0.45}
+      "15": {color: "#ff9f2e", intensity: 0.45}
+      "18": {color: "#ff9f2e", intensity: 0.45}

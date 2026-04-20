@@ -1,0 +1,16 @@
+layout:
+  path: ring_layout.json
+frame_duration_ms: 80
+frames:
+  - leds:
+      "0": "#ffffff"
+      "1": "#ff3300"
+      "2": "#ff6600"
+      "3": "#ffaa00"
+      "4": "#ffff00"
+  - leds:
+      "5": "#00ffaa"
+      "6": "#00aaff"
+      "7": "#3366ff"
+      "8": "#6633ff"
+      "9": "#cc33ff"

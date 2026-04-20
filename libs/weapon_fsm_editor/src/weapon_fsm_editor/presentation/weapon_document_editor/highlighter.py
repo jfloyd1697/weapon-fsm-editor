@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from PyQt6.QtCore import QRegularExpression
 from PyQt6.QtGui import QColor, QFont, QTextCharFormat, QSyntaxHighlighter
 

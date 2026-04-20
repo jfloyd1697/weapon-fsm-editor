@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
+import typing
 
+from weapon_fsm_lights import validate_light_sequence
 from .command_schema import ValidationContext
 from .commands import RuntimeCommand
 from .model import ActionDef, GuardDef, GunConfig, WeaponConfig
@@ -134,6 +136,14 @@ class ProfileValidator:
                         ValidationIssue(
                             f"light_sequences.{name}.path",
                             f"Light sequence '{name}' points to missing file '{sequence.path}'",
+                        )
+                    )
+                    continue
+                for error in validate_light_sequence(resolved):
+                    issues.append(
+                        ValidationIssue(
+                            f"light_sequences.{name}.path",
+                            f"Invalid light sequence '{name}': {error}",
                         )
                     )
         return issues

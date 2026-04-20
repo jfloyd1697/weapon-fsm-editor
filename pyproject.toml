@@ -28,9 +28,13 @@ members = [
   "libs/weapon_fsm_core",
   "libs/weapon_fsm_editor",
   "libs/weapon_fsm_hardware",
+  "libs/weapon_fsm_audio",
+  "libs/weapon_fsm_lights",
 ]
 
 [tool.uv.sources]
 weapon-fsm-core = { workspace = true }
 weapon-fsm-editor = { workspace = true }
 weapon-fsm-hardware = { workspace = true }
+weapon-fsm-audio = { workspace = true }
+weapon-fsm-lights = { workspace = true }

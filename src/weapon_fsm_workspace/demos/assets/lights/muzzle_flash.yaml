@@ -1,2 +1,20 @@
-sequence:
-  name: muzzle_flash
+layout:
+  path: light_layout.yaml
+frame_duration_ms: 60
+frames:
+  - leds:
+      muzzle_left: "#ffcc55"
+      muzzle_right: "#ff9933"
+      chamber:
+        color: "#cc5500"
+        intensity: 0.6
+  - leds:
+      muzzle_left:
+        color: "#ff8855"
+        intensity: 0.5
+      muzzle_right:
+        color: "#ff7744"
+        intensity: 0.4
+      chamber:
+        color: "#883300"
+        intensity: 0.25

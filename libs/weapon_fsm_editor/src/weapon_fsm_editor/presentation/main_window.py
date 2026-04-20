@@ -21,7 +21,10 @@ from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
 from weapon_fsm_hardware import RuntimeCommandDispatcher
 
-from ..infrastructure.runtime import RuntimeCommandBridge, QtAudioBackend, QtLightBackend
+from ..infrastructure.runtime import RuntimeCommandBridge
+from weapon_fsm_audio.infrastructure.runtime import QtAudioBackend
+from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
+from weapon_fsm_lights.presentation import LedPreviewPanel
 from .graph.machine_view import MachineWidget
 from .panels.event_panel import EventPanel
 from .panels.gun_control_panel import GunControlPanel
@@ -46,7 +49,11 @@ class MainWindow(QMainWindow):
         self._gun: GunConfig | None = None
         self._weapon: WeaponConfig | None = None
         self._audio_backend = QtAudioBackend(log=self._append_runtime_log)
-        self._light_backend = QtLightBackend(log=self._append_runtime_log)
+        self.led_preview_panel = LedPreviewPanel(self)
+        self._light_backend = QtLightBackend(
+            log=self._append_runtime_log,
+            preview_panel=self.led_preview_panel,
+        )
         self._command_bridge = RuntimeCommandBridge(
             RuntimeCommandDispatcher(audio=self._audio_backend, lights=self._light_backend)
         )
@@ -64,6 +71,9 @@ class MainWindow(QMainWindow):
         self._clock_timer.setInterval(50)
         self._clock_timer.timeout.connect(self._advance_time)
         self._clock_timer.start()
+
+        example_layout = Path(__file__).resolve().parents[3] / "examples" / "ring_layout.json"
+        self.led_preview_panel.set_example_layout_path(example_layout)
 
         self._build_ui()
         self._load_documents_from_disk(gun_path, weapon_path)
@@ -84,7 +94,9 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(open_weapon_btn)
 
         reload_btn = QPushButton("Reload")
-        reload_btn.clicked.connect(lambda: self._load_documents_from_disk(self._gun_path, self._weapon_path))
+        reload_btn.clicked.connect(
+            lambda: self._load_documents_from_disk(self._gun_path, self._weapon_path)
+        )
         toolbar.addWidget(reload_btn)
 
         apply_btn = QPushButton("Apply Text")
@@ -118,6 +130,7 @@ class MainWindow(QMainWindow):
         right.addWidget(self.gun_control_panel)
         right.addWidget(self.event_panel)
         right.addWidget(self.summary_panel)
+        right.addWidget(self.led_preview_panel)
         right.addWidget(self.log_output)
 
         root.addWidget(left)
@@ -180,14 +193,6 @@ class MainWindow(QMainWindow):
             )
             issues = self._validator.validate(gun, weapon)
 
-            asset_errors = [
-                issue for issue in issues
-                if issue.path.startswith(("clips.", "light_sequences."))
-            ]
-            if asset_errors:
-                summary = "\n".join(f"{issue.path}: {issue.message}" for issue in asset_errors)
-                raise FileNotFoundError(summary)
-
             self._gun = gun
             self._weapon = weapon
             self._simulation = SimulationService(gun, weapon)
@@ -207,7 +212,6 @@ class MainWindow(QMainWindow):
         except Exception as exc:  # noqa: BLE001
             traceback.print_exc()
             QMessageBox.critical(self, "Apply failed", repr(exc))
-
 
     def _on_equip(self) -> None:
         if self._simulation is None:
@@ -242,27 +246,15 @@ class MainWindow(QMainWindow):
             return
 
         records = self._simulation.dispatch_external_event(event_id)
-        self._handle_records(records, source_prefix=None)
-
-    def _handle_records(self, records, source_prefix: str | None) -> None:
-        if not records:
-            return
-
         for record in records:
             result = record.result
 
             if result.accepted:
                 transition_id = result.transition.id if result.transition else "?"
-                prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
-                if source_prefix is not None:
-                    self.log_output.append(
-                        f"{prefix}{result.event_id}: {result.previous_state} -> {result.current_state} via {transition_id}"
-                    )
-                else:
-                    self.log_output.append(
-                        f"{prefix}event={result.event_id} "
-                        f"{result.previous_state} -> {result.current_state} via {transition_id}"
-                    )
+                self.log_output.append(
+                    f"[{record.machine_id}] event={result.event_id} "
+                    f"{result.previous_state} -> {result.current_state} via {transition_id}"
+                )
 
                 self.log_output.append(
                     f"[vars] before: {_format_runtime_variables(result.variables_before)}"
@@ -283,16 +275,10 @@ class MainWindow(QMainWindow):
                 for command in result.commands:
                     self.log_output.append(f"[command] {command.type}: {command.payload}")
             else:
-                prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
-                if source_prefix is not None:
-                    self.log_output.append(
-                        f"{prefix}{result.event_id} ignored in {result.current_state}: {result.reason}"
-                    )
-                else:
-                    self.log_output.append(
-                        f"{prefix}event={result.event_id} ignored in "
-                        f"{result.current_state}: {result.reason}"
-                    )
+                self.log_output.append(
+                    f"[{record.machine_id}] event={result.event_id} ignored in "
+                    f"{result.current_state}: {result.reason}"
+                )
 
             self.log_output.append("")
 
@@ -303,7 +289,27 @@ class MainWindow(QMainWindow):
             return
 
         records = self._simulation.advance_time(50)
-        self._handle_records(records, source_prefix="timer")
+        if not records:
+            return
+
+        for record in records:
+            result = record.result
+            if result.accepted:
+                transition_id = result.transition.id if result.transition else "?"
+                self.log_output.append(
+                    f"[timer] {result.event_id}: {result.previous_state} -> "
+                    f"{result.current_state} via {transition_id}"
+                )
+                if result.commands:
+                    print(f"sending commands to bridge: {result.commands}")
+                    self._command_bridge.dispatch_commands(result.commands)
+                    for command in result.commands:
+                        self.log_output.append(f"[command] {command.type}: {command.payload}")
+            else:
+                self.log_output.append(
+                    f"[timer] {result.event_id} ignored in {result.current_state}: {result.reason}"
+                )
+        self._refresh_views()
 
     def _refresh_views(self) -> None:
         if self._simulation is None or self._weapon is None:
