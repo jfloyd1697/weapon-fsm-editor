@@ -15,6 +15,7 @@ class WeaponRuntime:
     trigger_pressed: bool = field(init=False)
     last_transition_id: str | None = field(default=None, init=False)
     pending_events: list[ScheduledEvent] = field(default_factory=list, init=False)
+    clip_set_state: dict[str, dict[str, int | str | tuple[int, ...]]] = field(default_factory=dict, init=False)
 
     def __post_init__(self) -> None:
         self.reset()
@@ -26,6 +27,7 @@ class WeaponRuntime:
         self.variables["trigger_down"] = False
         self.last_transition_id = None
         self.pending_events = []
+        self.clip_set_state = {}
         self._run_actions(self.weapon.states[self.current_state].on_entry)
 
     def valid_transitions(self) -> tuple[TransitionDef, ...]:
@@ -157,6 +159,7 @@ class WeaponRuntime:
         env = RuntimeEnvironment(
             weapon=self.weapon,
             variables=self.variables,
+            clip_set_state=self.clip_set_state,
         )
 
         for action in actions:

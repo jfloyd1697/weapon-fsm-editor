@@ -1,9 +1,13 @@
 weapon:
   initial_state: ready
 
-  variables:
-    ammo: 20
-    mag_capacity: 20
+  clips:
+    shot:
+      path: assets/audio/rapid_fire/shot.wav
+
+  light_sequences:
+    muzzle_flash:
+      path: assets/lights/muzzle_flash.yaml
 
   states:
     - id: ready
@@ -12,104 +16,35 @@ weapon:
     - id: firing
       label: Firing
       on_entry:
-        - type: play_audio
-          clip: fire
-        - type: start_light_sequence
-          sequence: muzzle_flash
-        - type: adjust_ammo
-          delta: -1
         - type: schedule_event
-          event: fire_cycle
-          delay_ms: 90
-
-    - id: reloading
-      label: Reloading
-      on_entry:
-        - type: play_audio
-          clip: reload
-        - type: start_light_sequence
-          sequence: reload
-        - type: schedule_event
-          event: reload_complete
-          delay_ms: 1200
-
-    - id: empty
-      label: Empty
+          event: fire_tick
+          delay_ms: 60
 
   transitions:
-    - id: fire_start
+    - id: start_firing
       source: ready
       trigger: trigger_pressed
-      guard:
-        var_gt:
-          name: ammo
-          value: 0
       target: firing
 
-    - id: dry_fire_ready
-      source: ready
-      trigger: trigger_pressed
-      guard:
-        var_eq:
-          name: ammo
-          value: 0
-      target: empty
-      actions:
-        - type: play_audio
-          clip: dry_fire
-
-    - id: fire_continue
+    - id: keep_firing
       source: firing
-      trigger: fire_cycle
+      trigger: fire_tick
       guard:
-        all:
-          - trigger_pressed: true
-          - var_gt:
-              name: ammo
-              value: 0
+        trigger_pressed: true
       target: firing
-
-    - id: fire_stop_ready
-      source: firing
-      trigger: fire_cycle
-      guard:
-        all:
-          - trigger_pressed: false
-          - var_gt:
-              name: ammo
-              value: 0
-      target: ready
-
-    - id: fire_stop_empty
-      source: firing
-      trigger: fire_cycle
-      guard:
-        var_eq:
-          name: ammo
-          value: 0
-      target: empty
-
-    - id: dry_fire_empty
-      source: empty
-      trigger: trigger_pressed
-      target: empty
       actions:
-        - type: play_audio
-          clip: dry_fire
+        - type: play_sound
+          clip: shot
+        - type: start_light_sequence
+          sequence: muzzle_flash
+        - type: schedule_event
+          event: fire_tick
+          delay_ms: 60
 
-    - id: reload_from_ready
-      source: ready
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_empty
-      source: empty
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_done
-      source: reloading
-      trigger: reload_complete
+    - id: stop_firing
+      source: firing
+      trigger: trigger_released
       target: ready
       actions:
-        - type: set_ammo_full
+        - type: cancel_scheduled_events
+          event: fire_tick

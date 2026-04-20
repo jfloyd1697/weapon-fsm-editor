@@ -9,6 +9,7 @@ from weapon_fsm_core.domain.model import (
     GunConfig,
     GuardDef,
     LightSequenceDef,
+    ClipSetDef,
     StateDef,
     TransitionDef,
     WeaponConfig,
@@ -48,8 +49,11 @@ class ProfileRepository:
         states = self._parse_states(weapon_raw.get("states", []))
         transitions = self._parse_transitions(weapon_raw.get("transitions", []))
         variables = dict(weapon_raw.get("variables", {}))
-        clips = self._parse_clips(raw.get("clips", {}))
-        light_sequences = self._parse_light_sequences(raw.get("light_sequences", {}))
+        clips = self._parse_clips(raw.get("clips", weapon_raw.get("clips", {})))
+        clip_sets = self._parse_clip_sets(raw.get("clip_sets", weapon_raw.get("clip_sets", {})))
+        light_sequences = self._parse_light_sequences(
+            raw.get("light_sequences", weapon_raw.get("light_sequences", {}))
+        )
 
         initial_state = weapon_raw.get("initial_state", "ready")
         return WeaponConfig(
@@ -58,6 +62,7 @@ class ProfileRepository:
             states=states,
             transitions=tuple(transitions),
             clips=clips,
+            clip_sets=clip_sets,
             light_sequences=light_sequences,
             source_path=Path(source_path) if source_path is not None else None,
         )
@@ -73,6 +78,19 @@ class ProfileRepository:
                 preload = bool(raw_clip.get("preload", True))
             clips[str(name)] = ClipDef(name=str(name), path=path, preload=preload)
         return clips
+
+
+    def _parse_clip_sets(self, raw_clip_sets: dict[str, Any]) -> dict[str, ClipSetDef]:
+        clip_sets: dict[str, ClipSetDef] = {}
+        for name, raw_clip_set in raw_clip_sets.items():
+            if isinstance(raw_clip_set, list):
+                clips = tuple(str(item) for item in raw_clip_set)
+                mode = "random"
+            else:
+                clips = tuple(str(item) for item in raw_clip_set.get("clips", []))
+                mode = str(raw_clip_set.get("mode", "random"))
+            clip_sets[str(name)] = ClipSetDef(name=str(name), clips=clips, mode=mode)
+        return clip_sets
 
     def _parse_light_sequences(self, raw_sequences: dict[str, Any]) -> dict[str, LightSequenceDef]:
         sequences: dict[str, LightSequenceDef] = {}

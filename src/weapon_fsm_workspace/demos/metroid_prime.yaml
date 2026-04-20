@@ -3,85 +3,90 @@ weapon:
 
   variables:
     charge_ticks: 0
-    charge_threshold: 30
+    charge_threshold: 80
 
   clips:
-    aiai_fall:
-      path: assets/audio/aiai_fallout/aiai_fall.wav
-
-    fallout:
-      path: assets/audio/aiai_fallout/fallout.wav
-
+    charge_start:
+      path: assets/audio/prime-arm-cannon/prime-charge-start.wav
+    charge_loop:
+      path: assets/audio/prime-arm-cannon/prime-charge-start.wav
+    normal_fire:
+      path: assets/audio/prime-arm-cannon/prime-basic.wav
+    charged_fire:
+      path: assets/audio/prime-arm-cannon/prime-big1.wav
     reload:
       path: assets/audio/reload.wav
 
-    aiai_scare0:
-      path: assets/audio/aiai_fallout/aiai_scare0.wav
-    aiai_scare1:
-      path: assets/audio/aiai_fallout/aiai_scare1.wav
-    aiai_scare2:
-      path: assets/audio/aiai_fallout/aiai_scare2.wav
-    aiai_scare3:
-      path: assets/audio/aiai_fallout/aiai_scare3.wav
-    aiai_scare4:
-      path: assets/audio/aiai_fallout/aiai_scare4.wav
-    aiai_scare5:
-      path: assets/audio/aiai_fallout/aiai_scare5.wav
-    aiai_scare6:
-      path: assets/audio/aiai_fallout/aiai_scare6.wav
-    aiai_scare7:
-      path: assets/audio/aiai_fallout/aiai_scare7.wav
-
-  clip_sets:
-    aiai_scare:
-      mode: random
-      clips:
-        - aiai_scare0
-        - aiai_scare1
-        - aiai_scare2
-        - aiai_scare3
-        - aiai_scare4
-        - aiai_scare5
-        - aiai_scare6
-        - aiai_scare7
-
-  light_sequences:
-    charge_glow:
-      path: assets/lights/charge_glow.yaml
-    muzzle_flash:
-      path: assets/lights/muzzle_flash.yaml
-    big_flash:
-      path: assets/lights/big_flash.yaml
-    reload:
-      path: assets/lights/reload.yaml
+#  light_sequences:
+#    charge_glow:
+#      path: assets/lights/charge_glow.yaml
+#    fully_charged:
+#      path: assets/lights/fully_charged.yaml
+#    muzzle_flash:
+#      path: assets/lights/muzzle_flash.yaml
+#    charged_flash:
+#      path: assets/lights/charged_flash.yaml
+#    reload:
+#      path: assets/lights/reload.yaml
 
   states:
     - id: ready
       label: Ready
       on_entry:
         - type: cancel_scheduled_events
+          event: precharge_done
+        - type: cancel_scheduled_events
           event: charge_tick
-        - type: start_light_sequence
-          sequence: charge_glow
+        - type: stop_audio
+          channel: charge
+        - type: stop_light_sequence
+
+    - id: precharging
+      label: Precharging
+      on_entry:
+        - type: schedule_event
+          event: precharge_done
+          delay_ms: 120
 
     - id: charging
       label: Charging
       on_entry:
+        - type: play_sound
+          clip: charge_start
+          channel: oneshot
+          interrupt: restart
+        - type: play_sound
+          clip: charge_loop
+          mode: loop
+          channel: charge
+          interrupt: restart
         - type: start_light_sequence
           sequence: charge_glow
         - type: schedule_event
           event: charge_tick
           delay_ms: 10
 
+    - id: charged
+      label: Charged
+      on_entry:
+        - type: stop_light_sequence
+        - type: start_light_sequence
+          sequence: fully_charged
+
     - id: normal_shot
       label: Normal Shot
       on_entry:
         - type: cancel_scheduled_events
+          event: precharge_done
+        - type: cancel_scheduled_events
           event: charge_tick
         - type: stop_audio
+          channel: charge
         - type: stop_light_sequence
-        - type: play_sound_random
-          clip_set: aiai_scare
+        - type: play_sound
+          clip: normal_fire
+          channel: fire
+          interrupt: restart
         - type: start_light_sequence
           sequence: muzzle_flash
         - type: set_var
@@ -89,35 +94,36 @@ weapon:
           value: 0
         - type: schedule_event
           event: shot_done
-          delay_ms: 80
+          delay_ms: 100
 
-    - id: big_shot
-      label: Big Shot
+    - id: charged_shot
+      label: Charged Shot
       on_entry:
+        - type: cancel_scheduled_events
+          event: precharge_done
         - type: cancel_scheduled_events
           event: charge_tick
         - type: stop_audio
+          channel: charge
         - type: stop_light_sequence
         - type: play_sound
-          clip: aiai_fall
-          channel: voice
+          clip: charged_fire
+          channel: fire
           interrupt: restart
         - type: start_light_sequence
-          sequence: big_flash
-        - type: play_sound
-          clip: fallout
-          channel: impact
-          interrupt: restart
+          sequence: charged_flash
         - type: set_var
           name: charge_ticks
           value: 0
         - type: schedule_event
           event: shot_done
-          delay_ms: 300
+          delay_ms: 180
 
     - id: reloading
       label: Reloading
       on_entry:
+        - type: cancel_scheduled_events
+          event: precharge_done
         - type: cancel_scheduled_events
           event: charge_tick
         - type: stop_audio
@@ -127,7 +133,8 @@ weapon:
           value: 0
         - type: play_sound
           clip: reload
-          interrupt: schedule
+          channel: reload
+          interrupt: restart
         - type: start_light_sequence
           sequence: reload
         - type: schedule_event
@@ -138,21 +145,28 @@ weapon:
       label: Empty
 
   transitions:
-    - id: equip_to_ready
-      source: ready
-      trigger: on_equip
-      target: ready
-
-    - id: start_charge
+    - id: start_precharge
       source: ready
       trigger: trigger_pressed
-      target: charging
+      target: precharging
       actions:
         - type: set_var
           name: charge_ticks
           value: 0
 
-    - id: charge_done_auto_big_shot
+    - id: release_during_precharge
+      source: precharging
+      trigger: trigger_released
+      target: normal_shot
+
+    - id: precharge_to_charging
+      source: precharging
+      trigger: precharge_done
+      guard:
+        trigger_pressed: true
+      target: charging
+
+    - id: charge_done
       source: charging
       trigger: charge_tick
       guard:
@@ -161,7 +175,10 @@ weapon:
           - var_gte:
               name: charge_ticks
               value_from_var: charge_threshold
-      target: big_shot
+      target: charged
+      actions:
+        - type: cancel_scheduled_events
+          event: charge_tick
 
     - id: charge_tick_continue
       source: charging
@@ -190,28 +207,53 @@ weapon:
           value_from_var: charge_threshold
       target: normal_shot
 
+    - id: release_charged
+      source: charged
+      trigger: trigger_released
+      target: charged_shot
+
     - id: shot_done_normal_ready
       source: normal_shot
       trigger: shot_done
       target: ready
 
-    - id: shot_done_big_ready
-      source: big_shot
+    - id: shot_done_normal_empty
+      source: normal_shot
+      trigger: shot_done
+      target: empty
+
+    - id: shot_done_charged_ready
+      source: charged_shot
       trigger: shot_done
       target: ready
+
+    - id: shot_done_charged_empty
+      source: charged_shot
+      trigger: shot_done
+      target: empty
 
     - id: reload_from_ready
       source: ready
       trigger: reload_pressed
       target: reloading
 
-    - id: reload_from_empty
-      source: empty
+    - id: reload_from_precharging
+      source: precharging
       trigger: reload_pressed
       target: reloading
 
     - id: reload_from_charging
       source: charging
+      trigger: reload_pressed
+      target: reloading
+
+    - id: reload_from_charged
+      source: charged
+      trigger: reload_pressed
+      target: reloading
+
+    - id: reload_from_empty
+      source: empty
       trigger: reload_pressed
       target: reloading
 

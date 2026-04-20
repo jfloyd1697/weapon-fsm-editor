@@ -26,6 +26,13 @@ class LightSequenceDef:
 
 
 @dataclass(frozen=True)
+class ClipSetDef:
+    name: str
+    clips: tuple[str, ...]
+    mode: str = "random"
+
+
+@dataclass(frozen=True)
 class GuardDef:
     all: tuple["GuardDef", ...] = ()
     any: tuple["GuardDef", ...] = ()
@@ -122,6 +129,7 @@ class WeaponConfig:
     states: dict[str, StateDef]
     transitions: tuple[TransitionDef, ...]
     clips: dict[str, ClipDef] = field(default_factory=dict)
+    clip_sets: dict[str, ClipSetDef] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceDef] = field(default_factory=dict)
     source_path: Path | None = None
 

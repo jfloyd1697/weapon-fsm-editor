@@ -10,6 +10,7 @@ class ValidationContext:
     variables: set[str]
     events: set[str]
     clips: set[str]
+    clip_sets: set[str]
     light_sequences: set[str]
 
 

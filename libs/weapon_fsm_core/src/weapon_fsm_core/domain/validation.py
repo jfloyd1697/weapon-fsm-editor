@@ -31,12 +31,14 @@ class ProfileValidator:
         variables.add("trigger_down")
         states = set(weapon.states.keys())
         clips = set(weapon.clips.keys())
+        clip_sets = set(weapon.clip_sets.keys())
         light_sequences = set(weapon.light_sequences.keys())
         return ValidationContext(
             states=states,
             variables=variables,
             events=events,
             clips=clips,
+            clip_sets=clip_sets,
             light_sequences=light_sequences,
         )
 
@@ -99,6 +101,27 @@ class ProfileValidator:
                             f"Clip '{name}' points to missing file '{clip.path}'",
                         )
                     )
+
+        for name, clip_set in weapon.clip_sets.items():
+            if not clip_set.clips:
+                issues.append(ValidationIssue(f"clip_sets.{name}.clips", "Clip set must include at least one clip"))
+                continue
+            missing = [clip_name for clip_name in clip_set.clips if clip_name not in weapon.clips]
+            if missing:
+                quoted = ", ".join(repr(item) for item in missing)
+                issues.append(
+                    ValidationIssue(
+                        f"clip_sets.{name}.clips",
+                        f"Clip set '{name}' references unknown clip(s): {quoted}",
+                    )
+                )
+            if clip_set.mode not in {"random", "random_no_repeat", "sequence"}:
+                issues.append(
+                    ValidationIssue(
+                        f"clip_sets.{name}.mode",
+                        f"Clip set '{name}' has invalid mode '{clip_set.mode}'",
+                    )
+                )
 
         for name, sequence in weapon.light_sequences.items():
             if not sequence.path:

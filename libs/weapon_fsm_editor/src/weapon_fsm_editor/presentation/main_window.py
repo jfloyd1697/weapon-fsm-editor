@@ -174,8 +174,19 @@ class MainWindow(QMainWindow):
     def _apply_documents(self, gun_text: str, weapon_text: str) -> None:
         try:
             gun = self._repository.load_gun_text(gun_text)
-            weapon = self._repository.load_weapon_text(weapon_text)
+            weapon = self._repository.load_weapon_text(
+                weapon_text,
+                source_path=self._weapon_path,
+            )
             issues = self._validator.validate(gun, weapon)
+
+            asset_errors = [
+                issue for issue in issues
+                if issue.path.startswith(("clips.", "light_sequences."))
+            ]
+            if asset_errors:
+                summary = "\n".join(f"{issue.path}: {issue.message}" for issue in asset_errors)
+                raise FileNotFoundError(summary)
 
             self._gun = gun
             self._weapon = weapon
@@ -231,15 +242,27 @@ class MainWindow(QMainWindow):
             return
 
         records = self._simulation.dispatch_external_event(event_id)
+        self._handle_records(records, source_prefix=None)
+
+    def _handle_records(self, records, source_prefix: str | None) -> None:
+        if not records:
+            return
+
         for record in records:
             result = record.result
 
             if result.accepted:
                 transition_id = result.transition.id if result.transition else "?"
-                self.log_output.append(
-                    f"[{record.machine_id}] event={result.event_id} "
-                    f"{result.previous_state} -> {result.current_state} via {transition_id}"
-                )
+                prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
+                if source_prefix is not None:
+                    self.log_output.append(
+                        f"{prefix}{result.event_id}: {result.previous_state} -> {result.current_state} via {transition_id}"
+                    )
+                else:
+                    self.log_output.append(
+                        f"{prefix}event={result.event_id} "
+                        f"{result.previous_state} -> {result.current_state} via {transition_id}"
+                    )
 
                 self.log_output.append(
                     f"[vars] before: {_format_runtime_variables(result.variables_before)}"
@@ -260,10 +283,16 @@ class MainWindow(QMainWindow):
                 for command in result.commands:
                     self.log_output.append(f"[command] {command.type}: {command.payload}")
             else:
-                self.log_output.append(
-                    f"[{record.machine_id}] event={result.event_id} ignored in "
-                    f"{result.current_state}: {result.reason}"
-                )
+                prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
+                if source_prefix is not None:
+                    self.log_output.append(
+                        f"{prefix}{result.event_id} ignored in {result.current_state}: {result.reason}"
+                    )
+                else:
+                    self.log_output.append(
+                        f"{prefix}event={result.event_id} ignored in "
+                        f"{result.current_state}: {result.reason}"
+                    )
 
             self.log_output.append("")
 
@@ -274,17 +303,7 @@ class MainWindow(QMainWindow):
             return
 
         records = self._simulation.advance_time(50)
-        if not records:
-            return
-
-        for record in records:
-            result = record.result
-            if result.accepted:
-                transition_id = result.transition.id if result.transition else "?"
-                self.log_output.append(
-                    f"[timer] {result.event_id}: {result.previous_state} -> {result.current_state} via {transition_id}"
-                )
-        self._refresh_views()
+        self._handle_records(records, source_prefix="timer")
 
     def _refresh_views(self) -> None:
         if self._simulation is None or self._weapon is None:

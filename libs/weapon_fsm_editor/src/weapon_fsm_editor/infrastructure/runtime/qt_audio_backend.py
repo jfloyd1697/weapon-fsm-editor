@@ -67,7 +67,7 @@ class QtAudioBackend(QObject):
 
         effect = QSoundEffect(self)
         effect.setSource(QUrl.fromLocalFile(str(resolved)))
-        effect.setLoopCount(QSoundEffect.Infinite if mode == "loop" else 1)
+        effect.setLoopCount(-1 if mode == "loop" else 1)
         effect.playingChanged.connect(
             lambda clip_name=clip, current=effect: self._on_playing_changed(clip_name, current)
         )

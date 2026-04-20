@@ -3,7 +3,7 @@ weapon:
 
   variables:
     charge_ticks: 0
-    charge_threshold: 30
+    charge_threshold: 80
 
   clips:
     aiai_fall:
@@ -15,8 +15,6 @@ weapon:
     reload:
       path: assets/audio/reload.wav
 
-    aiai_scare0:
-      path: assets/audio/aiai_fallout/aiai_scare0.wav
     aiai_scare1:
       path: assets/audio/aiai_fallout/aiai_scare1.wav
     aiai_scare2:
@@ -36,7 +34,6 @@ weapon:
     aiai_scare:
       mode: random
       clips:
-        - aiai_scare0
         - aiai_scare1
         - aiai_scare2
         - aiai_scare3
@@ -44,16 +41,6 @@ weapon:
         - aiai_scare5
         - aiai_scare6
         - aiai_scare7
-
-  light_sequences:
-    charge_glow:
-      path: assets/lights/charge_glow.yaml
-    muzzle_flash:
-      path: assets/lights/muzzle_flash.yaml
-    big_flash:
-      path: assets/lights/big_flash.yaml
-    reload:
-      path: assets/lights/reload.yaml
 
   states:
     - id: ready
@@ -107,7 +94,7 @@ weapon:
         - type: play_sound
           clip: fallout
           channel: impact
-          interrupt: restart
+          interrupt: schedule
         - type: set_var
           name: charge_ticks
           value: 0
@@ -138,11 +125,6 @@ weapon:
       label: Empty
 
   transitions:
-    - id: equip_to_ready
-      source: ready
-      trigger: on_equip
-      target: ready
-
     - id: start_charge
       source: ready
       trigger: trigger_pressed
@@ -195,10 +177,20 @@ weapon:
       trigger: shot_done
       target: ready
 
+    - id: shot_done_normal_empty
+      source: normal_shot
+      trigger: shot_done
+      target: empty
+
     - id: shot_done_big_ready
       source: big_shot
       trigger: shot_done
       target: ready
+
+    - id: shot_done_big_empty
+      source: big_shot
+      trigger: shot_done
+      target: empty
 
     - id: reload_from_ready
       source: ready

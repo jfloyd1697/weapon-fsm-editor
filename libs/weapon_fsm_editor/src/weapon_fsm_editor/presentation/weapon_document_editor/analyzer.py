@@ -149,7 +149,7 @@ class WeaponDocumentAnalyzer:
         if weapon_start is not None:
             spans.append(BlockSpan("weapon", weapon_start, max(weapon_start, len(lines) - 1)))
 
-        for section_name in ("clips", "light_sequences"):
+        for section_name in ("clips", "clip_sets", "light_sequences"):
             section_start = root_sections.get(section_name)
             if section_start is None:
                 continue

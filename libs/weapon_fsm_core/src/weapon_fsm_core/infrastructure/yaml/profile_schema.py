@@ -24,12 +24,19 @@ class LightSequenceFile(DataClassYAMLMixin):
 
 
 @dataclass
+class ClipSetFile(DataClassYAMLMixin):
+    clips: list[str] = field(default_factory=list)
+    mode: str = "random"
+
+
+@dataclass
 class ActionFile(DataClassYAMLMixin):
     type: str
     arguments: dict[str, Any] = field(default_factory=dict)
     sound: str | None = None
     clip: str | None = None
     clips: list[str] = field(default_factory=list)
+    clip_set: str | None = None
     pattern: str | None = None
     sequence: str | None = None
     event: str | None = None
@@ -87,4 +94,5 @@ class WeaponFile(DataClassYAMLMixin):
 class WeaponProfileFile(DataClassYAMLMixin):
     weapon: WeaponFile = field(default_factory=WeaponFile)
     clips: dict[str, ClipFile] = field(default_factory=dict)
+    clip_sets: dict[str, ClipSetFile] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceFile] = field(default_factory=dict)

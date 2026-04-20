@@ -15,7 +15,7 @@ class RuntimeCommandDispatcher:
     def dispatch(self, command: GunRuntimeCommand) -> None:
         payload = command.payload
 
-        if command.type == "play_sound" and self.audio is not None:
+        if command.type == "play_audio" and self.audio is not None:
             self.audio.play_audio(
                 clip=str(payload.get("clip", "")),
                 path=str(payload.get("path", payload.get("clip", ""))),
@@ -24,7 +24,7 @@ class RuntimeCommandDispatcher:
             )
             return
 
-        if command.type == "stop_sound" and self.audio is not None:
+        if command.type == "stop_audio" and self.audio is not None:
             self.audio.stop_audio()
             return
 

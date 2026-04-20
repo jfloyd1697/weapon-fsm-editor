@@ -1,58 +1,59 @@
-initial_state: ready
-variables:
-  burst_remaining: 0
-states:
-  - id: ready
-    label: Ready
-  - id: firing
-    label: Burst Firing
-    on_entry:
-      - type: play_audio
-        clip: fire
-      - type: add_var
-        name: burst_remaining
-        value: -1
-      - type: schedule_event
-        event: burst_cycle
-        delay_ms: 90
-  - id: reloading
-    label: Reloading
-    on_entry:
-      - type: play_audio
-        clip: reload
-      - type: schedule_event
-        event: reload_complete
-        delay_ms: 1200
-transitions:
-  - id: burst_start
-    source: ready
-    target: firing
-    trigger: trigger_pressed
-    actions:
-      - type: set_var
-        name: burst_remaining
-        value: 3
-  - id: burst_continue
-    source: firing
-    target: firing
-    trigger: burst_cycle
-    guard:
-      var_gt:
-        name: burst_remaining
-        value: 0
-  - id: burst_done
-    source: firing
-    target: ready
-    trigger: burst_cycle
-    guard:
-      var_lte:
-        name: burst_remaining
-        value: 0
-  - id: reload_start
-    source: ready
-    target: reloading
-    trigger: reload_pressed
-  - id: reload_done
-    source: reloading
-    target: ready
-    trigger: reload_complete
+weapon:
+  initial_state: ready
+
+  variables:
+    burst_remaining: 0
+
+  clips:
+    shot:
+      path: assets/audio/burst/shot.wav
+
+  light_sequences:
+    muzzle_flash:
+      path: assets/lights/muzzle_flash.yaml
+
+  states:
+    - id: ready
+      label: Ready
+
+    - id: burst
+      label: Burst
+      on_entry:
+        - type: play_sound
+          clip: shot
+        - type: start_light_sequence
+          sequence: muzzle_flash
+        - type: add_var
+          name: burst_remaining
+          value: -1
+        - type: schedule_event
+          event: burst_tick
+          delay_ms: 70
+
+  transitions:
+    - id: start_burst
+      source: ready
+      trigger: trigger_pressed
+      target: burst
+      actions:
+        - type: set_var
+          name: burst_remaining
+          value: 3
+
+    - id: burst_continue
+      source: burst
+      trigger: burst_tick
+      guard:
+        var_gt:
+          name: burst_remaining
+          value: 0
+      target: burst
+
+    - id: burst_done
+      source: burst
+      trigger: burst_tick
+      guard:
+        var_lte:
+          name: burst_remaining
+          value: 0
+      target: ready

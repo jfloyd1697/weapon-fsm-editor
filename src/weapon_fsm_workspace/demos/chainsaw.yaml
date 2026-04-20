@@ -1,76 +1,67 @@
 weapon:
   initial_state: idle
 
-  variables:
-    revved: false
+  clips:
+    idle_loop:
+      path: assets/audio/chainsaw/idle_loop.wav
+    rev_start:
+      path: assets/audio/chainsaw/rev_start.wav
+    rev_loop:
+      path: assets/audio/chainsaw/rev_loop.wav
+    rev_stop:
+      path: assets/audio/chainsaw/rev_stop.wav
+
+  light_sequences:
+    idle_glow:
+      path: assets/lights/idle_glow.yaml
+    saw_active:
+      path: assets/lights/saw_active.yaml
 
   states:
     - id: idle
       label: Idle
       on_entry:
-        - type: play_audio_loop
+        - type: stop_audio
+        - type: play_sound
           clip: idle_loop
-          interrupt: ignore
+          mode: loop
+          channel: engine
+          interrupt: restart
         - type: start_light_sequence
-          sequence: idle
+          sequence: idle_glow
 
-    - id: rev_start
-      label: Rev Start
+    - id: active
+      label: Active
       on_entry:
         - type: stop_audio
+          channel: engine
         - type: stop_light_sequence
-        - type: play_audio
+        - type: play_sound
           clip: rev_start
-        - type: start_light_sequence
-          sequence: rev_start
-        - type: schedule_event
-          event: rev_started
-          delay_ms: 250
-
-    - id: rev_hold
-      label: Rev Hold
-      on_entry:
-        - type: play_audio_loop
+          channel: oneshot
+          interrupt: restart
+        - type: play_sound
           clip: rev_loop
-          interrupt: ignore
+          mode: loop
+          channel: engine
+          interrupt: restart
         - type: start_light_sequence
-          sequence: rev_hold
-
-    - id: rev_stop
-      label: Rev Stop
-      on_entry:
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: play_audio
-          clip: rev_stop
-        - type: start_light_sequence
-          sequence: rev_stop
-        - type: schedule_event
-          event: stop_done
-          delay_ms: 250
+          sequence: saw_active
 
   transitions:
-    - id: start_rev
+    - id: start_saw
       source: idle
       trigger: trigger_pressed
-      target: rev_start
+      target: active
 
-    - id: rev_started
-      source: rev_start
-      trigger: rev_started
-      target: rev_hold
-
-    - id: stop_rev_from_start
-      source: rev_start
+    - id: stop_saw
+      source: active
       trigger: trigger_released
-      target: rev_stop
-
-    - id: stop_rev_from_hold
-      source: rev_hold
-      trigger: trigger_released
-      target: rev_stop
-
-    - id: stop_done
-      source: rev_stop
-      trigger: stop_done
       target: idle
+      actions:
+        - type: stop_audio
+          channel: engine
+        - type: play_sound
+          clip: rev_stop
+          channel: oneshot
+          interrupt: restart

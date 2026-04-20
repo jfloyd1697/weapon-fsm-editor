@@ -1,9 +1,17 @@
 weapon:
   initial_state: ready
 
-  variables:
-    ammo: 6
-    mag_capacity: 6
+  clips:
+    shot:
+      path: assets/audio/semi_auto/shot.wav
+    reload:
+      path: assets/audio/shared/reload.wav
+
+  light_sequences:
+    muzzle_flash:
+      path: assets/lights/muzzle_flash.yaml
+    reload:
+      path: assets/lights/reload.yaml
 
   states:
     - id: ready
@@ -12,22 +20,22 @@ weapon:
     - id: firing
       label: Firing
       on_entry:
-        - type: play_audio
-          clip: fire
+        - type: stop_audio
+        - type: play_sound
+          clip: shot
         - type: start_light_sequence
           sequence: muzzle_flash
-        - type: adjust_ammo
-          delta: -1
         - type: schedule_event
-          event: fire_done
+          event: shot_done
           delay_ms: 80
 
     - id: reloading
       label: Reloading
       on_entry:
-        - type: play_audio
+        - type: stop_audio
+        - type: stop_light_sequence
+        - type: play_sound
           clip: reload
-          interrupt: schedule
         - type: start_light_sequence
           sequence: reload
         - type: schedule_event
@@ -41,40 +49,16 @@ weapon:
     - id: fire
       source: ready
       trigger: trigger_pressed
-      guard:
-        var_gt:
-          name: ammo
-          value: 0
       target: firing
 
-    - id: dry_fire_ready
-      source: ready
-      trigger: trigger_pressed
-      guard:
-        var_eq:
-          name: ammo
-          value: 0
-      target: empty
-      actions:
-        - type: play_audio
-          clip: dry_fire
-
-    - id: firing_done_ready
+    - id: fire_done_ready
       source: firing
-      trigger: fire_done
-      guard:
-        var_gt:
-          name: ammo
-          value: 0
+      trigger: shot_done
       target: ready
 
-    - id: firing_done_empty
+    - id: fire_done_empty
       source: firing
-      trigger: fire_done
-      guard:
-        var_eq:
-          name: ammo
-          value: 0
+      trigger: shot_done
       target: empty
 
     - id: reload_from_ready
@@ -91,5 +75,3 @@ weapon:
       source: reloading
       trigger: reload_complete
       target: ready
-      actions:
-        - type: set_ammo_full

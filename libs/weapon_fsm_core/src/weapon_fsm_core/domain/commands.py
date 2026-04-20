@@ -13,6 +13,7 @@ from .runtime_types import ScheduledEvent
 class RuntimeEnvironment:
     weapon: WeaponConfig
     variables: dict[str, object]
+    clip_set_state: dict[str, dict[str, int | str | tuple[int, ...]]]
     emitted_events: list[str] = field(default_factory=list)
     scheduled_events: list[ScheduledEvent] = field(default_factory=list)
     gun_commands: list["GunRuntimeCommand"] = field(default_factory=list)
@@ -159,6 +160,11 @@ class PlayAudioCommand(RuntimeCommand, action_type="play_audio"):
 
 
 @dataclass(frozen=True, slots=True)
+class PlaySoundCommand(PlayAudioCommand, action_type="play_sound"):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
 class PlayAudioLoopCommand(RuntimeCommand, action_type="play_audio_loop"):
     clip: str
     interrupt: str = "interrupt"
@@ -214,6 +220,33 @@ class PlayRandomAudioCommand(RuntimeCommand, action_type="play_random_audio"):
             return
         PlayAudioCommand(
             clip=random.choice(self.clips),
+            mode="one_shot",
+            interrupt=self.interrupt,
+        ).execute(env)
+
+
+@dataclass(frozen=True, slots=True)
+class PlaySoundRandomCommand(RuntimeCommand, action_type="play_sound_random"):
+    clip_set: str
+    interrupt: str = "interrupt"
+
+    @classmethod
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec("clip_set", required=True, expected_types=(str,), reference_target="clip_sets"),
+            CommandFieldSpec(
+                "interrupt",
+                expected_types=(str,),
+                enum_values=("interrupt", "schedule", "ignore"),
+            ),
+        )
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        selected_clip = _choose_clip_from_set(env, self.clip_set)
+        if selected_clip is None:
+            return
+        PlayAudioCommand(
+            clip=selected_clip,
             mode="one_shot",
             interrupt=self.interrupt,
         ).execute(env)
@@ -328,28 +361,9 @@ class AddVarCommand(RuntimeCommand, action_type="add_var"):
 
 
 @dataclass(frozen=True, slots=True)
-class AdjustAmmoCommand(RuntimeCommand, action_type="adjust_ammo"):
-    delta: int = 0
-
-    def execute(self, env: RuntimeEnvironment) -> None:
-        ammo = int(env.variables.get("ammo", 0))
-        mag_capacity = int(env.variables.get("mag_capacity", ammo))
-        env.variables["ammo"] = max(0, min(mag_capacity, ammo + self.delta))
-
-
-@dataclass(frozen=True, slots=True)
-class SetAmmoCommand(RuntimeCommand, action_type="set_ammo"):
-    value: int = 0
-
-    def execute(self, env: RuntimeEnvironment) -> None:
-        mag_capacity = int(env.variables.get("mag_capacity", self.value))
-        env.variables["ammo"] = max(0, min(mag_capacity, self.value))
-
-
-@dataclass(frozen=True, slots=True)
 class SetAmmoFullCommand(RuntimeCommand, action_type="set_ammo_full"):
     def execute(self, env: RuntimeEnvironment) -> None:
-        env.variables["ammo"] = int(env.variables.get("mag_capacity", 0))
+        env.gun_commands.append(GunRuntimeCommand(type="set_ammo_full", payload={}))
 
 
 @dataclass(frozen=True, slots=True)
@@ -367,55 +381,43 @@ class EmitEventCommand(RuntimeCommand, action_type="emit_event"):
 @dataclass(frozen=True, slots=True)
 class ScheduleEventCommand(RuntimeCommand, action_type="schedule_event"):
     event: str
-    delay_ms: int = 0
+    delay_ms: int
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
         return (
             CommandFieldSpec("event", required=True, expected_types=(str,), reference_target="events"),
-            CommandFieldSpec("delay_ms", expected_types=(int,)),
+            CommandFieldSpec("delay_ms", required=True, expected_types=(int,)),
         )
 
     def execute(self, env: RuntimeEnvironment) -> None:
-        env.scheduled_events.append(ScheduledEvent(self.event, self.delay_ms))
+        env.scheduled_events.append(ScheduledEvent(event_id=self.event, delay_ms=self.delay_ms))
 
 
-@dataclass(frozen=True, slots=True)
-class ChanceEventCommand(RuntimeCommand, action_type="chance_event"):
-    event: str
-    chance: float = 0.0
+def _choose_clip_from_set(env: RuntimeEnvironment, clip_set_name: str) -> str | None:
+    clip_set = env.weapon.clip_sets.get(clip_set_name)
+    if clip_set is None or not clip_set.clips:
+        return None
 
-    @classmethod
-    def schema(cls) -> tuple[CommandFieldSpec, ...]:
-        return (
-            CommandFieldSpec("event", required=True, expected_types=(str,), reference_target="events"),
-            CommandFieldSpec("chance", expected_types=(int, float)),
-        )
+    state = env.clip_set_state.setdefault(clip_set_name, {})
+    mode = clip_set.mode
+    clips = clip_set.clips
 
-    @classmethod
-    def validate_kwargs(
-        cls,
-        kwargs: dict[str, object],
-        context: ValidationContext | None = None,
-    ) -> None:
-        chance = float(kwargs.get("chance", 0.0))
-        if chance < 0.0 or chance > 1.0:
-            raise ValueError("chance_event 'chance' must be between 0.0 and 1.0")
+    if mode == "sequence":
+        index = int(state.get("index", 0))
+        selected_index = index % len(clips)
+        state["index"] = selected_index + 1
+        return clips[selected_index]
 
-    def execute(self, env: RuntimeEnvironment) -> None:
-        if random.random() <= self.chance:
-            env.emitted_events.append(self.event)
+    if mode == "random_no_repeat":
+        last_index = state.get("last_index")
+        choices = [idx for idx in range(len(clips)) if idx != last_index]
+        if not choices:
+            choices = [0]
+        selected_index = random.choice(choices)
+        state["last_index"] = selected_index
+        return clips[selected_index]
 
-
-@dataclass(frozen=True, slots=True)
-class LogCommand(RuntimeCommand, action_type="log"):
-    message: str = ""
-
-    @classmethod
-    def schema(cls) -> tuple[CommandFieldSpec, ...]:
-        return (CommandFieldSpec("message", expected_types=(str,)),)
-
-    def execute(self, env: RuntimeEnvironment) -> None:
-        env.gun_commands.append(
-            GunRuntimeCommand(type="log", payload={"message": self.message})
-        )
+    selected_index = random.randrange(len(clips))
+    state["last_index"] = selected_index
+    return clips[selected_index]
