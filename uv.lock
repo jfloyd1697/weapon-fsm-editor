@@ -2,15 +2,18 @@ version = 1
 revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
-    "python_full_version >= '3.11'",
-    "python_full_version < '3.11'",
+    "python_full_version >= '3.12'",
+    "python_full_version < '3.12'",
+    "python_version < '0'",
 ]
 
 [manifest]
 members = [
+    "weapon-fsm-audio",
     "weapon-fsm-core",
     "weapon-fsm-editor",
     "weapon-fsm-hardware",
+    "weapon-fsm-lights",
     "weapon-fsm-workspace",
 ]
 
@@ -924,6 +927,21 @@ wheels = [
 ]
 
 [[package]]
+name = "weapon-fsm-audio"
+version = "0.1.0"
+source = { editable = "libs/weapon_fsm_audio" }
+dependencies = [
+    { name = "pyqt6" },
+    { name = "weapon-fsm-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pyqt6", specifier = ">=6.7" },
+    { name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" },
+]
+
+[[package]]
 name = "weapon-fsm-core"
 version = "0.1.0"
 source = { editable = "libs/weapon_fsm_core" }
@@ -946,8 +964,10 @@ dependencies = [
     { name = "pyqt6" },
     { name = "pyqt6-webengine" },
     { name = "pyvis" },
+    { name = "weapon-fsm-audio" },
     { name = "weapon-fsm-core" },
     { name = "weapon-fsm-hardware" },
+    { name = "weapon-fsm-lights" },
 ]
 
 [package.metadata]
@@ -955,8 +975,10 @@ requires-dist = [
     { name = "pyqt6", specifier = ">=6.7" },
     { name = "pyqt6-webengine", specifier = ">=6.7" },
     { name = "pyvis", specifier = ">=0.3.2" },
+    { name = "weapon-fsm-audio", editable = "libs/weapon_fsm_audio" },
     { name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" },
     { name = "weapon-fsm-hardware", editable = "libs/weapon_fsm_hardware" },
+    { name = "weapon-fsm-lights", editable = "libs/weapon_fsm_lights" },
 ]
 
 [[package]]
@@ -969,6 +991,23 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" }]
+
+[[package]]
+name = "weapon-fsm-lights"
+version = "0.1.0"
+source = { editable = "libs/weapon_fsm_lights" }
+dependencies = [
+    { name = "pyqt6" },
+    { name = "pyyaml" },
+    { name = "weapon-fsm-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pyqt6", specifier = ">=6.7" },
+    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" },
+]
 
 [[package]]
 name = "weapon-fsm-workspace"

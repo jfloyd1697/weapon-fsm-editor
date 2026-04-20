@@ -1,9 +1,8 @@
-from __future__ import annotations
-
-from typing import Protocol
+import abc
 
 
-class AudioBackend(Protocol):
+class AudioBackend(abc.ABC):
+    @abc.abstractmethod
     def play_audio(
         self,
         *,
@@ -13,10 +12,12 @@ class AudioBackend(Protocol):
         interrupt: str,
     ) -> None: ...
 
+    @abc.abstractmethod
     def stop_audio(self) -> None: ...
 
 
-class LightBackend(Protocol):
+class LightBackend(abc.ABC):
+    @abc.abstractmethod
     def play_light(
         self,
         *,
@@ -25,4 +26,5 @@ class LightBackend(Protocol):
         mode: str,
     ) -> None: ...
 
+    @abc.abstractmethod
     def stop_light(self) -> None: ...

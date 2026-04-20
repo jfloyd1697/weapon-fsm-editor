@@ -1,2 +1,61 @@
-sequence:
-  name: big_flash
+layout:
+  path: ring_layout.json
+
+frames:
+  - duration_ms: 60
+    leds:
+      "0": {color: "#ffffff", intensity: 1.0}
+      "1": {color: "#fff5cc", intensity: 1.0}
+      "2": {color: "#fff5cc", intensity: 1.0}
+      "3": {color: "#fff5cc", intensity: 1.0}
+      "4": {color: "#fff5cc", intensity: 1.0}
+      "5": {color: "#fff5cc", intensity: 1.0}
+      "6": {color: "#fff5cc", intensity: 1.0}
+      "7": {color: "#fff5cc", intensity: 1.0}
+      "8": {color: "#fff5cc", intensity: 1.0}
+      "9": {color: "#ffd27a", intensity: 0.95}
+      "10": {color: "#ffd27a", intensity: 0.95}
+      "11": {color: "#ffd27a", intensity: 0.95}
+      "12": {color: "#ffd27a", intensity: 0.95}
+      "13": {color: "#ffd27a", intensity: 0.95}
+      "14": {color: "#ffd27a", intensity: 0.95}
+      "15": {color: "#ffd27a", intensity: 0.95}
+      "16": {color: "#ffd27a", intensity: 0.95}
+      "17": {color: "#ffd27a", intensity: 0.95}
+      "18": {color: "#ffd27a", intensity: 0.95}
+      "19": {color: "#ffd27a", intensity: 0.95}
+      "20": {color: "#ffd27a", intensity: 0.95}
+      "21": {color: "#ff9f2e", intensity: 0.75}
+      "25": {color: "#ff9f2e", intensity: 0.75}
+      "29": {color: "#ff9f2e", intensity: 0.75}
+      "33": {color: "#ff9f2e", intensity: 0.75}
+  - duration_ms: 80
+    leds:
+      "0": {color: "#ffe8a3", intensity: 0.80}
+      "1": {color: "#ffd27a", intensity: 0.70}
+      "2": {color: "#ffd27a", intensity: 0.70}
+      "3": {color: "#ffd27a", intensity: 0.70}
+      "4": {color: "#ffd27a", intensity: 0.70}
+      "5": {color: "#ffd27a", intensity: 0.70}
+      "6": {color: "#ffd27a", intensity: 0.70}
+      "7": {color: "#ffd27a", intensity: 0.70}
+      "8": {color: "#ffd27a", intensity: 0.70}
+      "9": {color: "#ffb347", intensity: 0.55}
+      "12": {color: "#ffb347", intensity: 0.55}
+      "15": {color: "#ffb347", intensity: 0.55}
+      "18": {color: "#ffb347", intensity: 0.55}
+      "21": {color: "#ff7a1a", intensity: 0.40}
+      "25": {color: "#ff7a1a", intensity: 0.40}
+      "29": {color: "#ff7a1a", intensity: 0.40}
+      "33": {color: "#ff7a1a", intensity: 0.40}
+  - duration_ms: 120
+    leds:
+      "0": {color: "#664422", intensity: 0.20}
+      "1": {color: "#553311", intensity: 0.18}
+      "3": {color: "#553311", intensity: 0.18}
+      "5": {color: "#553311", intensity: 0.18}
+      "7": {color: "#553311", intensity: 0.18}
+      "9": {color: "#442200", intensity: 0.14}
+      "12": {color: "#442200", intensity: 0.14}
+      "15": {color: "#442200", intensity: 0.14}
+      "18": {color: "#442200", intensity: 0.14}

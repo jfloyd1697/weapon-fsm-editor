@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from PyQt6.QtCore import QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QTextCursor, QTextCharFormat
 from PyQt6.QtWidgets import QPlainTextEdit, QTextEdit
