@@ -1,0 +1,129 @@
+weapon:
+  initial_state: ready
+  variables:
+    ammo: 9
+    mag_capacity: 9
+    burst_count: 0
+    burst_size: 3
+  states:
+  - id: ready
+    label: Ready
+  - id: bursting
+    label: Bursting
+    on_entry:
+    - type: play_audio
+      clip: burst_shot
+      interrupt: interrupt
+    - type: start_light_sequence
+      sequence: muzzle_flash
+    - type: adjust_ammo
+      delta: -1
+    - type: add_var
+      name: burst_count
+      value: 1
+    - type: schedule_event
+      event: fire_tick
+      delay_ms: 75
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: stop_audio
+    - type: stop_light_sequence
+    - type: set_var
+      name: burst_count
+      value: 0
+    - type: play_audio
+      clip: reload
+      interrupt: interrupt
+    - type: start_light_sequence
+      sequence: reload
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 1200
+  - id: empty
+    label: Empty
+  transitions:
+  - id: start_burst
+    source: ready
+    trigger: trigger_pressed
+    target: bursting
+    guard:
+      var_gt:
+        name: ammo
+        value: 0
+    actions:
+    - type: set_var
+      name: burst_count
+      value: 0
+  - id: pull_on_empty
+    source: ready
+    trigger: trigger_pressed
+    target: empty
+    guard:
+      var_lte:
+        name: ammo
+        value: 0
+  - id: continue_burst
+    source: bursting
+    trigger: fire_tick
+    target: bursting
+    guard:
+      all:
+      - var_lt:
+          name: burst_count
+          value_from_var: burst_size
+      - var_gt:
+          name: ammo
+          value: 0
+  - id: burst_complete_ready
+    source: bursting
+    trigger: fire_tick
+    target: ready
+    guard:
+      all:
+      - var_gte:
+          name: burst_count
+          value_from_var: burst_size
+      - var_gt:
+          name: ammo
+          value: 0
+    actions:
+    - type: set_var
+      name: burst_count
+      value: 0
+  - id: burst_complete_empty
+    source: bursting
+    trigger: fire_tick
+    target: empty
+    guard:
+      var_lte:
+        name: ammo
+        value: 0
+    actions:
+    - type: set_var
+      name: burst_count
+      value: 0
+  - id: reload_from_ready
+    source: ready
+    trigger: reload_pressed
+    target: reloading
+  - id: reload_from_empty
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+  - id: reload_done
+    source: reloading
+    trigger: reload_complete
+    target: ready
+    actions:
+    - type: set_ammo_full
+clips:
+  burst_shot:
+    path: assets/audio/burst/shot.wav
+  reload:
+    path: assets/audio/shared/reload.wav
+light_sequences:
+  muzzle_flash:
+    path: assets/lights/muzzle_flash.yaml
+  reload:
+    path: assets/lights/reload.yaml

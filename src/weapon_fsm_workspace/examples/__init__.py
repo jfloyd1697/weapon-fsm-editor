@@ -1,3 +1,3 @@
-from .weapon_preset_director import WeaponPresetDirector
+from .preset_director import DemoPresetDirector
 
-__all__ = ["WeaponPresetDirector"]
+__all__ = ["DemoPresetDirector"]

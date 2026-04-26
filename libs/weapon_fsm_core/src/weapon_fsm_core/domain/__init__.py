@@ -1,3 +1,10 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .model import ActionDef, GuardDef, GunConfig, StateDef, TransitionDef, WeaponConfig
+    from .runtime import RuntimeCommand, ScheduledEvent, TransitionResult, WeaponRuntime
+    from .validation import ProfileValidator, ValidationIssue
+
 __all__ = [
     "ActionDef",
     "GuardDef",
@@ -47,6 +54,8 @@ def __getattr__(name: str):
     if name in {"ProfileValidator", "ValidationIssue"}:
         from .validation import ProfileValidator, ValidationIssue
 
-        return {"ProfileValidator": ProfileValidator, "ValidationIssue": ValidationIssue}[name]
-
+        return {
+            "ProfileValidator": ProfileValidator,
+            "ValidationIssue": ValidationIssue,
+        }[name]
     raise AttributeError(name)
