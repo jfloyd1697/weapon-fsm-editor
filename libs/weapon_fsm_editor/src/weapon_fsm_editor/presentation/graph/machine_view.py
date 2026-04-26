@@ -177,7 +177,7 @@ window.updateMachineHighlighting(
 
     def _machine_signature_for(self, machine: WeaponConfig) -> str:
         payload = {
-            "states": [{"id": state.id, "label": state.label} for state in machine.states],
+            "states": [{"id": state.id, "label": state.label} for state in machine.states.values()],
             "transitions": [
                 {
                     "id": transition.id,

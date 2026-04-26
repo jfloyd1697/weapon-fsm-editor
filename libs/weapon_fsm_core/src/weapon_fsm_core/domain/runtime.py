@@ -3,22 +3,7 @@ from dataclasses import dataclass, field
 
 from .commands import RuntimeCommand, RuntimeEnvironment, GunRuntimeCommand
 from .model import ActionDef, GunConfig, GuardDef, TransitionDef, WeaponConfig
-from .runtime_types import ScheduledEvent
-
-
-@dataclass(frozen=True)
-class TransitionResult:
-    accepted: bool
-    event_id: str
-    previous_state: str
-    current_state: str
-    transition: TransitionDef | None = None
-    emitted_events: tuple[str, ...] = ()
-    scheduled_events: tuple[ScheduledEvent, ...] = ()
-    commands: tuple[RuntimeCommand, ...] = ()
-    variables_before: dict[str, object] = field(default_factory=dict)
-    variables_after: dict[str, object] = field(default_factory=dict)
-    reason: str | None = None
+from .runtime_types import ScheduledEvent, TransitionResult
 
 
 @dataclass
@@ -43,7 +28,8 @@ class WeaponRuntime:
         self.last_transition_id = None
         self.pending_events = []
         self.clip_set_state = {}
-        self._run_actions(self.weapon.get_state(self.current_state).on_entry)
+        self._run_actions(self.weapon.states[self.current_state].on_entry)
+        self.clip_set_state = {}
 
     def valid_transitions(self) -> tuple[TransitionDef, ...]:
         return tuple(
@@ -74,7 +60,7 @@ class WeaponRuntime:
                 if not self._guard_allows(transition.guard):
                     continue
 
-                current_state_def = self.weapon.get_state(self.current_state)
+                current_state_def = self.weapon.states[self.current_state]
                 emitted_events, scheduled_events, commands = self._run_actions(
                     current_state_def.on_exit
                 )
@@ -89,7 +75,7 @@ class WeaponRuntime:
                 self.current_state = transition.target
                 self.last_transition_id = transition.id
 
-                target_state_def = self.weapon.get_state(self.current_state)
+                target_state_def = self.weapon.states[self.current_state]
                 entry_emits, entry_scheduled, entry_commands = self._run_actions(
                     target_state_def.on_entry
                 )
@@ -113,7 +99,6 @@ class WeaponRuntime:
                 )
 
         except Exception:
-            traceback.print_exc()
             self.current_state = state_at_start
             self.variables = dict(variables_before)
             self.pending_events = pending_before
@@ -169,8 +154,8 @@ class WeaponRuntime:
         )
 
     def _run_actions(
-            self,
-            actions: tuple[ActionDef, ...],
+        self,
+        actions: tuple[ActionDef, ...],
     ) -> tuple[list[str], list[ScheduledEvent], list[GunRuntimeCommand]]:
         env = RuntimeEnvironment(
             weapon=self.weapon,

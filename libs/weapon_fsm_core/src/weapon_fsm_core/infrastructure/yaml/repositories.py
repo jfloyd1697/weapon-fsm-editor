@@ -5,6 +5,7 @@ import yaml
 
 from weapon_fsm_core.domain.model import (
     ActionDef,
+    AudioEffectDef,
     ClipDef,
     ClipSetDef,
     GunConfig,
@@ -15,8 +16,6 @@ from weapon_fsm_core.domain.model import (
     WeaponConfig,
 )
 
-from .profile_schema import ActionFile, ClipFile, ClipSetFile, EventFile, GuardFile, GunFile, LightSequenceFile, StateFile, TransitionFile, WeaponProfileFile
-
 
 class ProfileRepository:
     def load_gun(self, path: str | Path) -> GunConfig:
@@ -24,163 +23,159 @@ class ProfileRepository:
 
     def load_weapon(self, path: str | Path) -> WeaponConfig:
         source_path = Path(path)
-        text = source_path.read_text(encoding="utf-8")
-        return self.load_weapon_text(text, source_path)
+        return self.load_weapon_text(source_path.read_text(encoding="utf-8"), source_path=source_path)
 
     def load_gun_text(self, text: str) -> GunConfig:
         raw = yaml.safe_load(text) or {}
-        gun_file = GunFile.from_dict(self._normalize_gun_profile(raw))
-        return GunConfig(
-            events=tuple(
-                event.id if isinstance(event, EventFile) else str(event)
-                for event in gun_file.events
-            )
-        )
-
-    def load_weapon_text(
-        self,
-        text: str,
-        source_path: str | Path | None = None,
-    ) -> WeaponConfig:
-        profile = WeaponProfileFile.from_yaml(text)
-        weapon_profile = profile.weapon.to_dict()
-        weapon_profile["source_path"] = source_path.as_posix()
-        return WeaponConfig.from_dict(weapon_profile)
-
-    def _normalize_gun_profile(self, raw: dict[str, Any]) -> dict[str, Any]:
-        gun_raw = dict(raw.get("gun", raw) or {})
-        events = []
+        gun_raw = raw.get("gun", raw)
+        event_ids: list[str] = []
         for item in gun_raw.get("events", []):
             if isinstance(item, dict):
-                events.append(item)
+                event_id = item.get("id")
             else:
-                events.append({"id": str(item)})
-        gun_raw["events"] = events
-        return gun_raw
+                event_id = item
+            if event_id:
+                event_ids.append(str(event_id))
+        return GunConfig(events=tuple(event_ids))
 
-    def _normalize_weapon_profile(self, raw: dict[str, Any]) -> dict[str, Any]:
-        if "weapon" not in raw:
-            raw = {"weapon": raw}
+    def load_weapon_text(self, text: str, source_path: str | Path | None = None) -> WeaponConfig:
+        raw = yaml.safe_load(text) or {}
+        weapon_raw = raw.get("weapon", raw)
+        states = self._parse_states(weapon_raw.get("states", []))
+        transitions = self._parse_transitions(weapon_raw.get("transitions", []))
+        variables = dict(weapon_raw.get("variables", {}))
+        clips = self._parse_clips(weapon_raw.get("clips", raw.get("clips", {})))
+        clip_sets = self._parse_clip_sets(weapon_raw.get("clip_sets", raw.get("clip_sets", {})))
+        audio_effects = self._parse_audio_effects(weapon_raw.get("audio_effects", raw.get("audio_effects", {})))
+        light_sequences = self._parse_light_sequences(weapon_raw.get("light_sequences", raw.get("light_sequences", {})))
+        initial_state = weapon_raw.get("initial_state", "ready")
+        return WeaponConfig(
+            initial_state=str(initial_state),
+            variables=variables,
+            states=states,
+            transitions=tuple(transitions),
+            clips=clips,
+            clip_sets=clip_sets,
+            audio_effects=audio_effects,
+            light_sequences=light_sequences,
+            source_path=Path(source_path) if source_path is not None else None,
+        )
 
-        weapon_raw = dict(raw.get("weapon") or {})
-        profile_raw = dict(raw)
-        for key in ("clips", "clip_sets", "light_sequences"):
-            value = profile_raw.get(key)
-            if value is None and key in weapon_raw:
-                value = weapon_raw.pop(key)
-            profile_raw[key] = self._normalize_asset_mapping(key, value or {})
-        profile_raw["weapon"] = weapon_raw
-        return profile_raw
+    def _parse_clips(self, raw_clips: dict[str, Any]) -> dict[str, ClipDef]:
+        clips: dict[str, ClipDef] = {}
+        for name, raw_clip in raw_clips.items():
+            if isinstance(raw_clip, str):
+                path = raw_clip
+                preload = True
+            else:
+                path = str(raw_clip.get("path", ""))
+                preload = bool(raw_clip.get("preload", True))
+            clips[str(name)] = ClipDef(name=str(name), path=path, preload=preload)
+        return clips
 
-    def _normalize_asset_mapping(self, kind: str, raw_mapping: dict[str, Any]) -> dict[str, Any]:
-        normalized: dict[str, Any] = {}
-        for name, value in raw_mapping.items():
-            if kind == "clips":
-                if isinstance(value, str):
-                    normalized[name] = {"path": value}
+    def _parse_clip_sets(self, raw_clip_sets: dict[str, Any]) -> dict[str, ClipSetDef]:
+        clip_sets: dict[str, ClipSetDef] = {}
+        for name, raw_clip_set in raw_clip_sets.items():
+            if isinstance(raw_clip_set, list):
+                clips = tuple(str(item) for item in raw_clip_set)
+                mode = "random"
+            else:
+                clips = tuple(str(item) for item in raw_clip_set.get("clips", []))
+                mode = str(raw_clip_set.get("mode", "random"))
+            clip_sets[str(name)] = ClipSetDef(name=str(name), clips=clips, mode=mode)
+        return clip_sets
+
+    def _parse_audio_effects(self, raw_effects: dict[str, Any]) -> dict[str, AudioEffectDef]:
+        effects: dict[str, AudioEffectDef] = {}
+        for name, raw_effect in raw_effects.items():
+            if isinstance(raw_effect, str):
+                clips = (str(raw_effect),)
+                mode = "one_shot"
+                interrupt = "interrupt"
+                loop = False
+                gain = 1.0
+            elif isinstance(raw_effect, list):
+                clips = tuple(str(item) for item in raw_effect)
+                mode = "one_shot"
+                interrupt = "interrupt"
+                loop = False
+                gain = 1.0
+            else:
+                if "clips" in raw_effect:
+                    clips = tuple(str(item) for item in raw_effect.get("clips", []))
+                elif "clip" in raw_effect:
+                    clips = (str(raw_effect["clip"]),)
                 else:
-                    normalized[name] = value
-                continue
+                    clips = ()
+                mode = str(raw_effect.get("mode", "one_shot"))
+                interrupt = str(raw_effect.get("interrupt", "interrupt"))
+                loop = bool(raw_effect.get("loop", False))
+                gain = float(raw_effect.get("gain", 1.0))
+            effects[str(name)] = AudioEffectDef(name=str(name), clips=clips, mode=mode, interrupt=interrupt, loop=loop, gain=gain)
+        return effects
 
-            if kind == "clip_sets":
-                if isinstance(value, list):
-                    normalized[name] = {"clips": value, "mode": "random"}
-                else:
-                    normalized[name] = value
-                continue
+    def _parse_light_sequences(self, raw_sequences: dict[str, Any]) -> dict[str, LightSequenceDef]:
+        sequences: dict[str, LightSequenceDef] = {}
+        for name, raw_sequence in raw_sequences.items():
+            if isinstance(raw_sequence, str):
+                path = raw_sequence
+                preload = True
+            else:
+                path = str(raw_sequence.get("path", ""))
+                preload = bool(raw_sequence.get("preload", True))
+            sequences[str(name)] = LightSequenceDef(name=str(name), path=path, preload=preload)
+        return sequences
 
-            if kind == "light_sequences":
-                if isinstance(value, str):
-                    normalized[name] = {"path": value}
-                else:
-                    normalized[name] = value
-                continue
+    def _parse_states(self, raw_states: list[dict[str, Any]]) -> dict[str, StateDef]:
+        states: dict[str, StateDef] = {}
+        for raw_state in raw_states:
+            state = StateDef(
+                id=str(raw_state["id"]),
+                label=str(raw_state.get("label", raw_state["id"])),
+                on_entry=self._parse_actions(raw_state.get("on_entry", [])),
+                on_exit=self._parse_actions(raw_state.get("on_exit", [])),
+            )
+            states[state.id] = state
+        return states
 
-        return normalized
+    def _parse_transitions(self, raw_transitions: list[dict[str, Any]]) -> list[TransitionDef]:
+        transitions: list[TransitionDef] = []
+        for raw_transition in raw_transitions:
+            transitions.append(
+                TransitionDef(
+                    id=str(raw_transition["id"]),
+                    source=str(raw_transition["source"]),
+                    trigger=str(raw_transition["trigger"]),
+                    target=str(raw_transition["target"]),
+                    guard=self._parse_guard(raw_transition.get("guard")),
+                    actions=self._parse_actions(raw_transition.get("actions", [])),
+                )
+            )
+        return transitions
 
-    def _clip_to_model(self, name: str, clip: ClipFile) -> ClipDef:
-        return ClipDef.from_dict({
-            "name": name,
-            "path": clip.path,
-            "preload": clip.preload,
-        })
+    def _parse_actions(self, raw_actions: list[dict[str, Any]]) -> tuple[ActionDef, ...]:
+        actions: list[ActionDef] = []
+        for raw_action in raw_actions:
+            action_type = str(raw_action["type"])
+            if "arguments" in raw_action and isinstance(raw_action["arguments"], dict):
+                arguments = dict(raw_action["arguments"])
+            else:
+                arguments = {key: value for key, value in raw_action.items() if key != "type"}
+            actions.append(ActionDef(type=action_type, arguments=arguments))
+        return tuple(actions)
 
-    def _clip_set_to_model(self, name: str, clip_set: ClipSetFile) -> ClipSetDef:
-        return ClipSetDef.from_dict({
-            "name": name,
-            "clips": clip_set.clips,
-            "mode": clip_set.mode,
-        })
-
-    def _light_sequence_to_model(self, name: str, sequence: LightSequenceFile) -> LightSequenceDef:
-        return LightSequenceDef.from_dict({
-            "name": name,
-            "path": sequence.path,
-            "preload": sequence.preload,
-        })
-
-    def _state_to_model(self, state: StateFile) -> StateDef:
-        return StateDef.from_dict({
-            "id": state.id,
-            "label": state.label,
-            "on_entry": [self._action_to_model(action) for action in state.on_entry],
-            "on_exit": [self._action_to_model(action) for action in state.on_exit],
-        })
-
-    def _transition_to_model(self, transition: TransitionFile) -> TransitionDef:
-        return TransitionDef.from_dict({
-            "id": transition.id,
-            "source": transition.source,
-            "trigger": transition.trigger,
-            "target": transition.target,
-            "guard": self._guard_to_model(transition.guard),
-            "actions": [self._action_to_model(action) for action in transition.actions],
-        })
-
-    def _action_to_model(self, action: ActionFile) -> ActionDef:
-        arguments = dict(action.arguments)
-        for name in (
-            "sound",
-            "clip",
-            "clips",
-            "clip_set",
-            "pattern",
-            "sequence",
-            "event",
-            "delay_ms",
-            "delta",
-            "value",
-            "interrupt",
-            "mode",
-        ):
-            value = getattr(action, name)
-            if value is None:
-                continue
-            if name == "clips" and value == []:
-                continue
-            arguments[name] = value
-
-        return ActionDef.from_dict({
-            "type": action.type,
-            "arguments": arguments,
-        })
-
-    def _guard_to_model(self, guard: GuardFile | None) -> GuardDef | None:
-        if guard is None:
+    def _parse_guard(self, raw: dict[str, Any] | None) -> GuardDef | None:
+        if not raw:
             return None
-
-        return GuardDef.from_dict({
-            "all": [self._guard_to_model(item) for item in guard.all],
-            "any": [self._guard_to_model(item) for item in guard.any],
-            "trigger_pressed": guard.trigger_pressed,
-            "var_gt": self._guard_compare("ammo", guard.ammo_gt),
-            "var_gte": self._guard_compare("ammo", guard.ammo_gte),
-            "var_eq": self._guard_compare("ammo", guard.ammo_eq),
-            "var_lt": self._guard_compare("ammo", guard.ammo_lt),
-            "var_lte": self._guard_compare("ammo", guard.ammo_lte),
-        })
-
-    def _guard_compare(self, name: str, value: Any) -> dict[str, Any] | None:
-        if value is None:
-            return None
-        return {"name": name, "value": value}
+        all_items = tuple(item for item in (self._parse_guard(entry) for entry in raw.get("all", [])) if item is not None)
+        any_items = tuple(item for item in (self._parse_guard(entry) for entry in raw.get("any", [])) if item is not None)
+        return GuardDef(
+            all=all_items,
+            any=any_items,
+            trigger_pressed=raw.get("trigger_pressed"),
+            var_eq=raw.get("var_eq"),
+            var_gt=raw.get("var_gt"),
+            var_gte=raw.get("var_gte"),
+            var_lt=raw.get("var_lt"),
+            var_lte=raw.get("var_lte"),
+        )

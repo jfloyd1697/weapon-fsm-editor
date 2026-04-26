@@ -1,5 +1,4 @@
-from weapon_fsm_core.application.builders import WeaponProfileBuilder
-from weapon_fsm_core import ActionFactory
+from weapon_fsm_core.application.builders import ActionFactory, WeaponProfileBuilder
 
 
 class AudioConfigBuilder:
@@ -36,60 +35,24 @@ class AudioConfigBuilder:
         )
         return self
 
-    def bind_transition_effect(
-        self,
-        transition_id: str,
-        effect: str,
-        replace_existing: bool = False,
-    ) -> "AudioConfigBuilder":
+    def bind_transition_effect(self, transition_id: str, effect: str, replace_existing: bool = False) -> "AudioConfigBuilder":
         if replace_existing:
-            self._profile_builder.remove_transition_actions_by_type(
-                transition_id,
-                "play_audio_effect",
-            )
-        self._profile_builder.append_transition_action(
-            transition_id,
-            ActionFactory.play_audio_effect(effect),
-        )
+            self._profile_builder.remove_transition_actions_by_type(transition_id, "play_audio_effect")
+        self._profile_builder.append_transition_action(transition_id, ActionFactory.play_audio_effect(effect))
         return self
 
-    def bind_state_entry_effect(
-        self,
-        state_id: str,
-        effect: str,
-        replace_existing: bool = False,
-    ) -> "AudioConfigBuilder":
+    def bind_state_entry_effect(self, state_id: str, effect: str, replace_existing: bool = False) -> "AudioConfigBuilder":
         if replace_existing:
-            self._profile_builder.remove_state_entry_actions_by_type(
-                state_id,
-                "play_audio_effect",
-            )
-        self._profile_builder.append_state_entry_action(
-            state_id,
-            ActionFactory.play_audio_effect(effect),
-        )
+            self._profile_builder.remove_state_entry_actions_by_type(state_id, "play_audio_effect")
+        self._profile_builder.append_state_entry_action(state_id, ActionFactory.play_audio_effect(effect))
         return self
 
-    def bind_state_exit_effect(
-        self,
-        state_id: str,
-        effect: str,
-        replace_existing: bool = False,
-    ) -> "AudioConfigBuilder":
+    def bind_state_exit_effect(self, state_id: str, effect: str, replace_existing: bool = False) -> "AudioConfigBuilder":
         if replace_existing:
-            self._profile_builder.remove_state_exit_actions_by_type(
-                state_id,
-                "play_audio_effect",
-            )
-        self._profile_builder.append_state_exit_action(
-            state_id,
-            ActionFactory.play_audio_effect(effect),
-        )
+            self._profile_builder.remove_state_exit_actions_by_type(state_id, "play_audio_effect")
+        self._profile_builder.append_state_exit_action(state_id, ActionFactory.play_audio_effect(effect))
         return self
 
     def add_stop_audio_to_transition(self, transition_id: str) -> "AudioConfigBuilder":
-        self._profile_builder.append_transition_action(
-            transition_id,
-            ActionFactory.stop_audio(),
-        )
+        self._profile_builder.append_transition_action(transition_id, ActionFactory.stop_audio())
         return self

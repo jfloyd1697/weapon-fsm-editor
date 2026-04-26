@@ -16,11 +16,13 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from weapon_fsm_core import ProfileRepository, ProfileYamlBuilder, SimulationService
+from weapon_fsm_audio.presentation.widgets import AudioLibraryBrowser
+from weapon_fsm_core import ProfileRepository, SimulationService
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
+from weapon_fsm_core.infrastructure.yaml.profile_builder import ProfileYamlBuilder
 from weapon_fsm_hardware import RuntimeCommandDispatcher
-from weapon_fsm_audio import AudioLibraryBrowser
+
 
 from ..infrastructure.runtime import RuntimeCommandBridge, QtAudioBackend, QtLightBackend
 from .graph.machine_view import MachineWidget

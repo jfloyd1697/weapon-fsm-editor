@@ -1,0 +1,58 @@
+clips:
+  shot:
+    path: assets/audio/default/shot.wav
+    preload: true
+  reload:
+    path: assets/audio/default/reload.wav
+    preload: true
+audio_effects:
+  fire_effect:
+    clips:
+    - shot
+    mode: one_shot
+    interrupt: interrupt
+    gain: 1.0
+  reload_effect:
+    clips:
+    - reload
+    mode: one_shot
+    interrupt: interrupt
+    gain: 1.0
+weapon:
+  initial_state: ready
+  states:
+  - id: ready
+    label: Ready
+  - id: firing
+    label: Firing
+  - id: reloading
+    label: Reloading
+  transitions:
+  - id: fire
+    source: ready
+    trigger: trigger_pressed
+    target: firing
+    actions:
+    - type: play_audio_effect
+      effect: fire_effect
+    - type: schedule_event
+      event: fire_done
+      delay_ms: 120
+  - id: fire_done
+    source: firing
+    trigger: fire_done
+    target: ready
+  - id: reload
+    source: ready
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio_effect
+      effect: reload_effect
+    - type: schedule_event
+      event: reload_finished
+      delay_ms: 700
+  - id: reload_done
+    source: reloading
+    trigger: reload_finished
+    target: ready

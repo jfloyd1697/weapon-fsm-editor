@@ -1,6 +1,6 @@
 clips:
-  shot: assets/audio/default/shot.wav
-  reload: assets/audio/default/reload.wav
+  shot: assets/audio/prime-arm-cannon/prime-basic.wav
+  reload: assets/audio/prime-arm-cannon/prime-basic2.wav
 weapon:
   initial_state: ready
   states:

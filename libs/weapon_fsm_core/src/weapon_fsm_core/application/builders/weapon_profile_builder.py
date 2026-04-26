@@ -3,6 +3,7 @@ from typing import Any
 
 from weapon_fsm_core.domain.model import (
     ActionDef,
+    AudioEffectDef,
     ClipDef,
     ClipSetDef,
     GunConfig,
@@ -15,17 +16,17 @@ from weapon_fsm_core.domain.model import (
 
 
 class WeaponProfileBuilder:
-    def __init__(self):
-        self._events: list[str] = []
-
-        self._initial_state: str | None = None
-        self._states: dict[str, StateDef] = {}
-        self._transitions: list[TransitionDef] = []
-        self._variables: dict[str, Any] = {}
-        self._clips: dict[str, ClipDef] = {}
-        self._clip_sets: dict[str, ClipSetDef] = {}
-        self._light_sequences: dict[str, LightSequenceDef] = {}
-        self._source_path: Path | None = None
+    def __init__(self, gun: GunConfig | None = None, weapon: WeaponConfig | None = None):
+        self._events = list(gun.events) if gun is not None else []
+        self._initial_state = weapon.initial_state if weapon is not None else None
+        self._variables = dict(weapon.variables) if weapon is not None else {}
+        self._states = dict(weapon.states) if weapon is not None else {}
+        self._transitions = list(weapon.transitions) if weapon is not None else []
+        self._clips = dict(weapon.clips) if weapon is not None else {}
+        self._clip_sets = dict(weapon.clip_sets) if weapon is not None else {}
+        self._audio_effects = dict(weapon.audio_effects) if weapon is not None else {}
+        self._light_sequences = dict(weapon.light_sequences) if weapon is not None else {}
+        self._source_path = weapon.source_path if weapon is not None else None
 
     def set_source_path(self, path: str | Path | None) -> "WeaponProfileBuilder":
         self._source_path = None if path is None else Path(path)
@@ -48,31 +49,17 @@ class WeaponProfileBuilder:
         self._variables[name] = value
         return self
 
-    def ensure_state(self, state_id: str, label: str | None = None) -> "WeaponProfileBuilder":
-        if state_id not in self._states:
-            self._states[state_id] = StateDef(
-                id=state_id,
-                label=label or state_id,
-                on_entry=(),
-                on_exit=(),
-            )
+    def ensure_state(self, state_id: str, label: str | None = None) -> StateDef:
+        state = self._states.get(state_id)
+        if state is None:
+            state = StateDef(id=state_id, label=label or state_id)
         elif label is not None:
-            state = self._states[state_id]
-            self._states[state_id] = StateDef(
-                id=state.id,
-                label=label,
-                on_entry=state.on_entry,
-                on_exit=state.on_exit,
-            )
-        return self
+            state = StateDef(id=state.id, label=label, on_entry=state.on_entry, on_exit=state.on_exit)
+        self._states[state_id] = state
+        return state
 
-    def append_state_entry_action(
-        self,
-        state_id: str,
-        action: ActionDef,
-    ) -> "WeaponProfileBuilder":
-        self.ensure_state(state_id)
-        state = self._states[state_id]
+    def append_state_entry_action(self, state_id: str, action: ActionDef) -> "WeaponProfileBuilder":
+        state = self.ensure_state(state_id)
         self._states[state_id] = StateDef(
             id=state.id,
             label=state.label,
@@ -81,13 +68,8 @@ class WeaponProfileBuilder:
         )
         return self
 
-    def append_state_exit_action(
-        self,
-        state_id: str,
-        action: ActionDef,
-    ) -> "WeaponProfileBuilder":
-        self.ensure_state(state_id)
-        state = self._states[state_id]
+    def append_state_exit_action(self, state_id: str, action: ActionDef) -> "WeaponProfileBuilder":
+        state = self.ensure_state(state_id)
         self._states[state_id] = StateDef(
             id=state.id,
             label=state.label,
@@ -96,13 +78,8 @@ class WeaponProfileBuilder:
         )
         return self
 
-    def remove_state_entry_actions_by_type(
-        self,
-        state_id: str,
-        action_type: str,
-    ) -> "WeaponProfileBuilder":
-        self.ensure_state(state_id)
-        state = self._states[state_id]
+    def remove_state_entry_actions_by_type(self, state_id: str, action_type: str) -> "WeaponProfileBuilder":
+        state = self.ensure_state(state_id)
         self._states[state_id] = StateDef(
             id=state.id,
             label=state.label,
@@ -111,13 +88,8 @@ class WeaponProfileBuilder:
         )
         return self
 
-    def remove_state_exit_actions_by_type(
-        self,
-        state_id: str,
-        action_type: str,
-    ) -> "WeaponProfileBuilder":
-        self.ensure_state(state_id)
-        state = self._states[state_id]
+    def remove_state_exit_actions_by_type(self, state_id: str, action_type: str) -> "WeaponProfileBuilder":
+        state = self.ensure_state(state_id)
         self._states[state_id] = StateDef(
             id=state.id,
             label=state.label,
@@ -152,11 +124,7 @@ class WeaponProfileBuilder:
                 return index
         raise KeyError("Unknown transition: {0}".format(transition_id))
 
-    def append_transition_action(
-        self,
-        transition_id: str,
-        action: ActionDef,
-    ) -> "WeaponProfileBuilder":
+    def append_transition_action(self, transition_id: str, action: ActionDef) -> "WeaponProfileBuilder":
         index = self._find_transition_index(transition_id)
         transition = self._transitions[index]
         self._transitions[index] = TransitionDef(
@@ -169,11 +137,7 @@ class WeaponProfileBuilder:
         )
         return self
 
-    def remove_transition_actions_by_type(
-        self,
-        transition_id: str,
-        action_type: str,
-    ) -> "WeaponProfileBuilder":
+    def remove_transition_actions_by_type(self, transition_id: str, action_type: str) -> "WeaponProfileBuilder":
         index = self._find_transition_index(transition_id)
         transition = self._transitions[index]
         self._transitions[index] = TransitionDef(
@@ -186,11 +150,7 @@ class WeaponProfileBuilder:
         )
         return self
 
-    def set_transition_guard(
-        self,
-        transition_id: str,
-        guard: GuardDef | None,
-    ) -> "WeaponProfileBuilder":
+    def set_transition_guard(self, transition_id: str, guard: GuardDef | None) -> "WeaponProfileBuilder":
         index = self._find_transition_index(transition_id)
         transition = self._transitions[index]
         self._transitions[index] = TransitionDef(
@@ -203,35 +163,38 @@ class WeaponProfileBuilder:
         )
         return self
 
-    def set_clip(
-        self,
-        name: str,
-        path: str,
-        preload: bool = True,
-    ) -> "WeaponProfileBuilder":
+    def set_clip(self, name: str, path: str, preload: bool = True) -> "WeaponProfileBuilder":
         self._clips[name] = ClipDef(name=name, path=path, preload=preload)
         return self
 
-    def set_clip_set(
-        self,
-        name: str,
-        clips: list[str] | tuple[str, ...],
-        mode: str = "random",
-    ) -> "WeaponProfileBuilder":
+    def set_clip_set(self, name: str, clips: list[str] | tuple[str, ...], mode: str = "random") -> "WeaponProfileBuilder":
         self._clip_sets[name] = ClipSetDef(name=name, clips=tuple(clips), mode=mode)
         return self
 
-    def set_light_sequence(
+    def set_audio_effect(
         self,
         name: str,
-        path: str,
-        preload: bool = True,
+        *,
+        clips: list[str] | tuple[str, ...] | None = None,
+        clip: str | None = None,
+        mode: str = "one_shot",
+        interrupt: str = "interrupt",
+        loop: bool = False,
+        gain: float = 1.0,
     ) -> "WeaponProfileBuilder":
-        self._light_sequences[name] = LightSequenceDef(
+        resolved_clips = list(clips) if clips is not None else ([clip] if clip is not None else [])
+        self._audio_effects[name] = AudioEffectDef(
             name=name,
-            path=path,
-            preload=preload,
+            clips=tuple(resolved_clips),
+            mode=mode,
+            interrupt=interrupt,
+            loop=loop,
+            gain=gain,
         )
+        return self
+
+    def set_light_sequence(self, name: str, path: str, preload: bool = True) -> "WeaponProfileBuilder":
+        self._light_sequences[name] = LightSequenceDef(name=name, path=path, preload=preload)
         return self
 
     def build_gun(self) -> GunConfig:
@@ -242,11 +205,12 @@ class WeaponProfileBuilder:
             raise ValueError("initial_state has not been set")
         return WeaponConfig(
             initial_state=self._initial_state,
+            variables=dict(self._variables),
             states=dict(self._states),
             transitions=tuple(self._transitions),
-            variables=dict(self._variables),
             clips=dict(self._clips),
             clip_sets=dict(self._clip_sets),
+            audio_effects=dict(self._audio_effects),
             light_sequences=dict(self._light_sequences),
             source_path=self._source_path,
         )

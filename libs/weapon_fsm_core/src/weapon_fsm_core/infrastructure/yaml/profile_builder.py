@@ -3,6 +3,7 @@ from typing import Any
 import yaml
 
 from weapon_fsm_core.domain.model import ActionDef, ClipDef, ClipSetDef, GuardDef, GunConfig, LightSequenceDef, StateDef, TransitionDef, WeaponConfig
+from weapon_fsm_core.infrastructure.yaml import ProfileYamlMapper
 from weapon_fsm_core.infrastructure.yaml.profile_schema import WeaponProfileFile
 
 
@@ -16,16 +17,7 @@ class ProfileYamlBuilder:
         return self._dump_yaml(root)
 
     def dump_weapon(self, weapon: WeaponConfig) -> str:
-        data = weapon.to_dict()
-        clips = data.pop("clips")
-        clip_sets = data.pop("clip_sets")
-        light_sequences = data.pop("light_sequences")
-        return str(WeaponProfileFile.from_dict({
-            "clips": clips,
-            "clip_sets": clip_sets,
-            "light_sequences": light_sequences,
-            "weapon": data,
-        }).to_yaml())
+        return ProfileYamlMapper.weapon_to_text(weapon)
 
         # clips = self._build_clips(weapon.clips)
         # if clips:

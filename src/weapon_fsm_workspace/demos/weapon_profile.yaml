@@ -1,3 +1,10 @@
+clips:
+  shot:
+    path: assets/audio/prime-arm-cannon/prime-basic.wav
+    preload: true
+  reload:
+    path: assets/audio/prime-arm-cannon/prime-basic2.wav
+    preload: true
 weapon:
   initial_state: ready
   states:
@@ -6,31 +13,23 @@ weapon:
   - id: reloading
     label: Reloading
   transitions:
-  - actions:
-    - arguments:
-        clip: shot
-        interrupt: interrupt
-        mode: one_shot
-      interrupt: interrupt
-      mode: one_shot
-      type: play_audio
-    id: fire
+  - id: fire
     source: ready
-    target: ready
     trigger: trigger_pressed
-  - actions:
-    - arguments:
-        clip: reload
-        interrupt: interrupt
-        mode: one_shot
-      interrupt: interrupt
-      mode: one_shot
-      type: play_audio
-    id: reload
+    target: ready
+    actions:
+    - type: play_audio
+      clip: shot
+  - id: reload
     source: ready
-    target: reloading
     trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: reload
+    - type: schedule_event
+      event: reload_finished
   - id: reload_done
     source: reloading
-    target: ready
     trigger: reload_finished
+    target: ready

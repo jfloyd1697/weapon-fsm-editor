@@ -1,52 +1,50 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Type, Mapping, Dict
-
-from mashumaro import DataClassDictMixin
-from mashumaro.mixins.dict import T
+from typing import Any
 
 
 @dataclass(frozen=True)
-class ActionDef(DataClassDictMixin):
+class ActionDef:
     type: str
     arguments: dict[str, Any] = field(default_factory=dict)
-
-    @classmethod
-    def __pre_deserialize__(cls, d: Dict[Any, Any]) -> Dict[Any, Any]:
-        raw = dict(d)
-        data = {}
-        if d.get("type"):
-            data["type"] = raw.pop("type")
-        data["arguments"] = raw
-        return data
 
     def argument(self, name: str, default: object = None) -> object:
         return self.arguments.get(name, default)
 
 
 @dataclass(frozen=True)
-class ClipDef(DataClassDictMixin):
+class ClipDef:
     name: str
     path: str
     preload: bool = True
 
 
 @dataclass(frozen=True)
-class LightSequenceDef(DataClassDictMixin):
+class LightSequenceDef:
     name: str
     path: str
     preload: bool = True
 
 
 @dataclass(frozen=True)
-class ClipSetDef(DataClassDictMixin):
+class ClipSetDef:
     name: str
     clips: tuple[str, ...]
     mode: str = "random"
 
 
 @dataclass(frozen=True)
-class GuardDef(DataClassDictMixin):
+class AudioEffectDef:
+    name: str
+    clips: tuple[str, ...] = ()
+    mode: str = "one_shot"
+    interrupt: str = "interrupt"
+    loop: bool = False
+    gain: float = 1.0
+
+
+@dataclass(frozen=True)
+class GuardDef:
     all: tuple["GuardDef", ...] = ()
     any: tuple["GuardDef", ...] = ()
     trigger_pressed: bool | None = None
@@ -113,7 +111,7 @@ class GuardDef(DataClassDictMixin):
 
 
 @dataclass(frozen=True)
-class StateDef(DataClassDictMixin):
+class StateDef:
     id: str
     label: str
     on_entry: tuple[ActionDef, ...] = ()
@@ -121,7 +119,7 @@ class StateDef(DataClassDictMixin):
 
 
 @dataclass(frozen=True)
-class TransitionDef(DataClassDictMixin):
+class TransitionDef:
     id: str
     source: str
     trigger: str
@@ -131,18 +129,19 @@ class TransitionDef(DataClassDictMixin):
 
 
 @dataclass(frozen=True)
-class GunConfig(DataClassDictMixin):
+class GunConfig:
     events: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
-class WeaponConfig(DataClassDictMixin):
+class WeaponConfig:
     initial_state: str
-    states: tuple[StateDef, ...]
+    variables: dict[str, Any]
+    states: dict[str, StateDef]
     transitions: tuple[TransitionDef, ...]
-    variables: dict[str, Any] = field(default_factory=dict)
     clips: dict[str, ClipDef] = field(default_factory=dict)
     clip_sets: dict[str, ClipSetDef] = field(default_factory=dict)
+    audio_effects: dict[str, AudioEffectDef] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceDef] = field(default_factory=dict)
     source_path: Path | None = None
 
@@ -155,9 +154,3 @@ class WeaponConfig(DataClassDictMixin):
         if self.source_path is None:
             return relative_path
         return str((self.source_path.parent / relative_path).resolve())
-
-    def get_state(self, current_state):
-        for state in self.states:
-            if state.id == current_state:
-                return state
-        raise ValueError(f"Unsupported state id: {current_state}")
