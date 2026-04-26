@@ -10,9 +10,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "mashumaro>=3.20",
+    "numpy>=2.4.4",
     "pyqt6-sip>=13.11.1",
     "pyqt6-webengine>=6.11.0",
     "pyvis>=0.3.2",
+    "sounddevice>=0.5.5",
+    "soundfile>=0.13.1",
     "uv>=0.11.7",
 ]
 
