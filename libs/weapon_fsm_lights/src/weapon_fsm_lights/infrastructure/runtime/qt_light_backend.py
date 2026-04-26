@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Callable
 
-from weapon_fsm_lights.domain.light_sequence import load_light_sequence
+from weapon_fsm_hardware import LightBackend
+from ...domain.light_sequence import load_light_sequence
 
 
-class QtLightBackend:
+class QtLightBackend(LightBackend):
     def __init__(
         self,
         log: Callable[[str], None] | None = None,

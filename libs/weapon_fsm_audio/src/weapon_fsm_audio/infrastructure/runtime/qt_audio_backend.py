@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from PyQt6.QtCore import QObject, QUrl
+from PyQt6.QtCore import QUrl
+
+from weapon_fsm_hardware import AudioBackend
 
 try:
     from PyQt6.QtMultimedia import QSoundEffect
@@ -18,9 +20,8 @@ class _PlayRequest:
     interrupt: str
 
 
-class QtAudioBackend(QObject):
+class QtAudioBackend(AudioBackend):
     def __init__(self, log: Callable[[str], None] | None = None) -> None:
-        super().__init__()
         self._log = log or (lambda message: None)
         self._active_by_clip: dict[str, list[QSoundEffect]] = {}
         self._queued_by_clip: dict[str, _PlayRequest] = {}
