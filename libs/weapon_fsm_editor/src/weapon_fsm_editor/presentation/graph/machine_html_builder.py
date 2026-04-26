@@ -32,7 +32,7 @@ class MachineHtmlBuilder:
 
         net.set_options(self._options_json())
 
-        for state in machine.states.values():
+        for state in machine.states:
             net.add_node(
                 state.id,
                 label=state.label or state.id,

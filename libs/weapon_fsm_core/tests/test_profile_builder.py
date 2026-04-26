@@ -1,60 +1,50 @@
-from weapon_fsm_core.infrastructure.yaml.profile_builder import ActionBuilder, WeaponProfileBuilder
+from weapon_fsm_core.application.builders import WeaponProfileBuilder
+from weapon_fsm_core import ActionFactory
+from weapon_fsm_core.infrastructure.yaml.profile_mapper import ProfileYamlMapper
 
 
-def test_profile_builder_emits_trimmed_audio_yaml():
+def test_profile_builder_is_format_neutral_and_serializes_through_mapper():
     builder = WeaponProfileBuilder()
-    builder.set_initial_state("ready")
-    builder.ensure_state("ready", "Ready")
-    builder.set_transition(
-        "fire",
+    builder.set_events(["trigger_pressed", "reload_pressed"])
+    builder.ensure_state("ready", label="Ready")
+    builder.ensure_state("reloading", label="Reloading")
+    builder.add_transition(
+        "reload",
         source="ready",
-        target="ready",
-        trigger="trigger_pressed",
+        trigger="reload_pressed",
+        target="reloading",
     )
-    builder.set_audio_clip("blast_a", "assets/audio/blast_a.wav")
-    builder.set_audio_effect("fire_basic", clip="blast_a")
-    builder.append_transition_action("fire", ActionBuilder.play_audio_effect("fire_basic"))
+    builder.set_clip("reload_click", "assets/audio/reload_click.wav")
+    builder.append_transition_action(
+        "reload",
+        ActionFactory.create("play_audio", clip="reload_click"),
+    )
 
-    text = builder.to_yaml()
+    weapon = builder.build_weapon()
+    gun = builder.build_gun()
 
-    assert "audio:" in text
-    assert "effects:" in text
-    assert "gain:" not in text
-    assert "loop:" not in text
-    assert "arguments:" not in text
-    assert "interrupt:" not in text
-    assert "mode:" not in text
-    assert "effect: fire_basic" in text
+    assert gun.events == ("trigger_pressed", "reload_pressed")
+    assert weapon.clips["reload_click"].path == "assets/audio/reload_click.wav"
+    assert weapon.transitions[0].actions[0].arguments["clip"] == "reload_click"
+
+    yaml_text = ProfileYamlMapper.weapon_to_yaml(weapon)
+
+    assert "weapon:" in yaml_text
+    assert "clips:" in yaml_text
+    assert "type: play_audio" in yaml_text
+    assert "clip: reload_click" in yaml_text
 
 
-def test_profile_builder_can_round_trip_compacted_yaml():
-    source = """
-weapon:
-  initial_state: ready
-  states:
-    - id: ready
-      label: Ready
-  transitions:
-    - id: fire
-      source: ready
-      target: ready
-      trigger: trigger_pressed
-      actions:
-        - type: play_audio_effect
-          effect: fire_basic
-audio:
-  clips:
-    blast_a:
-      path: assets/audio/blast_a.wav
-  effects:
-    fire_basic:
-      clips:
-        - blast_a
-"""
-    builder = WeaponProfileBuilder.from_yaml(source)
-    builder.set_audio_effect("charge_loop", clip="blast_a", mode="loop")
+def test_builder_can_replace_audio_effect_actions_without_touching_yaml_layer():
+    builder = WeaponProfileBuilder()
+    builder.ensure_state("ready")
+    builder.add_transition("fire", source="ready", trigger="trigger_pressed", target="ready")
+    builder.append_transition_action("fire", ActionFactory.play_audio_effect("old_effect"))
+    builder.remove_transition_actions_by_type("fire", "play_audio_effect")
+    builder.append_transition_action("fire", ActionFactory.play_audio_effect("new_effect"))
 
-    text = builder.to_yaml()
+    transition = builder.require_transition("fire")
 
-    assert "charge_loop:" in text
-    assert "mode: loop" in text
+    assert len(transition.actions) == 1
+    assert transition.actions[0].type == "play_audio_effect"
+    assert transition.actions[0].arguments == {"effect": "new_effect"}

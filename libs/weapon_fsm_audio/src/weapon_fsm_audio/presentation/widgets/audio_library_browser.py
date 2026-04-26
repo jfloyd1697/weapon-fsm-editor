@@ -50,7 +50,7 @@ class AudioLibraryBrowser(QWidget):
         for clip_name in sorted(weapon.clips):
             self._clips_list.addItem(QListWidgetItem(clip_name))
 
-        for effect_name in sorted(weapon.audio_effects):
+        for effect_name in sorted(getattr(weapon, "audio_effects", {})):
             self._effects_list.addItem(QListWidgetItem(effect_name))
 
         if self._clips_list.count() > 0:

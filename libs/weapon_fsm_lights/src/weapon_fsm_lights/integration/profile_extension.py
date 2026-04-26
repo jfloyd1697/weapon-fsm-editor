@@ -1,13 +1,13 @@
 from pathlib import Path
 from typing import Any
 
-from weapon_fsm_core.domain.extensions import WeaponProfileExtensionData
+from weapon_fsm_core.domain.extensions import WeaponProfileExtensionData, WeaponProfileExtension
 from weapon_fsm_core.domain.model import LightSequenceDef, WeaponConfig
 
 from ..domain.light_sequence import validate_light_sequence
 
 
-class LightsProfileExtension:
+class LightsProfileExtension(WeaponProfileExtension):
     key = "lights"
 
     def load_weapon_node(self, node: Any, *, source_path: Path | None) -> WeaponProfileExtensionData:

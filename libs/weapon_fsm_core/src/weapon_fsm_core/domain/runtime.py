@@ -43,7 +43,7 @@ class WeaponRuntime:
         self.last_transition_id = None
         self.pending_events = []
         self.clip_set_state = {}
-        self._run_actions(self.weapon.states[self.current_state].on_entry)
+        self._run_actions(self.weapon.get_state(self.current_state).on_entry)
 
     def valid_transitions(self) -> tuple[TransitionDef, ...]:
         return tuple(
@@ -74,7 +74,7 @@ class WeaponRuntime:
                 if not self._guard_allows(transition.guard):
                     continue
 
-                current_state_def = self.weapon.states[self.current_state]
+                current_state_def = self.weapon.get_state(self.current_state)
                 emitted_events, scheduled_events, commands = self._run_actions(
                     current_state_def.on_exit
                 )
@@ -89,7 +89,7 @@ class WeaponRuntime:
                 self.current_state = transition.target
                 self.last_transition_id = transition.id
 
-                target_state_def = self.weapon.states[self.current_state]
+                target_state_def = self.weapon.get_state(self.current_state)
                 entry_emits, entry_scheduled, entry_commands = self._run_actions(
                     target_state_def.on_entry
                 )

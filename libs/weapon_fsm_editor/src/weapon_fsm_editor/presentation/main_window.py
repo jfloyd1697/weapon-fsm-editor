@@ -16,12 +16,10 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from weapon_fsm_core import ProfileRepository, SimulationService
-from weapon_fsm_core.application import DispatchRecord
+from weapon_fsm_core import ProfileRepository, ProfileYamlBuilder, SimulationService
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
 from weapon_fsm_hardware import RuntimeCommandDispatcher
-
 from weapon_fsm_audio import AudioLibraryBrowser
 
 from ..infrastructure.runtime import RuntimeCommandBridge, QtAudioBackend, QtLightBackend
@@ -46,17 +44,19 @@ class MainWindow(QMainWindow):
         self._weapon_path = weapon_path
         self._repository = ProfileRepository()
         self._validator = ProfileValidator()
+        self._profile_builder = ProfileYamlBuilder()
+
         self._simulation: SimulationService | None = None
         self._gun: GunConfig | None = None
         self._weapon: WeaponConfig | None = None
         self._audio_backend = QtAudioBackend(log=self._append_runtime_log)
-        self.audio_library_browser = AudioLibraryBrowser(self._audio_backend, self)
         self.led_preview_panel = LedPreviewPanel(self)
         self._light_backend = QtLightBackend(log=self._append_runtime_log, preview_panel=self.led_preview_panel)
         self._command_bridge = RuntimeCommandBridge(
             RuntimeCommandDispatcher(audio=self._audio_backend, lights=self._light_backend)
         )
 
+        self.audio_library = AudioLibraryBrowser(self._audio_backend, parent=self)
         self.gun_editor = QTextEdit()
         self.weapon_editor = WeaponDocumentEditor(self)
         self.behavior_widget = MachineWidget("Weapon Behavior")
@@ -100,6 +100,22 @@ class MainWindow(QMainWindow):
         apply_btn.clicked.connect(self._apply_editor_text)
         toolbar.addWidget(apply_btn)
 
+        save_gun_btn = QPushButton("Save Gun")
+        save_gun_btn.clicked.connect(self._save_gun)
+        toolbar.addWidget(save_gun_btn)
+
+        save_gun_as_btn = QPushButton("Save Gun As")
+        save_gun_as_btn.clicked.connect(self._save_gun_as)
+        toolbar.addWidget(save_gun_as_btn)
+
+        save_weapon_btn = QPushButton("Save Weapon")
+        save_weapon_btn.clicked.connect(self._save_weapon)
+        toolbar.addWidget(save_weapon_btn)
+
+        save_weapon_as_btn = QPushButton("Save Weapon As")
+        save_weapon_as_btn.clicked.connect(self._save_weapon_as)
+        toolbar.addWidget(save_weapon_as_btn)
+
         reset_btn = QPushButton("Reset")
         reset_btn.clicked.connect(self._reset_simulation)
         toolbar.addWidget(reset_btn)
@@ -119,6 +135,7 @@ class MainWindow(QMainWindow):
         weapon_editor_layout.addWidget(QLabel("Weapon YAML"))
         weapon_editor_layout.addWidget(self.weapon_editor)
 
+        left.addWidget(self.audio_library)
         left.addWidget(gun_editor_container)
         left.addWidget(weapon_editor_container)
 
@@ -127,7 +144,6 @@ class MainWindow(QMainWindow):
         right.addWidget(self.gun_control_panel)
         right.addWidget(self.event_panel)
         right.addWidget(self.summary_panel)
-        right.addWidget(self.audio_library_browser)
         right.addWidget(self.led_preview_panel)
         right.addWidget(self.log_output)
 
@@ -182,6 +198,66 @@ class MainWindow(QMainWindow):
     def _apply_editor_text(self) -> None:
         self._apply_documents(self.gun_editor.toPlainText(), self.weapon_editor.toPlainText())
 
+    def _save_gun(self) -> None:
+        self._save_gun_to_path(self._gun_path)
+
+    def _save_gun_as(self) -> None:
+        current_path = self._gun_path or self._gun_path
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save gun",
+            str(current_path) if current_path is not None else str(Path.cwd() / "gun.yaml"),
+            "YAML files (*.yaml *.yml)",
+        )
+        if file_name:
+            self._save_gun_to_path(Path(file_name))
+
+    def _save_weapon(self) -> None:
+        self._save_weapon_to_path(self._weapon_path)
+
+    def _save_weapon_as(self) -> None:
+        current_path = self._weapon_path or self._weapon_path
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save weapon",
+            str(current_path) if current_path is not None else str(Path.cwd() / "weapon.yaml"),
+            "YAML files (*.yaml *.yml)",
+        )
+        if file_name:
+            self._save_weapon_to_path(Path(file_name))
+
+    def _save_gun_to_path(self, path: Path | None) -> None:
+        try:
+            gun = self._repository.load_gun_text(self.gun_editor.toPlainText())
+            normalized = self._profile_builder.dump_gun(gun)
+            target = path or self._gun_path
+            if target is None:
+                raise RuntimeError("No gun path is set")
+            target.write_text(normalized, encoding="utf-8")
+            self._gun_path = target
+            self.gun_editor.setPlainText(normalized)
+            self.statusBar().showMessage(f"Saved gun: {target.name}")
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "Save gun failed", repr(exc))
+
+    def _save_weapon_to_path(self, path: Path | None) -> None:
+        try:
+            weapon = self._repository.load_weapon_text(
+                self.weapon_editor.toPlainText(),
+                source_path=path or self._weapon_path,
+            )
+            normalized = self._profile_builder.dump_weapon(weapon)
+            target = path or self._weapon_path
+            if target is None:
+                raise RuntimeError("No weapon path is set")
+            target.write_text(normalized, encoding="utf-8")
+            self._weapon_path = target
+            self.weapon_editor.setPlainText(normalized)
+            self._apply_documents(self.gun_editor.toPlainText(), normalized)
+            self.statusBar().showMessage(f"Saved weapon: {target.name}")
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "Save weapon failed", repr(exc))
+
     def _apply_documents(self, gun_text: str, weapon_text: str) -> None:
         try:
             gun = self._repository.load_gun_text(gun_text)
@@ -203,11 +279,11 @@ class MainWindow(QMainWindow):
             self._weapon = weapon
             self._simulation = SimulationService(gun, weapon)
             self.weapon_editor.set_gun_config(self._gun)
+            self.audio_library.set_weapon(self._weapon)
 
             self.event_panel.set_events(list(gun.events))
             self.gun_control_panel.reset_trigger()
             self.summary_panel.initialize_for_weapon(self._simulation)
-            self.audio_library_browser.set_weapon(self._weapon)
 
             self._command_bridge.reset()
             self.log_output.clear()
@@ -256,7 +332,7 @@ class MainWindow(QMainWindow):
         records = self._simulation.dispatch_external_event(event_id)
         self._handle_records(records, source_prefix=None)
 
-    def _handle_records(self, records: list[DispatchRecord], source_prefix: str | None) -> None:
+    def _handle_records(self, records, source_prefix: str | None) -> None:
         if not records:
             return
 

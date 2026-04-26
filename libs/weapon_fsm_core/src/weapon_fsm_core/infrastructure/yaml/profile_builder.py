@@ -1,283 +1,160 @@
-from dataclasses import MISSING, fields, is_dataclass, replace
-from pathlib import Path
 from typing import Any
 
 import yaml
 
-from .profile_schema import (
-    ActionFile,
-    AudioEffectFile,
-    ClipFile,
-    GuardFile,
-    StateFile,
-    TransitionFile,
-    WeaponProfileFile,
-)
+from weapon_fsm_core.domain.model import ActionDef, ClipDef, ClipSetDef, GuardDef, GunConfig, LightSequenceDef, StateDef, TransitionDef, WeaponConfig
+from weapon_fsm_core.infrastructure.yaml.profile_schema import WeaponProfileFile
 
 
-class WeaponProfileBuilder:
-    def __init__(self, profile: WeaponProfileFile | None = None):
-        self._profile = profile or WeaponProfileFile()
+class ProfileYamlBuilder:
+    def dump_gun(self, gun: GunConfig) -> str:
+        root = {
+            "gun": {
+                "events": [self._build_event(event_id) for event_id in gun.events],
+            }
+        }
+        return self._dump_yaml(root)
 
-    @classmethod
-    def from_yaml(cls, text: str) -> "WeaponProfileBuilder":
-        return cls(WeaponProfileFile.from_yaml(text))
+    def dump_weapon(self, weapon: WeaponConfig) -> str:
+        data = weapon.to_dict()
+        clips = data.pop("clips")
+        clip_sets = data.pop("clip_sets")
+        light_sequences = data.pop("light_sequences")
+        return str(WeaponProfileFile.from_dict({
+            "clips": clips,
+            "clip_sets": clip_sets,
+            "light_sequences": light_sequences,
+            "weapon": data,
+        }).to_yaml())
 
-    @classmethod
-    def from_file(cls, path: str | Path) -> "WeaponProfileBuilder":
-        path_obj = Path(path)
-        return cls.from_yaml(path_obj.read_text(encoding="utf-8"))
+        # clips = self._build_clips(weapon.clips)
+        # if clips:
+        #     root["clips"] = clips
+        #
+        # clip_sets = self._build_clip_sets(weapon.clip_sets)
+        # if clip_sets:
+        #     root["clip_sets"] = clip_sets
+        #
+        # light_sequences = self._build_light_sequences(weapon.light_sequences)
+        # if light_sequences:
+        #     root["light_sequences"] = light_sequences
+        #
+        # weapon_node: dict[str, Any] = {
+        #     "initial_state": weapon.initial_state,
+        #     "states": [self._build_state(state) for state in weapon.states],
+        #     "transitions": [self._build_transition(transition) for transition in weapon.transitions],
+        # }
+        # if weapon.variables:
+        #     weapon_node["variables"] = dict(weapon.variables)
+        #
+        # root["weapon"] = weapon_node
+        # return self._dump_yaml(root)
 
-    @property
-    def profile(self) -> WeaponProfileFile:
-        return self._profile
+    def _build_event(self, event_id: str) -> dict[str, Any]:
+        return {"id": event_id}
 
-    def set_initial_state(self, state_id: str) -> "WeaponProfileBuilder":
-        self._profile.weapon.initial_state = state_id
-        return self
+    def _build_clips(self, clips: dict[str, ClipDef]) -> dict[str, Any]:
+        node: dict[str, Any] = {}
+        for name, clip in clips.items():
+            if clip.preload:
+                node[name] = clip.path
+            else:
+                node[name] = {
+                    "path": clip.path,
+                    "preload": clip.preload,
+                }
+        return node
 
-    def set_variable(self, name: str, value: Any) -> "WeaponProfileBuilder":
-        self._profile.weapon.variables[name] = value
-        return self
+    def _build_light_sequences(self, sequences: dict[str, LightSequenceDef]) -> dict[str, Any]:
+        node: dict[str, Any] = {}
+        for name, sequence in sequences.items():
+            if sequence.preload:
+                node[name] = sequence.path
+            else:
+                node[name] = {
+                    "path": sequence.path,
+                    "preload": sequence.preload,
+                }
+        return node
 
-    def set_audio_clip(
-        self,
-        name: str,
-        path: str,
-        preload: bool = True,
-    ) -> "WeaponProfileBuilder":
-        self._profile.audio.clips[name] = ClipFile(path=path, preload=preload)
-        return self
+    def _build_clip_sets(self, clip_sets: dict[str, ClipSetDef]) -> dict[str, Any]:
+        node: dict[str, Any] = {}
+        for name, clip_set in clip_sets.items():
+            if clip_set.mode == "random":
+                node[name] = list(clip_set.clips)
+            else:
+                node[name] = {
+                    "clips": list(clip_set.clips),
+                    "mode": clip_set.mode,
+                }
+        return node
 
-    def remove_audio_clip(self, name: str) -> "WeaponProfileBuilder":
-        self._profile.audio.clips.pop(name, None)
-        return self
+    def _build_state(self, state: StateDef) -> dict[str, Any]:
+        node: dict[str, Any] = {"id": state.id}
+        if state.label != state.id:
+            node["label"] = state.label
+        if state.on_entry:
+            node["on_entry"] = [self._build_action(action) for action in state.on_entry]
+        if state.on_exit:
+            node["on_exit"] = [self._build_action(action) for action in state.on_exit]
+        return node
 
-    def set_audio_effect(
-        self,
-        name: str,
-        *,
-        clips: list[str] | tuple[str, ...] | None = None,
-        clip: str | None = None,
-        mode: str = "one_shot",
-        interrupt: str = "interrupt",
-        loop: bool = False,
-        gain: float = 1.0,
-    ) -> "WeaponProfileBuilder":
-        if clips is None:
-            clips = []
-        normalized_clips = [str(item) for item in clips]
-        if clip is not None:
-            normalized_clips = [clip]
-        self._profile.audio.effects[name] = AudioEffectFile(
-            clips=normalized_clips,
-            mode=mode,
-            interrupt=interrupt,
-            loop=loop,
-            gain=gain,
-        )
-        return self
+    def _build_transition(self, transition: TransitionDef) -> dict[str, Any]:
+        node: dict[str, Any] = {
+            "id": transition.id,
+            "source": transition.source,
+            "target": transition.target,
+            "trigger": transition.trigger,
+        }
+        if transition.guard is not None:
+            node["guard"] = self._build_guard(transition.guard)
+        if transition.actions:
+            node["actions"] = [self._build_action(action) for action in transition.actions]
+        return node
 
-    def remove_audio_effect(self, name: str) -> "WeaponProfileBuilder":
-        self._profile.audio.effects.pop(name, None)
-        return self
+    def _build_guard(self, guard: GuardDef) -> dict[str, Any]:
+        node: dict[str, Any] = {}
+        if guard.trigger_pressed is not None:
+            node["trigger_pressed"] = guard.trigger_pressed
+        if guard.var_eq is not None:
+            node["var_eq"] = dict(guard.var_eq)
+        if guard.var_gt is not None:
+            node["var_gt"] = dict(guard.var_gt)
+        if guard.var_gte is not None:
+            node["var_gte"] = dict(guard.var_gte)
+        if guard.var_lt is not None:
+            node["var_lt"] = dict(guard.var_lt)
+        if guard.var_lte is not None:
+            node["var_lte"] = dict(guard.var_lte)
+        if guard.all:
+            node["all"] = [self._build_guard(item) for item in guard.all]
+        if guard.any:
+            node["any"] = [self._build_guard(item) for item in guard.any]
+        return node
 
-    def ensure_state(self, state_id: str, label: str | None = None) -> StateFile:
-        existing = self._find_state(state_id)
-        if existing is not None:
-            if label is not None:
-                existing.label = label
-            return existing
-
-        state = StateFile(id=state_id, label=label or state_id)
-        self._profile.weapon.states.append(state)
-        return state
-
-    def set_transition(
-        self,
-        transition_id: str,
-        *,
-        source: str,
-        target: str,
-        trigger: str,
-        actions: list[ActionFile] | None = None,
-        guard: GuardFile | None = None,
-    ) -> TransitionFile:
-        transition = self._find_transition(transition_id)
-        if transition is None:
-            transition = TransitionFile(
-                id=transition_id,
-                source=source,
-                target=target,
-                trigger=trigger,
-            )
-            self._profile.weapon.transitions.append(transition)
-        transition.source = source
-        transition.target = target
-        transition.trigger = trigger
-        transition.actions = list(actions or [])
-        transition.guard = guard
-        return transition
-
-    def set_transition_actions(
-        self,
-        transition_id: str,
-        actions: list[ActionFile],
-    ) -> "WeaponProfileBuilder":
-        transition = self._require_transition(transition_id)
-        transition.actions = list(actions)
-        return self
-
-    def append_transition_action(
-        self,
-        transition_id: str,
-        action: ActionFile,
-    ) -> "WeaponProfileBuilder":
-        transition = self._require_transition(transition_id)
-        transition.actions.append(action)
-        return self
-
-    def set_state_entry_actions(
-        self,
-        state_id: str,
-        actions: list[ActionFile],
-    ) -> "WeaponProfileBuilder":
-        state = self.ensure_state(state_id)
-        state.on_entry = list(actions)
-        return self
-
-    def append_state_entry_action(
-        self,
-        state_id: str,
-        action: ActionFile,
-    ) -> "WeaponProfileBuilder":
-        state = self.ensure_state(state_id)
-        state.on_entry.append(action)
-        return self
-
-    def set_state_exit_actions(
-        self,
-        state_id: str,
-        actions: list[ActionFile],
-    ) -> "WeaponProfileBuilder":
-        state = self.ensure_state(state_id)
-        state.on_exit = list(actions)
-        return self
-
-    def append_state_exit_action(
-        self,
-        state_id: str,
-        action: ActionFile,
-    ) -> "WeaponProfileBuilder":
-        state = self.ensure_state(state_id)
-        state.on_exit.append(action)
-        return self
-
-    def to_dict(self) -> dict[str, Any]:
-        compacted = _compact(self._profile)
-        if not isinstance(compacted, dict):
-            return {}
-        return compacted
-
-    def to_yaml(self) -> str:
-        return yaml.safe_dump(self.to_dict(), sort_keys=False, allow_unicode=True)
-
-    def write(self, path: str | Path) -> Path:
-        path_obj = Path(path)
-        path_obj.write_text(self.to_yaml(), encoding="utf-8")
-        return path_obj
-
-    def clone(self) -> "WeaponProfileBuilder":
-        copied = WeaponProfileFile.from_dict(self.to_dict())
-        return WeaponProfileBuilder(copied)
-
-    def _find_state(self, state_id: str) -> StateFile | None:
-        for state in self._profile.weapon.states:
-            if state.id == state_id:
-                return state
-        return None
-
-    def _find_transition(self, transition_id: str) -> TransitionFile | None:
-        for transition in self._profile.weapon.transitions:
-            if transition.id == transition_id:
-                return transition
-        return None
-
-    def _require_transition(self, transition_id: str) -> TransitionFile:
-        transition = self._find_transition(transition_id)
-        if transition is None:
-            raise KeyError("Unknown transition: %s" % transition_id)
-        return transition
-
-
-class ActionBuilder:
-    @staticmethod
-    def play_audio_effect(effect: str) -> ActionFile:
-        return ActionFile(type="play_audio_effect", effect=effect)
-
-    @staticmethod
-    def play_audio(
-        clip: str,
-        mode: str = "one_shot",
-        interrupt: str = "interrupt",
-    ) -> ActionFile:
-        return ActionFile(
-            type="play_audio",
-            clip=clip,
-            mode=mode,
-            interrupt=interrupt,
-        )
-
-    @staticmethod
-    def stop_audio() -> ActionFile:
-        return ActionFile(type="stop_audio")
-
-    @staticmethod
-    def dispatch_event(event: str) -> ActionFile:
-        return ActionFile(type="dispatch_event", event=event)
-
-
-def _compact(value: Any) -> Any:
-    if is_dataclass(value):
-        result: dict[str, Any] = {}
-        for field_info in fields(value):
-            current = getattr(value, field_info.name)
-            compacted = _compact(current)
-            if _should_skip_field(field_info, compacted):
+    def _build_action(self, action: ActionDef) -> dict[str, Any]:
+        node: dict[str, Any] = {"type": action.type}
+        for key, value in action.arguments.items():
+            if self._should_skip(value):
                 continue
-            result[field_info.name] = compacted
-        return result
+            node[key] = self._normalize_value(value)
+        return node
 
-    if isinstance(value, dict):
-        result = {}
-        for key, item in value.items():
-            compacted = _compact(item)
-            if _is_empty(compacted):
-                continue
-            result[key] = compacted
-        return result
+    def _normalize_value(self, value: Any) -> Any:
+        if isinstance(value, tuple):
+            return [self._normalize_value(item) for item in value]
+        if isinstance(value, list):
+            return [self._normalize_value(item) for item in value]
+        if isinstance(value, dict):
+            return {key: self._normalize_value(item) for key, item in value.items() if not self._should_skip(item)}
+        return value
 
-    if isinstance(value, list):
-        return [item for item in (_compact(entry) for entry in value) if not _is_empty(item)]
-
-    return value
-
-
-def _should_skip_field(field_info: Any, compacted: Any) -> bool:
-    if compacted is None:
-        return True
-    if _is_empty(compacted):
-        return True
-    if field_info.default is not MISSING:
-        default_value = _compact(field_info.default)
-        if compacted == default_value:
+    def _should_skip(self, value: Any) -> bool:
+        if value is None:
             return True
-    if field_info.default_factory is not MISSING:
-        default_value = _compact(field_info.default_factory())
-        if compacted == default_value:
+        if isinstance(value, (list, tuple, dict)) and not value:
             return True
-    return False
+        return False
 
-
-def _is_empty(value: Any) -> bool:
-    return value == {} or value == []
+    def _dump_yaml(self, payload: dict[str, Any]) -> str:
+        return yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)

@@ -1,177 +1,36 @@
 weapon:
   initial_state: ready
-
-  variables:
-    charge_ticks: 0
-    charge_threshold: 30
-
-  clips:
-    aiai_fall:
-      path: assets/audio/aiai_fallout/aiai_fall.wav
-
-    fallout:
-      path: assets/audio/aiai_fallout/fallout.wav
-
-    reload:
-      path: assets/audio/reload.wav
-
-    aiai_scare1:
-      path: assets/audio/aiai_fallout/aiai_scare1.wav
-    aiai_scare2:
-      path: assets/audio/aiai_fallout/aiai_scare2.wav
-    aiai_scare3:
-      path: assets/audio/aiai_fallout/aiai_scare3.wav
-    aiai_scare4:
-      path: assets/audio/aiai_fallout/aiai_scare4.wav
-    aiai_scare5:
-      path: assets/audio/aiai_fallout/aiai_scare5.wav
-    aiai_scare6:
-      path: assets/audio/aiai_fallout/aiai_scare6.wav
-    aiai_scare7:
-      path: assets/audio/aiai_fallout/aiai_scare7.wav
-
-  clip_sets:
-    aiai_scare:
-      mode: random
-      clips:
-        - aiai_scare0
-        - aiai_scare1
-        - aiai_scare2
-        - aiai_scare3
-        - aiai_scare4
-        - aiai_scare5
-        - aiai_scare6
-        - aiai_scare7
-
-  light_sequences:
-    charge_glow:
-      path: assets/lights/charge_glow.yaml
-    muzzle_flash:
-      path: assets/lights/muzzle_flash.yaml
-    big_flash:
-      path: assets/lights/big_flash.yaml
-    reload:
-      path: assets/lights/reload.yaml
-
   states:
-    - id: ready
-      label: Ready
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: start_light_sequence
-          sequence: charge_glow
-
-    - id: charging
-      label: Charging
-      on_entry:
-        - type: start_light_sequence
-          sequence: charge_glow
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 10
-
-    - id: normal_shot
-      label: Normal Shot
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: play_random_audio
-          clip_set: aiai_scare
-        - type: start_light_sequence
-          sequence: muzzle_flash
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 80
-
-    - id: big_shot
-      label: Big Shot
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: play_audio
-          clip: aiai_fall
-          channel: voice
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: big_flash
-        - type: play_audio
-          clip: fallout
-          channel: impact
-          interrupt: restart
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 300
-
+  - id: ready
+    label: Ready
+  - id: reloading
+    label: Reloading
   transitions:
-    - id: equip_to_ready
-      source: ready
-      trigger: on_equip
-      target: ready
-
-    - id: start_charge
-      source: ready
-      trigger: trigger_pressed
-      target: charging
-      actions:
-        - type: set_var
-          name: charge_ticks
-          value: 0
-
-    - id: charge_done_auto_big_shot
-      source: charging
-      trigger: charge_tick
-      guard:
-        all:
-          - trigger_pressed: true
-          - var_gte:
-              name: charge_ticks
-              value_from_var: charge_threshold
-      target: big_shot
-
-    - id: charge_tick_continue
-      source: charging
-      trigger: charge_tick
-      guard:
-        all:
-          - trigger_pressed: true
-          - var_lt:
-              name: charge_ticks
-              value_from_var: charge_threshold
-      target: charging
-      actions:
-        - type: add_var
-          name: charge_ticks
-          value: 1
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 10
-
-    - id: release_early
-      source: charging
-      trigger: trigger_released
-      guard:
-        var_lt:
-          name: charge_ticks
-          value_from_var: charge_threshold
-      target: normal_shot
-
-    - id: shot_done_normal_ready
-      source: normal_shot
-      trigger: shot_done
-      target: ready
-
-    - id: shot_done_big_ready
-      source: big_shot
-      trigger: shot_done
-      target: ready
+  - actions:
+    - arguments:
+        clip: shot
+        interrupt: interrupt
+        mode: one_shot
+      interrupt: interrupt
+      mode: one_shot
+      type: play_audio
+    id: fire
+    source: ready
+    target: ready
+    trigger: trigger_pressed
+  - actions:
+    - arguments:
+        clip: reload
+        interrupt: interrupt
+        mode: one_shot
+      interrupt: interrupt
+      mode: one_shot
+      type: play_audio
+    id: reload
+    source: ready
+    target: reloading
+    trigger: reload_pressed
+  - id: reload_done
+    source: reloading
+    target: ready
+    trigger: reload_finished

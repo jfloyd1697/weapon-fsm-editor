@@ -1,69 +1,61 @@
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, Type, Mapping, Dict
+
+from mashumaro import DataClassDictMixin
+from mashumaro.mixins.dict import T
 
 
 @dataclass(frozen=True)
-class ActionDef:
+class ActionDef(DataClassDictMixin):
     type: str
-    arguments: dict[str, object] = field(default_factory=dict)
+    arguments: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def __pre_deserialize__(cls, d: Dict[Any, Any]) -> Dict[Any, Any]:
+        raw = dict(d)
+        data = {}
+        if d.get("type"):
+            data["type"] = raw.pop("type")
+        data["arguments"] = raw
+        return data
 
     def argument(self, name: str, default: object = None) -> object:
         return self.arguments.get(name, default)
 
 
 @dataclass(frozen=True)
-class ClipDef:
-    name: str
-    path: str
-    preload: bool = True
-
-
-
-
-@dataclass(frozen=True)
-class AudioEffectDef:
-    name: str
-    clips: tuple[str, ...]
-    mode: str = "one_shot"
-    interrupt: str = "interrupt"
-    loop: bool = False
-    gain: float = 1.0
-    metadata: dict[str, object] = field(default_factory=dict)
-
-    @property
-    def resolved_mode(self) -> str:
-        if self.loop or self.mode == "loop":
-            return "loop"
-        if self.mode == "random":
-            return "random"
-        return "one_shot"
-
-
-@dataclass(frozen=True)
-class LightSequenceDef:
+class ClipDef(DataClassDictMixin):
     name: str
     path: str
     preload: bool = True
 
 
 @dataclass(frozen=True)
-class ClipSetDef:
+class LightSequenceDef(DataClassDictMixin):
+    name: str
+    path: str
+    preload: bool = True
+
+
+@dataclass(frozen=True)
+class ClipSetDef(DataClassDictMixin):
     name: str
     clips: tuple[str, ...]
     mode: str = "random"
 
 
 @dataclass(frozen=True)
-class GuardDef:
+class GuardDef(DataClassDictMixin):
     all: tuple["GuardDef", ...] = ()
     any: tuple["GuardDef", ...] = ()
     trigger_pressed: bool | None = None
 
-    var_eq: dict[str, object] | None = None
-    var_gt: dict[str, object] | None = None
-    var_gte: dict[str, object] | None = None
-    var_lt: dict[str, object] | None = None
-    var_lte: dict[str, object] | None = None
+    var_eq: dict[str, Any] | None = None
+    var_gt: dict[str, Any] | None = None
+    var_gte: dict[str, Any] | None = None
+    var_lt: dict[str, Any] | None = None
+    var_lte: dict[str, Any] | None = None
 
     def evaluate(
         self,
@@ -121,7 +113,7 @@ class GuardDef:
 
 
 @dataclass(frozen=True)
-class StateDef:
+class StateDef(DataClassDictMixin):
     id: str
     label: str
     on_entry: tuple[ActionDef, ...] = ()
@@ -129,7 +121,7 @@ class StateDef:
 
 
 @dataclass(frozen=True)
-class TransitionDef:
+class TransitionDef(DataClassDictMixin):
     id: str
     source: str
     trigger: str
@@ -139,20 +131,19 @@ class TransitionDef:
 
 
 @dataclass(frozen=True)
-class GunConfig:
+class GunConfig(DataClassDictMixin):
     events: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
-class WeaponConfig:
+class WeaponConfig(DataClassDictMixin):
     initial_state: str
-    variables: dict[str, object]
-    states: dict[str, StateDef]
+    states: tuple[StateDef, ...]
     transitions: tuple[TransitionDef, ...]
+    variables: dict[str, Any] = field(default_factory=dict)
     clips: dict[str, ClipDef] = field(default_factory=dict)
     clip_sets: dict[str, ClipSetDef] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceDef] = field(default_factory=dict)
-    audio_effects: dict[str, AudioEffectDef] = field(default_factory=dict)
     source_path: Path | None = None
 
     def transitions_from(self, state_id: str) -> tuple[TransitionDef, ...]:
@@ -164,3 +155,9 @@ class WeaponConfig:
         if self.source_path is None:
             return relative_path
         return str((self.source_path.parent / relative_path).resolve())
+
+    def get_state(self, current_state):
+        for state in self.states:
+            if state.id == current_state:
+                return state
+        raise ValueError(f"Unsupported state id: {current_state}")

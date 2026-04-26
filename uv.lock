@@ -419,11 +419,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/96/5a/4fed77781061647d3be98e2f235ef1869289dd839ca0451a8d50a30fcd5c/mashumaro-3.20-py3-none-any.whl", hash = "sha256:648bc326f64c55447988eab67d6bfe3b7958c0961c83590709b1f950f88f4a3c", size = 94942, upload-time = "2026-02-09T21:53:53.343Z" },
 ]
 
-[package.optional-dependencies]
-yaml = [
-    { name = "pyyaml" },
-]
-
 [[package]]
 name = "matplotlib-inline"
 version = "0.2.1"
@@ -948,13 +943,13 @@ name = "weapon-fsm-core"
 version = "0.1.0"
 source = { editable = "libs/weapon_fsm_core" }
 dependencies = [
-    { name = "mashumaro", extra = ["yaml"] },
+    { name = "mashumaro" },
     { name = "pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "mashumaro", extras = ["yaml"], specifier = ">=3.13" },
+    { name = "mashumaro", specifier = ">=3.20" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
 
@@ -1016,6 +1011,7 @@ name = "weapon-fsm-workspace"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "mashumaro" },
     { name = "pyqt6-sip" },
     { name = "pyqt6-webengine" },
     { name = "pyvis" },
@@ -1032,6 +1028,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "mashumaro", specifier = ">=3.20" },
     { name = "pyqt6-sip", specifier = ">=13.11.1" },
     { name = "pyqt6-webengine", specifier = ">=6.11.0" },
     { name = "pyvis", specifier = ">=0.3.2" },

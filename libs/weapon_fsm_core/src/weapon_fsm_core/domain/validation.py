@@ -31,11 +31,12 @@ class ProfileValidator:
         events.update(self._events_from_actions(weapon))
         variables = set(weapon.variables.keys())
         variables.add("trigger_down")
-        states = set(weapon.states.keys())
+        states = set(state.id for state in weapon.states)
         clips = set(weapon.clips.keys())
         clip_sets = set(weapon.clip_sets.keys())
         light_sequences = set(weapon.light_sequences.keys())
-        audio_effects = set(weapon.audio_effects.keys())
+        # audio_effects = set(weapon.audio_effects.keys())
+        audio_effects = set()
         return ValidationContext(
             states=states,
             variables=variables,
@@ -127,7 +128,7 @@ class ProfileValidator:
                     )
                 )
 
-        for name, effect in weapon.audio_effects.items():
+        for name, effect in getattr(weapon, "audio_effects", {}).items():
             if not effect.clips:
                 issues.append(
                     ValidationIssue(
@@ -296,7 +297,7 @@ class ProfileValidator:
     ) -> list[ValidationIssue]:
         issues: list[ValidationIssue] = []
 
-        for state in weapon.states.values():
+        for state in weapon.states:
             for index, action in enumerate(state.on_entry):
                 issues.extend(
                     self._validate_action(
@@ -340,7 +341,7 @@ class ProfileValidator:
     def _events_from_actions(self, weapon: WeaponConfig) -> set[str]:
         discovered: set[str] = set()
 
-        for state in weapon.states.values():
+        for state in weapon.states:
             for action in state.on_entry + state.on_exit:
                 if action.type in {"emit_event", "schedule_event", "chance_event"}:
                     event_id = action.argument("event")
