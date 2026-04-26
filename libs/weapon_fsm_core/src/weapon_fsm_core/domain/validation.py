@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-import typing
 
 from weapon_fsm_lights import validate_light_sequence
+
 from .command_schema import ValidationContext
 from .commands import RuntimeCommand
 from .model import ActionDef, GuardDef, GunConfig, WeaponConfig
@@ -35,6 +35,7 @@ class ProfileValidator:
         clips = set(weapon.clips.keys())
         clip_sets = set(weapon.clip_sets.keys())
         light_sequences = set(weapon.light_sequences.keys())
+        audio_effects = set(weapon.audio_effects.keys())
         return ValidationContext(
             states=states,
             variables=variables,
@@ -42,6 +43,7 @@ class ProfileValidator:
             clips=clips,
             clip_sets=clip_sets,
             light_sequences=light_sequences,
+            audio_effects=audio_effects,
         )
 
     def _validate_weapon(self, weapon: WeaponConfig) -> list[ValidationIssue]:
@@ -122,6 +124,42 @@ class ProfileValidator:
                     ValidationIssue(
                         f"clip_sets.{name}.mode",
                         f"Clip set '{name}' has invalid mode '{clip_set.mode}'",
+                    )
+                )
+
+        for name, effect in weapon.audio_effects.items():
+            if not effect.clips:
+                issues.append(
+                    ValidationIssue(
+                        f"audio.effects.{name}.clips",
+                        f"Audio effect '{name}' must reference at least one clip",
+                    )
+                )
+                continue
+
+            missing = [clip_name for clip_name in effect.clips if clip_name not in weapon.clips]
+            if missing:
+                quoted = ", ".join(repr(item) for item in missing)
+                issues.append(
+                    ValidationIssue(
+                        f"audio.effects.{name}.clips",
+                        f"Audio effect '{name}' references unknown clip(s): {quoted}",
+                    )
+                )
+
+            if effect.resolved_mode not in {"one_shot", "loop", "random"}:
+                issues.append(
+                    ValidationIssue(
+                        f"audio.effects.{name}.mode",
+                        f"Audio effect '{name}' has invalid mode '{effect.mode}'",
+                    )
+                )
+
+            if effect.interrupt not in {"interrupt", "schedule", "ignore"}:
+                issues.append(
+                    ValidationIssue(
+                        f"audio.effects.{name}.interrupt",
+                        f"Audio effect '{name}' has invalid interrupt '{effect.interrupt}'",
                     )
                 )
 

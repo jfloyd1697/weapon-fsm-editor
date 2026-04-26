@@ -23,6 +23,23 @@ class LightSequenceFile(DataClassYAMLMixin):
     preload: bool = True
 
 
+
+
+@dataclass
+class AudioEffectFile(DataClassYAMLMixin):
+    clips: list[str] = field(default_factory=list)
+    mode: str = "one_shot"
+    interrupt: str = "interrupt"
+    loop: bool = False
+    gain: float = 1.0
+
+
+@dataclass
+class AudioFile(DataClassYAMLMixin):
+    clips: dict[str, ClipFile] = field(default_factory=dict)
+    effects: dict[str, AudioEffectFile] = field(default_factory=dict)
+
+
 @dataclass
 class ClipSetFile(DataClassYAMLMixin):
     clips: list[str] = field(default_factory=list)
@@ -39,6 +56,7 @@ class ActionFile(DataClassYAMLMixin):
     clip_set: str | None = None
     pattern: str | None = None
     sequence: str | None = None
+    effect: str | None = None
     event: str | None = None
     delay_ms: int | None = None
     delta: int | None = None
@@ -93,6 +111,7 @@ class WeaponFile(DataClassYAMLMixin):
 @dataclass
 class WeaponProfileFile(DataClassYAMLMixin):
     weapon: WeaponFile = field(default_factory=WeaponFile)
+    audio: AudioFile = field(default_factory=AudioFile)
     clips: dict[str, ClipFile] = field(default_factory=dict)
     clip_sets: dict[str, ClipSetFile] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceFile] = field(default_factory=dict)

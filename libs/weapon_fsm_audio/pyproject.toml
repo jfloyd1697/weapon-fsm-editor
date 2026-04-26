@@ -5,11 +5,12 @@ build-backend = "uv_build"
 [project]
 name = "weapon-fsm-audio"
 version = "0.1.0"
-description = "Audio asset loading, preview widgets, and editing tools for weapon FSM"
+description = "Audio asset loading, preview widgets, and effect authoring tools for weapon FSM"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "PyQt6>=6.7",
+  "PyYAML>=6.0",
   "weapon-fsm-core>=0.1.0",
 ]
 

@@ -5,6 +5,7 @@ import yaml
 
 from weapon_fsm_core.domain.model import (
     ActionDef,
+    AudioEffectDef,
     ClipDef,
     GunConfig,
     GuardDef,
@@ -49,11 +50,13 @@ class ProfileRepository:
         states = self._parse_states(weapon_raw.get("states", []))
         transitions = self._parse_transitions(weapon_raw.get("transitions", []))
         variables = dict(weapon_raw.get("variables", {}))
-        clips = self._parse_clips(raw.get("clips", weapon_raw.get("clips", {})))
+        audio_raw = raw.get("audio", weapon_raw.get("audio", {}))
+        clips = self._parse_clips(raw.get("clips", weapon_raw.get("clips", {})), audio_raw.get("clips", {}))
         clip_sets = self._parse_clip_sets(raw.get("clip_sets", weapon_raw.get("clip_sets", {})))
         light_sequences = self._parse_light_sequences(
             raw.get("light_sequences", weapon_raw.get("light_sequences", {}))
         )
+        audio_effects = self._parse_audio_effects(raw.get("audio_effects", audio_raw.get("effects", {})))
 
         initial_state = weapon_raw.get("initial_state", "ready")
         return WeaponConfig(
@@ -64,21 +67,58 @@ class ProfileRepository:
             clips=clips,
             clip_sets=clip_sets,
             light_sequences=light_sequences,
+            audio_effects=audio_effects,
             source_path=Path(source_path) if source_path is not None else None,
         )
 
-    def _parse_clips(self, raw_clips: dict[str, Any]) -> dict[str, ClipDef]:
+    def _parse_clips(self, *clip_sections: dict[str, Any]) -> dict[str, ClipDef]:
         clips: dict[str, ClipDef] = {}
-        for name, raw_clip in raw_clips.items():
-            if isinstance(raw_clip, str):
-                path = raw_clip
-                preload = True
-            else:
-                path = str(raw_clip.get("path", ""))
-                preload = bool(raw_clip.get("preload", True))
-            clips[str(name)] = ClipDef(name=str(name), path=path, preload=preload)
+        for raw_clips in clip_sections:
+            for name, raw_clip in raw_clips.items():
+                if isinstance(raw_clip, str):
+                    path = raw_clip
+                    preload = True
+                else:
+                    path = str(raw_clip.get("path", ""))
+                    preload = bool(raw_clip.get("preload", True))
+                clips[str(name)] = ClipDef(name=str(name), path=path, preload=preload)
         return clips
 
+    def _parse_audio_effects(self, raw_effects: dict[str, Any]) -> dict[str, AudioEffectDef]:
+        effects: dict[str, AudioEffectDef] = {}
+        for name, raw_effect in raw_effects.items():
+            if isinstance(raw_effect, str):
+                clips = (str(raw_effect),)
+                mode = "one_shot"
+                interrupt = "interrupt"
+                loop = False
+                gain = 1.0
+                metadata = {}
+            else:
+                raw_clips = raw_effect.get("clips")
+                raw_clip = raw_effect.get("clip")
+                if raw_clips is None and raw_clip is not None:
+                    raw_clips = [raw_clip]
+                clips = tuple(str(item) for item in (raw_clips or []))
+                mode = str(raw_effect.get("mode", "one_shot"))
+                interrupt = str(raw_effect.get("interrupt", "interrupt"))
+                loop = bool(raw_effect.get("loop", False))
+                gain = float(raw_effect.get("gain", 1.0))
+                metadata = {
+                    key: value
+                    for key, value in raw_effect.items()
+                    if key not in {"clips", "clip", "mode", "interrupt", "loop", "gain"}
+                }
+            effects[str(name)] = AudioEffectDef(
+                name=str(name),
+                clips=clips,
+                mode=mode,
+                interrupt=interrupt,
+                loop=loop,
+                gain=gain,
+                metadata=metadata,
+            )
+        return effects
 
     def _parse_clip_sets(self, raw_clip_sets: dict[str, Any]) -> dict[str, ClipSetDef]:
         clip_sets: dict[str, ClipSetDef] = {}

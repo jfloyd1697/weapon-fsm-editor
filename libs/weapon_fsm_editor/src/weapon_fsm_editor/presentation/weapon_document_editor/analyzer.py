@@ -147,16 +147,46 @@ class WeaponDocumentAnalyzer:
         if weapon_start is not None:
             spans.append(BlockSpan("weapon", weapon_start, max(weapon_start, len(lines) - 1)))
 
-        for section_name in ("clips", "clip_sets", "light_sequences"):
+        for section_name in ("clips", "clip_sets", "light_sequences", "audio_effects"):
             section_start = root_sections.get(section_name)
             if section_start is None:
                 continue
             spans.append(BlockSpan(section_name, section_start, max(section_start, len(lines) - 1)))
             spans.extend(self._scan_mapping_blocks(lines, section_start, section_name))
 
+        audio_start = root_sections.get("audio")
+        if audio_start is not None:
+            spans.append(BlockSpan("audio", audio_start, max(audio_start, len(lines) - 1)))
+            audio_effects_start = self._find_nested_section_start(lines, audio_start, "effects")
+            if audio_effects_start is not None:
+                spans.append(BlockSpan("audio.effects", audio_effects_start, max(audio_effects_start, len(lines) - 1)))
+                spans.extend(self._scan_mapping_blocks(lines, audio_effects_start, "audio.effects"))
+
         spans.extend(self._scan_named_list_blocks(lines, state_section_start, "weapon.states"))
         spans.extend(self._scan_named_list_blocks(lines, transition_section_start, "weapon.transitions"))
         return spans
+
+    def _find_nested_section_start(
+        self,
+        lines: list[str],
+        section_start: int,
+        section_name: str,
+    ) -> int | None:
+        section_indent = len(lines[section_start]) - len(lines[section_start].lstrip(" "))
+        target_indent = section_indent + 2
+
+        for index in range(section_start + 1, len(lines)):
+            line = lines[index]
+            stripped = line.strip()
+            if not stripped:
+                continue
+            indent = len(line) - len(line.lstrip(" "))
+            if indent <= section_indent:
+                return None
+            if indent == target_indent and stripped == f"{section_name}:":
+                return index
+
+        return None
 
     def _scan_mapping_blocks(
         self,

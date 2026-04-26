@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from weapon_fsm_core import LightFrame, LightSequenceAsset, LedNode, load_light_sequence
+from weapon_fsm_lights import LightSequenceAsset, load_light_sequence
 
 
 class LedCanvasWidget(QWidget):

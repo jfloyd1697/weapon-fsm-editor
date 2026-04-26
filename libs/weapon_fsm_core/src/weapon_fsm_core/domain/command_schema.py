@@ -10,6 +10,7 @@ class ValidationContext:
     clips: set[str]
     clip_sets: set[str]
     light_sequences: set[str]
+    audio_effects: set[str]
 
 
 @dataclass(frozen=True)

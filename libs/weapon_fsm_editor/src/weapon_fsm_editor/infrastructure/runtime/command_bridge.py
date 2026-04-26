@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from weapon_fsm_core.domain.commands import GunRuntimeCommand
+from weapon_fsm_core.domain.commands import GunRuntimeCommand, RuntimeCommand
 from weapon_fsm_hardware import RuntimeCommandDispatcher
 
 
@@ -10,7 +10,7 @@ class RuntimeCommandBridge:
     dispatcher: RuntimeCommandDispatcher
     command_log: list[str] = field(default_factory=list)
 
-    def dispatch_commands(self, commands: Iterable[object]) -> None:
+    def dispatch_commands(self, commands: Iterable[RuntimeCommand]) -> None:
         for command in commands:
             if not isinstance(command, GunRuntimeCommand):
                 continue

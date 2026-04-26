@@ -18,6 +18,27 @@ class ClipDef:
     preload: bool = True
 
 
+
+
+@dataclass(frozen=True)
+class AudioEffectDef:
+    name: str
+    clips: tuple[str, ...]
+    mode: str = "one_shot"
+    interrupt: str = "interrupt"
+    loop: bool = False
+    gain: float = 1.0
+    metadata: dict[str, object] = field(default_factory=dict)
+
+    @property
+    def resolved_mode(self) -> str:
+        if self.loop or self.mode == "loop":
+            return "loop"
+        if self.mode == "random":
+            return "random"
+        return "one_shot"
+
+
 @dataclass(frozen=True)
 class LightSequenceDef:
     name: str
@@ -131,6 +152,7 @@ class WeaponConfig:
     clips: dict[str, ClipDef] = field(default_factory=dict)
     clip_sets: dict[str, ClipSetDef] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceDef] = field(default_factory=dict)
+    audio_effects: dict[str, AudioEffectDef] = field(default_factory=dict)
     source_path: Path | None = None
 
     def transitions_from(self, state_id: str) -> tuple[TransitionDef, ...]:

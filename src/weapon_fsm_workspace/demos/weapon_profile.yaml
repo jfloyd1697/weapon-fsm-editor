@@ -15,8 +15,6 @@ weapon:
     reload:
       path: assets/audio/reload.wav
 
-    aiai_scare0:
-      path: assets/audio/aiai_fallout/aiai_scare0.wav
     aiai_scare1:
       path: assets/audio/aiai_fallout/aiai_scare1.wav
     aiai_scare2:
@@ -80,7 +78,7 @@ weapon:
           event: charge_tick
         - type: stop_audio
         - type: stop_light_sequence
-        - type: play_sound_random
+        - type: play_random_audio
           clip_set: aiai_scare
         - type: start_light_sequence
           sequence: muzzle_flash
@@ -98,13 +96,13 @@ weapon:
           event: charge_tick
         - type: stop_audio
         - type: stop_light_sequence
-        - type: play_sound
+        - type: play_audio
           clip: aiai_fall
           channel: voice
           interrupt: restart
         - type: start_light_sequence
           sequence: big_flash
-        - type: play_sound
+        - type: play_audio
           clip: fallout
           channel: impact
           interrupt: restart
@@ -114,28 +112,6 @@ weapon:
         - type: schedule_event
           event: shot_done
           delay_ms: 300
-
-    - id: reloading
-      label: Reloading
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: play_sound
-          clip: reload
-          interrupt: schedule
-        - type: start_light_sequence
-          sequence: reload
-        - type: schedule_event
-          event: reload_complete
-          delay_ms: 1200
-
-    - id: empty
-      label: Empty
 
   transitions:
     - id: equip_to_ready
@@ -198,24 +174,4 @@ weapon:
     - id: shot_done_big_ready
       source: big_shot
       trigger: shot_done
-      target: ready
-
-    - id: reload_from_ready
-      source: ready
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_empty
-      source: empty
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_charging
-      source: charging
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_done
-      source: reloading
-      trigger: reload_complete
       target: ready

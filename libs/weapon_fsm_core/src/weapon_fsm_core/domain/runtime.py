@@ -3,7 +3,22 @@ from dataclasses import dataclass, field
 
 from .commands import RuntimeCommand, RuntimeEnvironment, GunRuntimeCommand
 from .model import ActionDef, GunConfig, GuardDef, TransitionDef, WeaponConfig
-from .runtime_types import ScheduledEvent, TransitionResult
+from .runtime_types import ScheduledEvent
+
+
+@dataclass(frozen=True)
+class TransitionResult:
+    accepted: bool
+    event_id: str
+    previous_state: str
+    current_state: str
+    transition: TransitionDef | None = None
+    emitted_events: tuple[str, ...] = ()
+    scheduled_events: tuple[ScheduledEvent, ...] = ()
+    commands: tuple[RuntimeCommand, ...] = ()
+    variables_before: dict[str, object] = field(default_factory=dict)
+    variables_after: dict[str, object] = field(default_factory=dict)
+    reason: str | None = None
 
 
 @dataclass
@@ -98,6 +113,7 @@ class WeaponRuntime:
                 )
 
         except Exception:
+            traceback.print_exc()
             self.current_state = state_at_start
             self.variables = dict(variables_before)
             self.pending_events = pending_before
@@ -153,8 +169,8 @@ class WeaponRuntime:
         )
 
     def _run_actions(
-        self,
-        actions: tuple[ActionDef, ...],
+            self,
+            actions: tuple[ActionDef, ...],
     ) -> tuple[list[str], list[ScheduledEvent], list[GunRuntimeCommand]]:
         env = RuntimeEnvironment(
             weapon=self.weapon,

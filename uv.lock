@@ -932,12 +932,14 @@ version = "0.1.0"
 source = { editable = "libs/weapon_fsm_audio" }
 dependencies = [
     { name = "pyqt6" },
+    { name = "pyyaml" },
     { name = "weapon-fsm-core" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "pyqt6", specifier = ">=6.7" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" },
 ]
 

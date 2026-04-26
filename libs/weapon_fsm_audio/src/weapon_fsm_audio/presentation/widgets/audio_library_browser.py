@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -10,189 +9,178 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPushButton,
-    QSpinBox,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
-from weapon_fsm_core.domain.model import ClipDef, WeaponConfig
+from weapon_fsm_core.domain.model import WeaponConfig
+from weapon_fsm_audio.infrastructure.runtime.qt_audio_backend import QtAudioBackend
 
 
 class AudioLibraryBrowser(QWidget):
-    def __init__(self, audio_backend, parent: QWidget | None = None) -> None:
+    def __init__(self, audio_backend: QtAudioBackend, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._audio_backend = audio_backend
         self._weapon: WeaponConfig | None = None
-        self._spam_timer = QTimer(self)
-        self._spam_timer.timeout.connect(self._trigger_spam_play)
 
-        self.title_label = QLabel("Audio Library / Preview")
-        self.clip_list = QListWidget(self)
-        self.clip_list.currentItemChanged.connect(self._on_selection_changed)
+        self._mode_combo = QComboBox()
+        self._mode_combo.addItems(["one_shot", "loop"])
+        self._interrupt_combo = QComboBox()
+        self._interrupt_combo.addItems(["interrupt", "schedule", "ignore"])
 
-        self.path_label = QLabel("No clip selected")
-        self.path_label.setWordWrap(True)
-        self.duration_hint_label = QLabel("Select a clip to preview it.")
-        self.duration_hint_label.setWordWrap(True)
+        self._clips_list = QListWidget()
+        self._effects_list = QListWidget()
+        self._details = QTextEdit()
+        self._details.setReadOnly(True)
 
-        self.interrupt_combo = QComboBox(self)
-        self.interrupt_combo.addItems(["interrupt", "schedule", "ignore"])
-
-        self.spam_interval_spin = QSpinBox(self)
-        self.spam_interval_spin.setRange(20, 5000)
-        self.spam_interval_spin.setValue(120)
-        self.spam_interval_spin.setSuffix(" ms")
-
-        self.play_once_button = QPushButton("Play Once", self)
-        self.play_once_button.clicked.connect(self._play_once)
-        self.play_loop_button = QPushButton("Play Loop", self)
-        self.play_loop_button.clicked.connect(self._play_loop)
-        self.stop_button = QPushButton("Stop Clip", self)
-        self.stop_button.clicked.connect(self._stop_selected_clip)
-        self.stop_all_button = QPushButton("Stop All", self)
-        self.stop_all_button.clicked.connect(self._audio_backend.stop_audio)
-        self.retrigger_button = QPushButton("Retrigger Once", self)
-        self.retrigger_button.clicked.connect(self._retrigger_once)
-        self.spam_toggle_button = QPushButton("Start Spam Test", self)
-        self.spam_toggle_button.clicked.connect(self._toggle_spam_test)
-
-        details_group = QGroupBox("Selected Clip", self)
-        details_layout = QFormLayout(details_group)
-        details_layout.addRow("Path", self.path_label)
-        details_layout.addRow("Notes", self.duration_hint_label)
-        details_layout.addRow("Interrupt", self.interrupt_combo)
-        details_layout.addRow("Spam interval", self.spam_interval_spin)
-
-        preview_row_1 = QHBoxLayout()
-        preview_row_1.addWidget(self.play_once_button)
-        preview_row_1.addWidget(self.play_loop_button)
-        preview_row_1.addWidget(self.stop_button)
-
-        preview_row_2 = QHBoxLayout()
-        preview_row_2.addWidget(self.retrigger_button)
-        preview_row_2.addWidget(self.spam_toggle_button)
-        preview_row_2.addWidget(self.stop_all_button)
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.title_label)
-        layout.addWidget(self.clip_list, stretch=1)
-        layout.addWidget(details_group)
-        layout.addLayout(preview_row_1)
-        layout.addLayout(preview_row_2)
-
-        self._update_button_state()
+        self._build_ui()
+        self._clips_list.currentItemChanged.connect(self._refresh_details)
+        self._effects_list.currentItemChanged.connect(self._refresh_details)
 
     def set_weapon(self, weapon: WeaponConfig | None) -> None:
         self._weapon = weapon
-        self._spam_timer.stop()
-        self.spam_toggle_button.setText("Start Spam Test")
-        self.clip_list.clear()
+        self._clips_list.clear()
+        self._effects_list.clear()
+        self._details.clear()
+
         if weapon is None:
-            self.path_label.setText("No clip selected")
-            self.duration_hint_label.setText("Load a weapon profile to browse its clips.")
-            self._update_button_state()
             return
 
         for clip_name in sorted(weapon.clips):
-            item = QListWidgetItem(clip_name)
-            item.setData(256, clip_name)
-            self.clip_list.addItem(item)
+            self._clips_list.addItem(QListWidgetItem(clip_name))
 
-        if self.clip_list.count() > 0:
-            self.clip_list.setCurrentRow(0)
-        else:
-            self.path_label.setText("No clip selected")
-            self.duration_hint_label.setText("This weapon does not define any clips.")
-        self._update_button_state()
+        for effect_name in sorted(weapon.audio_effects):
+            self._effects_list.addItem(QListWidgetItem(effect_name))
 
-    def _selected_clip(self) -> tuple[str, ClipDef, str] | None:
-        item = self.clip_list.currentItem()
-        if item is None or self._weapon is None:
-            return None
-        clip_name = str(item.data(256) or item.text())
-        clip_def = self._weapon.clips.get(clip_name)
-        if clip_def is None:
-            return None
-        path = self._weapon.resolve_asset_path(clip_def.path)
-        return clip_name, clip_def, path
+        if self._clips_list.count() > 0:
+            self._clips_list.setCurrentRow(0)
+        if self._effects_list.count() > 0:
+            self._effects_list.setCurrentRow(0)
 
-    def _on_selection_changed(self) -> None:
-        selected = self._selected_clip()
-        if selected is None:
-            self.path_label.setText("No clip selected")
-            self.duration_hint_label.setText("Select a clip to preview it.")
-            self._update_button_state()
+    def _build_ui(self) -> None:
+        root = QVBoxLayout(self)
+
+        clip_group = QGroupBox("Clips")
+        clip_layout = QVBoxLayout(clip_group)
+        clip_layout.addWidget(self._clips_list)
+
+        effect_group = QGroupBox("Effects")
+        effect_layout = QVBoxLayout(effect_group)
+        effect_layout.addWidget(self._effects_list)
+
+        lists_row = QHBoxLayout()
+        lists_row.addWidget(clip_group)
+        lists_row.addWidget(effect_group)
+        root.addLayout(lists_row)
+
+        form = QFormLayout()
+        form.addRow("Preview mode", self._mode_combo)
+        form.addRow("Interrupt", self._interrupt_combo)
+        root.addLayout(form)
+
+        buttons = QHBoxLayout()
+        play_clip_button = QPushButton("Play Clip")
+        play_clip_button.clicked.connect(self._play_selected_clip)
+        play_effect_button = QPushButton("Play Effect")
+        play_effect_button.clicked.connect(self._play_selected_effect)
+        spam_button = QPushButton("Retrigger x3")
+        spam_button.clicked.connect(self._spam_selected)
+        stop_button = QPushButton("Stop All")
+        stop_button.clicked.connect(self._audio_backend.stop_audio)
+
+        buttons.addWidget(play_clip_button)
+        buttons.addWidget(play_effect_button)
+        buttons.addWidget(spam_button)
+        buttons.addWidget(stop_button)
+        root.addLayout(buttons)
+
+        root.addWidget(QLabel("Selection details"))
+        root.addWidget(self._details)
+
+    def _refresh_details(self) -> None:
+        parts: list[str] = []
+        clip_name = self._current_clip_name()
+        effect_name = self._current_effect_name()
+
+        if self._weapon is not None and clip_name is not None:
+            clip = self._weapon.clips[clip_name]
+            parts.append(f"Clip: {clip_name}")
+            parts.append(f"  path: {clip.path}")
+            parts.append(f"  resolved: {self._weapon.resolve_asset_path(clip.path)}")
+            parts.append(f"  preload: {clip.preload}")
+
+        if self._weapon is not None and effect_name is not None:
+            effect = self._weapon.audio_effects[effect_name]
+            parts.append("")
+            parts.append(f"Effect: {effect_name}")
+            parts.append(f"  mode: {effect.resolved_mode}")
+            parts.append(f"  interrupt: {effect.interrupt}")
+            parts.append(f"  clips: {', '.join(effect.clips)}")
+            parts.append(f"  gain: {effect.gain}")
+
+        self._details.setPlainText("\n".join(parts).strip())
+
+    def _play_selected_clip(self) -> None:
+        if self._weapon is None:
+            return
+        clip_name = self._current_clip_name()
+        if clip_name is None:
             return
 
-        clip_name, clip_def, resolved_path = selected
-        exists = Path(resolved_path).exists()
-        preload_text = "preload" if clip_def.preload else "stream on demand"
-        path_state = resolved_path if exists else f"{resolved_path} (missing)"
-        self.path_label.setText(path_state)
-        self.duration_hint_label.setText(
-            f"Clip '{clip_name}' is set to {preload_text}. Use the interrupt mode to test restart, queue, and ignore behavior."
-        )
-        self._update_button_state()
-
-    def _play_once(self) -> None:
-        self._play_selected(mode="one_shot")
-
-    def _play_loop(self) -> None:
-        self._play_selected(mode="loop")
-
-    def _retrigger_once(self) -> None:
-        self._play_selected(mode="one_shot")
-        self._play_selected(mode="one_shot")
-
-    def _toggle_spam_test(self) -> None:
-        if self._spam_timer.isActive():
-            self._spam_timer.stop()
-            self.spam_toggle_button.setText("Start Spam Test")
+        clip = self._weapon.clips.get(clip_name)
+        if clip is None:
             return
-        selected = self._selected_clip()
-        if selected is None:
-            return
-        self._spam_timer.start(self.spam_interval_spin.value())
-        self.spam_toggle_button.setText("Stop Spam Test")
-        self._trigger_spam_play()
 
-    def _trigger_spam_play(self) -> None:
-        if self._selected_clip() is None:
-            self._spam_timer.stop()
-            self.spam_toggle_button.setText("Start Spam Test")
-            return
-        self._play_selected(mode="one_shot")
-
-    def _stop_selected_clip(self) -> None:
-        selected = self._selected_clip()
-        if selected is None:
-            return
-        clip_name, _, _ = selected
-        if hasattr(self._audio_backend, "stop_clip"):
-            self._audio_backend.stop_clip(clip_name)
-        else:
-            self._audio_backend.stop_audio()
-
-    def _play_selected(self, mode: str) -> None:
-        selected = self._selected_clip()
-        if selected is None:
-            return
-        clip_name, _, resolved_path = selected
         self._audio_backend.play_audio(
             clip=clip_name,
-            path=resolved_path,
-            mode=mode,
-            interrupt=self.interrupt_combo.currentText(),
+            path=self._weapon.resolve_asset_path(clip.path),
+            mode=self._mode_combo.currentText(),
+            interrupt=self._interrupt_combo.currentText(),
         )
 
-    def _update_button_state(self) -> None:
-        has_selection = self._selected_clip() is not None
-        for button in (
-            self.play_once_button,
-            self.play_loop_button,
-            self.stop_button,
-            self.stop_all_button,
-            self.retrigger_button,
-            self.spam_toggle_button,
-        ):
-            button.setEnabled(has_selection or button is self.stop_all_button)
+    def _play_selected_effect(self) -> None:
+        if self._weapon is None:
+            return
+        effect_name = self._current_effect_name()
+        if effect_name is None:
+            return
+
+        effect = self._weapon.audio_effects.get(effect_name)
+        if effect is None or not effect.clips:
+            return
+
+        clip_name = effect.clips[0]
+        clip = self._weapon.clips.get(clip_name)
+        if clip is None:
+            return
+
+        mode = effect.resolved_mode
+        if mode == "random":
+            mode = "one_shot"
+
+        self._audio_backend.play_audio(
+            clip=clip_name,
+            path=self._weapon.resolve_asset_path(clip.path),
+            mode=mode,
+            interrupt=effect.interrupt,
+        )
+
+    def _spam_selected(self) -> None:
+        for _ in range(3):
+            if self._effects_list.currentItem() is not None:
+                self._play_selected_effect()
+            else:
+                self._play_selected_clip()
+
+    def _current_clip_name(self) -> str | None:
+        item = self._clips_list.currentItem()
+        if item is None:
+            return None
+        return item.text()
+
+    def _current_effect_name(self) -> str | None:
+        item = self._effects_list.currentItem()
+        if item is None:
+            return None
+        return item.text()

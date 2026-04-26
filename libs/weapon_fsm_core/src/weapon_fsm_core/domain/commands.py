@@ -1,7 +1,5 @@
-import enum
-import random
-import typing
 from dataclasses import MISSING, dataclass, field, fields, is_dataclass
+import random
 from typing import ClassVar
 
 from .command_schema import CommandFieldSpec, ValidationContext
@@ -47,9 +45,9 @@ class RuntimeCommand:
 
     @classmethod
     def validate_action(
-        cls,
-        action: ActionDef,
-        context: ValidationContext | None = None,
+            cls,
+            action: ActionDef,
+            context: ValidationContext | None = None,
     ) -> list[str]:
         command_type = cls._registry.get(action.type)
         if command_type is None:
@@ -74,8 +72,8 @@ class RuntimeCommand:
 
     @staticmethod
     def _build_kwargs(
-        action: ActionDef,
-        command_type: type["RuntimeCommand"],
+            action: ActionDef,
+            command_type: type["RuntimeCommand"],
     ) -> dict[str, object]:
         if not is_dataclass(command_type):
             raise TypeError(f"{command_type.__name__} must be a dataclass")
@@ -105,18 +103,11 @@ class RuntimeCommand:
 
     @classmethod
     def validate_kwargs(
-        cls,
-        kwargs: dict[str, object],
-        context: ValidationContext | None = None,
+            cls,
+            kwargs: dict[str, object],
+            context: ValidationContext | None = None,
     ) -> None:
         return
-
-
-class GunCommandType(enum.StrEnum):
-    PLAY_AUDIO = "play_audio"
-    STOP_AUDIO = "stop_audio"
-    PLAY_LIGHT = "play_light"
-    STOP_LIGHT = "stop_light"
 
 
 @dataclass(frozen=True)
@@ -128,25 +119,19 @@ class GunRuntimeCommand(RuntimeCommand):
         env.gun_commands.append(self)
 
     @classmethod
-    def play_audio(cls, payload: dict[str, object]) -> typing.Self:
-        return cls(type=GunCommandType.PLAY_AUDIO, payload=payload)
-
-    @classmethod
-    def stop_audio(cls, payload: dict[str, object]) -> typing.Self:
-        return cls(type=GunCommandType.STOP_AUDIO, payload=payload)
-
-    @classmethod
-    def play_light(cls, payload: dict[str, object]) -> typing.Self:
-        return cls(type=GunCommandType.PLAY_LIGHT, payload=payload)
-
-    @classmethod
-    def stop_light(cls) -> typing.Self:
-        return cls(type=GunCommandType.STOP_LIGHT, payload={})
-
+    def play_light(cls, sequence, path, mode):
+        return cls(
+            type="play_light",
+            payload={
+                "sequence": sequence,
+                "path": path,
+                "mode": mode,
+            },
+        )
 
 
 @dataclass(frozen=True, slots=True)
-class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
+class PlayLightCommand(RuntimeCommand, action_type="play_light"):
     sequence: str
     mode: str = "one_shot"
 
@@ -166,11 +151,9 @@ class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
         path = env.weapon.resolve_asset_path(sequence_def.path) if sequence_def is not None else self.sequence
         env.gun_commands.append(
             GunRuntimeCommand.play_light(
-                payload={
-                    "sequence": self.sequence,
-                    "path": path,
-                    "mode": self.mode,
-                },
+                sequence=self.sequence,
+                path=path,
+                mode=self.mode,
             )
         )
 
@@ -178,7 +161,7 @@ class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
 @dataclass(frozen=True, slots=True)
 class StopLightCommand(RuntimeCommand, action_type="stop_light"):
     def execute(self, env: RuntimeEnvironment) -> None:
-        env.gun_commands.append(GunRuntimeCommand.stop_light())
+        env.gun_commands.append(GunRuntimeCommand(type="stop_light", payload={}))
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,9 +197,9 @@ class SetVarCommand(RuntimeCommand, action_type="set_var"):
 
     @classmethod
     def validate_kwargs(
-        cls,
-        kwargs: dict[str, object],
-        context: ValidationContext | None = None,
+            cls,
+            kwargs: dict[str, object],
+            context: ValidationContext | None = None,
     ) -> None:
         has_value = "value" in kwargs and kwargs["value"] is not None
         has_value_from_var = "value_from_var" in kwargs and kwargs["value_from_var"] is not None
@@ -300,6 +283,23 @@ class ScheduleEventCommand(RuntimeCommand, action_type="schedule_event"):
 
 
 @dataclass(frozen=True, slots=True)
+class CancelScheduledEventsCommand(RuntimeCommand, action_type="cancel_scheduled_events"):
+    event: str
+
+    @classmethod
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec("event", required=True, expected_types=(str,), reference_target="events"),
+            CommandFieldSpec("delay_ms", expected_types=(int,)),
+        )
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        for event in env.scheduled_events.copy():
+            if event.event_id == self.event:
+                env.scheduled_events.remove(event)
+
+
+@dataclass(frozen=True, slots=True)
 class ChanceEventCommand(RuntimeCommand, action_type="chance_event"):
     event: str
     chance: float = 0.0
@@ -313,9 +313,9 @@ class ChanceEventCommand(RuntimeCommand, action_type="chance_event"):
 
     @classmethod
     def validate_kwargs(
-        cls,
-        kwargs: dict[str, object],
-        context: ValidationContext | None = None,
+            cls,
+            kwargs: dict[str, object],
+            context: ValidationContext | None = None,
     ) -> None:
         chance = float(kwargs.get("chance", 0.0))
         if chance < 0.0 or chance > 1.0:

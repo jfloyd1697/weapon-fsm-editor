@@ -6,7 +6,7 @@ from .domain.light_sequence import (
     load_light_sequence,
     validate_light_sequence,
 )
-from .infrastructure import QtLightBackend
+from .integration.profile_extension import LightsProfileExtension
 
 __all__ = [
     "LightFrame",
@@ -15,5 +15,5 @@ __all__ = [
     "LedNode",
     "load_light_sequence",
     "validate_light_sequence",
-    "QtLightBackend",
+    "LightsProfileExtension",
 ]

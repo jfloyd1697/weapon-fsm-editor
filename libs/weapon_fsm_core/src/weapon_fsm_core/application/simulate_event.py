@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.runtime import WeaponRuntime
-from weapon_fsm_core.domain.runtime_types import TransitionResult
+from weapon_fsm_core.domain import TransitionResult
 
 
 @dataclass(frozen=True)
