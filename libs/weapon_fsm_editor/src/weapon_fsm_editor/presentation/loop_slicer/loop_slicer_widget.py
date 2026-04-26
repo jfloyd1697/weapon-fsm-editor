@@ -445,8 +445,8 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
         self.open_button = QtWidgets.QPushButton("Open Audio")
         self.save_session_button = QtWidgets.QPushButton("Save Session")
         self.load_session_button = QtWidgets.QPushButton("Load Session")
-        self.export_audio_button = QtWidgets.QPushButton("Export Audio")
-        self.export_loop_button = QtWidgets.QPushButton("Export Loop")
+        self.export_segments_button = QtWidgets.QPushButton("Export Loop Segments")
+        self.extend_audio_button = QtWidgets.QPushButton("Extend Audio")
         self.play_button = QtWidgets.QPushButton("Play")
         self.stop_button = QtWidgets.QPushButton("Stop")
         self.reset_button = QtWidgets.QPushButton("Reset Loop")
@@ -458,11 +458,11 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
         controls.addWidget(self.open_button)
         controls.addWidget(self.save_session_button)
         controls.addWidget(self.load_session_button)
-        controls.addWidget(self.export_audio_button)
-        controls.addWidget(self.export_loop_button)
+        controls.addWidget(self.export_segments_button)
         controls.addWidget(self.play_button)
         controls.addWidget(self.stop_button)
         controls.addWidget(self.reset_button)
+        controls.addWidget(self.extend_audio_button)
         controls.addStretch()
         controls.addWidget(self.start_label)
         controls.addWidget(self.end_label)
@@ -474,11 +474,11 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
         self.open_button.clicked.connect(self.open_audio_file)
         self.save_session_button.clicked.connect(self.save_session_file)
         self.load_session_button.clicked.connect(self.load_session_file)
-        self.export_audio_button.clicked.connect(self.export_audio_file)
-        self.export_loop_button.clicked.connect(self.export_loop_file)
+        self.export_segments_button.clicked.connect(self.export_segments)
         self.play_button.clicked.connect(self.play)
         self.stop_button.clicked.connect(self.stop)
         self.reset_button.clicked.connect(self.reset_loop)
+        self.extend_audio_button.clicked.connect(self.extend_audio)
 
         self.waveform.loop_region_changed.connect(self._set_loop_region)
         self.waveform.seek_requested.connect(self._seek)
@@ -509,10 +509,13 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
         self._audio = audio
         self._sample_rate = sample_rate
 
-        self.waveform.set_audio(audio, sample_rate)
-        self._player.set_audio(audio, sample_rate)
+        self._set_audio(audio, sample_rate)
 
         self._set_loop_region(0, len(audio))
+
+    def _set_audio(self, audio, sample_rate):
+        self.waveform.set_audio(audio, sample_rate)
+        self._player.set_audio(audio, sample_rate)
 
     def save_session_file(self):
         if not self._has_audio():
@@ -581,33 +584,14 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
         self._set_loop_region(loop_start, loop_end)
         self.waveform.set_loop_region(loop_start, loop_end)
 
-    def export_audio_file(self):
+    def extend_audio(self):
         if not self._has_audio():
             return
+        half_samples = self._audio.shape[0] // 2
+        self._audio = np.pad(self._audio, ((half_samples, half_samples), (0,0)), mode="constant")
+        self._set_audio(self._audio, self._sample_rate)
 
-        path = self._get_export_audio_path("Export Full Audio", self._default_audio_export_name())
-
-        if path is None:
-            return
-
-        sf.write(path, self._audio, self._sample_rate)
-
-        loop = self.waveform.loop_region()
-
-        sidecar = path.with_suffix(path.suffix + ".loop.json")
-        sidecar_data = {
-            "version": 1,
-            "audio_file": path.name,
-            "sample_rate": self._sample_rate,
-            "sample_count": int(len(self._audio)),
-            "channels": int(self._audio.shape[1]),
-            "loop_start_sample": int(loop.start_sample),
-            "loop_end_sample": int(loop.end_sample),
-        }
-
-        sidecar.write_text(json.dumps(sidecar_data, indent=2), encoding="utf-8")
-
-    def export_loop_file(self):
+    def export_segments(self):
         if not self._has_audio():
             return
 
@@ -621,13 +605,23 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
             )
             return
 
-        path = self._get_export_audio_path("Export Loop Audio", self._default_loop_export_name())
+        start_name, loop_name = self._default_loop_export_names()
+        start_path = self._get_export_audio_path("Export Loop Start File", start_name)
 
-        if path is None:
+        if start_path is None:
+            return
+
+        start_audio = self._audio[loop.start_sample:]
+        sf.write(start_path, start_audio, self._sample_rate)
+
+        loop_path = self._get_export_audio_path("Export Loop Start File", loop_name)
+
+        if loop_path is None:
             return
 
         loop_audio = self._audio[loop.start_sample:loop.end_sample]
-        sf.write(path, loop_audio, self._sample_rate)
+        sf.write(loop_path, loop_audio, self._sample_rate)
+
 
     def play(self):
         self._player.seek_to_start()
@@ -689,8 +683,11 @@ class LoopSampleEditorWidget(QtWidgets.QWidget):
 
         return str(self._audio_path.with_name(f"{self._audio_path.stem}_with_loop{self._audio_path.suffix}"))
 
-    def _default_loop_export_name(self) -> str:
+    def _default_loop_export_names(self) -> tuple[str, str]:
         if self._audio_path is None:
-            return "exported_loop.wav"
+            return "exported_start.wav", "exported_loop.wav"
 
-        return str(self._audio_path.with_name(f"{self._audio_path.stem}_loop{self._audio_path.suffix}"))
+        start_name = str(self._audio_path.with_stem(f"{self._audio_path.stem}_start"))
+        loop_name = str(self._audio_path.with_stem(f"{self._audio_path.stem}_loop"))
+
+        return start_name, loop_name
