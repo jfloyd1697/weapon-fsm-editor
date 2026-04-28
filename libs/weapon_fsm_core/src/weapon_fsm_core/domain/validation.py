@@ -75,7 +75,7 @@ class ProfileValidator:
             if weapon.source_path is not None:
                 resolved = Path(weapon.resolve_asset_path(clip.path))
                 if not resolved.exists():
-                    issues.append(ValidationIssue(f"clips.{name}.path", f"Clip '{name}' points to missing file '{clip.path}'"))
+                    issues.append(ValidationIssue(f"clips.{name}.path", f"Clip '{name}' points to missing file '{resolved}'"))
         for name, clip_set in weapon.clip_sets.items():
             if not clip_set.clips:
                 issues.append(ValidationIssue(f"clip_sets.{name}.clips", "Clip set must include at least one clip"))

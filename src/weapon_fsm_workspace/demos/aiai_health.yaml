@@ -1,0 +1,120 @@
+clips:
+  death:
+    path: assets/audio/aiai_fallout/aiai_fall.wav
+    preload: true
+  fallout:
+    path: assets/audio/aiai_fallout/fallout.wav
+    preload: true
+  reload:
+    path: assets/audio/reload.wav
+    preload: true
+  aiai_scare1:
+    path: assets/audio/aiai_fallout/aiai_scare1.wav
+    preload: true
+  aiai_scare2:
+    path: assets/audio/aiai_fallout/aiai_scare2.wav
+    preload: true
+  aiai_scare3:
+    path: assets/audio/aiai_fallout/aiai_scare3.wav
+    preload: true
+  aiai_scare4:
+    path: assets/audio/aiai_fallout/aiai_scare4.wav
+    preload: true
+  aiai_scare5:
+    path: assets/audio/aiai_fallout/aiai_scare5.wav
+    preload: true
+  aiai_scare6:
+    path: assets/audio/aiai_fallout/aiai_scare6.wav
+    preload: true
+  aiai_scare7:
+    path: assets/audio/aiai_fallout/aiai_scare7.wav
+    preload: true
+clip_sets:
+  aiai_scare:
+    clips:
+    - aiai_scare1
+    - aiai_scare2
+    - aiai_scare3
+    - aiai_scare4
+    - aiai_scare5
+    - aiai_scare6
+    - aiai_scare7
+    mode: random
+weapon:
+  initial_state: alive
+  variables:
+    health: 5
+    max_health: 5
+  states:
+  - id: alive
+    label: Alive
+  - id: hurt
+    label: Hurt
+    on_entry:
+    - type: play_random_audio
+      clips:
+      - aiai_scare1
+      - aiai_scare2
+      - aiai_scare3
+      - aiai_scare4
+      - aiai_scare5
+      - aiai_scare6
+      - aiai_scare7
+      interrupt: schedule
+    - type: add_var
+      name: health
+      value: -1
+    - type: schedule_event
+      event: hurt_done
+      delay_ms: 150
+  - id: dead
+    label: Dead
+    on_entry:
+    - type: play_audio
+      clip: death
+  - id: healing
+    label: Healing
+    on_entry:
+    - type: play_audio
+      clip: reload_health
+    - type: schedule_event
+      event: heal_done
+      delay_ms: 700
+  transitions:
+  - id: take_hit
+    source: alive
+    trigger: trigger_pressed
+    target: hurt
+    guard:
+      var_gt:
+        name: health
+  - id: hurt_done_alive
+    source: hurt
+    trigger: hurt_done
+    target: alive
+    guard:
+      var_gt:
+        name: health
+  - id: hurt_done_dead
+    source: hurt
+    trigger: hurt_done
+    target: dead
+    guard:
+      var_eq:
+        name: health
+  - id: heal_from_alive
+    source: alive
+    trigger: reload_pressed
+    target: healing
+  - id: heal_from_dead
+    source: dead
+    trigger: reload_pressed
+    target: healing
+  - id: heal_done
+    source: healing
+    trigger: heal_done
+    target: alive
+    actions:
+    - type: set_var
+      name: health
+      value_from_var: max_health

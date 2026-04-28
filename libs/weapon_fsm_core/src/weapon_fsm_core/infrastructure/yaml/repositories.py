@@ -18,12 +18,14 @@ from weapon_fsm_core.domain.model import (
 
 
 class ProfileRepository:
+    ASSETS_PATH = Path("D:\\Python\\weapon-fsm-starter\\src\\weapon_fsm_workspace\\demos\\assets")
+
     def load_gun(self, path: str | Path) -> GunConfig:
         return self.load_gun_text(Path(path).read_text(encoding="utf-8"))
 
     def load_weapon(self, path: str | Path) -> WeaponConfig:
         source_path = Path(path)
-        return self.load_weapon_text(source_path.read_text(encoding="utf-8"), source_path=source_path)
+        return self.load_weapon_text(source_path.read_text(encoding="utf-8"), source_path=self.ASSETS_PATH)
 
     def load_gun_text(self, text: str) -> GunConfig:
         raw = yaml.safe_load(text) or {}
@@ -58,7 +60,7 @@ class ProfileRepository:
             clip_sets=clip_sets,
             audio_effects=audio_effects,
             light_sequences=light_sequences,
-            source_path=Path(source_path) if source_path is not None else None,
+            source_path=self.ASSETS_PATH,
         )
 
     def _parse_clips(self, raw_clips: dict[str, Any]) -> dict[str, ClipDef]:

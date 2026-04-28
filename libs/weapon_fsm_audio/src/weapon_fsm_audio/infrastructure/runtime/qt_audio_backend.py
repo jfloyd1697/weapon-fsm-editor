@@ -69,9 +69,12 @@ class QtAudioBackend(AudioBackend, QObject, metaclass=QtAudioBackendMeta):
         if interrupt == "interrupt":
             self._stop_clip(clip)
 
+        if interrupt == "interrupt_all":
+            self.stop_audio()
+
         effect = QSoundEffect(self)
         effect.setSource(QUrl.fromLocalFile(str(resolved)))
-        effect.setLoopCount(-1 if mode == "loop" else 1)
+        effect.setLoopCount(100000 if mode == "loop" else 1)
         effect.playingChanged.connect(
             lambda clip_name=clip, current=effect: self._on_playing_changed(clip_name, current)
         )
@@ -83,9 +86,9 @@ class QtAudioBackend(AudioBackend, QObject, metaclass=QtAudioBackendMeta):
         self._log(f"[audio] play clip={clip} mode={mode} interrupt={interrupt} path={resolved}")
 
     def stop_audio(self) -> None:
+        self._queued_by_clip.clear()
         for clip in list(self._active_by_clip):
             self._stop_clip(clip)
-        self._queued_by_clip.clear()
         self._log("[audio] stop all")
 
     def _stop_clip(self, clip: str) -> None:

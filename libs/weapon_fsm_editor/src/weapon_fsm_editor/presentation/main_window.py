@@ -275,7 +275,7 @@ class MainWindow(QMainWindow):
                 if issue.path.startswith(("clips.", "light_sequences."))
             ]
             if asset_errors:
-                summary = "\n".join(f"{issue.path}: {issue.message}" for issue in asset_errors)
+                summary = "\n\n".join(f"{issue.path}: {issue.message}" for issue in asset_errors)
                 raise FileNotFoundError(summary)
 
             self._gun = gun
