@@ -1,6 +1,6 @@
 from dataclasses import MISSING, dataclass, field, fields, is_dataclass
 import random
-from typing import ClassVar
+from typing import ClassVar, Any
 
 from .command_schema import CommandFieldSpec, ValidationContext
 from .model import ActionDef, WeaponConfig, AudioEffectDef
@@ -15,6 +15,9 @@ class RuntimeEnvironment:
     emitted_events: list[str] = field(default_factory=list)
     scheduled_events: list[ScheduledEvent] = field(default_factory=list)
     gun_commands: list["GunRuntimeCommand"] = field(default_factory=list)
+
+    def cancel_scheduled_events(self, event_id: str) -> None:
+        self.scheduled_events = [event for event in self.scheduled_events if not event.event_id == event_id]
 
 
 @dataclass(frozen=True)
@@ -122,7 +125,7 @@ class GunRuntimeCommand(RuntimeCommand):
 @dataclass(frozen=True, slots=True)
 class PlayAudioCommand(RuntimeCommand, action_type="play_audio"):
     clip: str
-    mode: str = "one_shot"
+    mode: str = "once"
     interrupt: str = "interrupt"
 
     @classmethod
@@ -132,7 +135,7 @@ class PlayAudioCommand(RuntimeCommand, action_type="play_audio"):
             CommandFieldSpec(
                 "mode",
                 expected_types=(str,),
-                enum_values=("one_shot", "loop"),
+                enum_values=("once", "loop"),
             ),
             CommandFieldSpec(
                 "interrupt",
@@ -213,7 +216,7 @@ class PlayRandomAudioCommand(RuntimeCommand, action_type="play_random_audio"):
             return
         PlayAudioCommand(
             clip=random.choice(self.clips),
-            mode="one_shot",
+            mode="once",
             interrupt=self.interrupt,
         ).execute(env)
 
@@ -245,7 +248,7 @@ class PlayAudioEffectCommand(RuntimeCommand, action_type="play_audio_effect"):
         if effect_def is None or not effect_def.clips:
             return
         clip_name = effect_def.clips[0]
-        mode = "loop" if effect_def.loop or effect_def.mode == "loop" else "one_shot"
+        mode = "loop" if effect_def.loop or effect_def.mode == "loop" else "once"
         PlayAudioCommand(clip=clip_name, mode=mode, interrupt=effect_def.interrupt).execute(env)
 
 
@@ -291,7 +294,7 @@ class PlaySoundRandomCommand(RuntimeCommand, action_type="play_sound_random"):
             clip_name = clip_set_def.clips[index]
         else:
             clip_name = random.choice(clip_set_def.clips)
-        PlayAudioCommand(clip=clip_name, mode="one_shot", interrupt=self.interrupt).execute(env)
+        PlayAudioCommand(clip=clip_name, mode="once", interrupt=self.interrupt).execute(env)
 
 @dataclass(frozen=True, slots=True)
 class StopAudioCommand(RuntimeCommand, action_type="stop_audio"):
@@ -302,7 +305,7 @@ class StopAudioCommand(RuntimeCommand, action_type="stop_audio"):
 @dataclass(frozen=True, slots=True)
 class PlayLightCommand(RuntimeCommand, action_type="play_light"):
     sequence: str
-    mode: str = "one_shot"
+    mode: str = "once"
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
@@ -311,7 +314,7 @@ class PlayLightCommand(RuntimeCommand, action_type="play_light"):
             CommandFieldSpec(
                 "mode",
                 expected_types=(str,),
-                enum_values=("one_shot", "loop"),
+                enum_values=("once", "loop"),
             ),
         )
 
@@ -442,16 +445,105 @@ class EmitEventCommand(RuntimeCommand, action_type="emit_event"):
 class ScheduleEventCommand(RuntimeCommand, action_type="schedule_event"):
     event: str
     delay_ms: int = 0
+    delay_ms_from_var: str | None = None
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
         return (
-            CommandFieldSpec("event", required=True, expected_types=(str,), reference_target="events"),
-            CommandFieldSpec("delay_ms", expected_types=(int,)),
+            CommandFieldSpec(
+                "event",
+                required=True,
+                expected_types=(str,),
+                reference_target="events",
+            ),
+            CommandFieldSpec(
+                "delay_ms",
+                expected_types=(int,),
+            ),
+            CommandFieldSpec(
+                "delay_ms_from_var",
+                expected_types=(str,),
+                reference_target="variables",
+            ),
+        )
+
+    @classmethod
+    def validate_kwargs(
+        cls,
+        kwargs: dict[str, object],
+        context: ValidationContext | None = None,
+    ) -> None:
+        has_delay_ms = "delay_ms" in kwargs
+        has_delay_ms_from_var = "delay_ms_from_var" in kwargs
+
+        if has_delay_ms and has_delay_ms_from_var:
+            raise ValueError(
+                "schedule_event cannot specify both 'delay_ms' and "
+                "'delay_ms_from_var'"
+            )
+
+        if has_delay_ms:
+            delay_ms = int(kwargs.get("delay_ms", 0))
+            if delay_ms < 0:
+                raise ValueError("schedule_event 'delay_ms' cannot be negative")
+
+        if has_delay_ms_from_var:
+            variable_name = str(kwargs["delay_ms_from_var"])
+
+            if not variable_name:
+                raise ValueError(
+                    "schedule_event 'delay_ms_from_var' cannot be empty"
+                )
+
+            if context is not None and variable_name not in context.variables:
+                raise ValueError(
+                    f"schedule_event references unknown delay variable "
+                    f"'{variable_name}'"
+                )
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        delay_ms = self._resolve_delay_ms(env)
+        env.scheduled_events.append(ScheduledEvent(self.event, delay_ms))
+
+    def _resolve_delay_ms(self, env: RuntimeEnvironment) -> int:
+        if self.delay_ms_from_var is None:
+            return int(self.delay_ms)
+
+        value = env.variables.get(self.delay_ms_from_var)
+        if value is None:
+            raise ValueError(
+                f"Unknown delay variable '{self.delay_ms_from_var}' "
+                f"for scheduled event '{self.event}'"
+            )
+
+        delay_ms = int(value)
+
+        if delay_ms < 0:
+            raise ValueError(
+                f"Delay variable '{self.delay_ms_from_var}' for scheduled "
+                f"event '{self.event}' cannot be negative"
+            )
+
+        return delay_ms
+
+
+@dataclass(frozen=True, slots=True)
+class CancelScheduledEventsCommand(RuntimeCommand, action_type="cancel_scheduled_events"):
+    event: str
+
+    @classmethod
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec(
+                "event",
+                required=True,
+                expected_types=(str,),
+                reference_target="events",
+            ),
         )
 
     def execute(self, env: RuntimeEnvironment) -> None:
-        env.scheduled_events.append(ScheduledEvent(self.event, self.delay_ms))
+        env.cancel_scheduled_events(self.event)
 
 
 @dataclass(frozen=True, slots=True)

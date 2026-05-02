@@ -16,7 +16,7 @@ def test_builder_write_and_load_round_trip(tmp_path: Path) -> None:
     builder.ensure_state("firing", "Firing")
 
     audio.set_clip("shot", "assets/audio/shot.wav")
-    audio.set_effect("fire_effect", clip="shot", mode="one_shot")
+    audio.set_effect("fire_effect", clip="shot", mode="once")
 
     builder.add_transition("fire", "ready", "trigger_pressed", "firing")
     audio.bind_transition_effect("fire", "fire_effect")

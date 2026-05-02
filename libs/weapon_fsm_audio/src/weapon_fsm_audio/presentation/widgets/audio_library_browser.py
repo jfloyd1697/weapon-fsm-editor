@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from PyQt6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -15,17 +13,17 @@ from PyQt6.QtWidgets import (
 )
 
 from weapon_fsm_core.domain.model import WeaponConfig
-from weapon_fsm_audio.infrastructure.runtime.qt_audio_backend import QtAudioBackend
+from weapon_fsm_hardware import AudioBackend
 
 
 class AudioLibraryBrowser(QWidget):
-    def __init__(self, audio_backend: QtAudioBackend, parent: QWidget | None = None) -> None:
+    def __init__(self, audio_backend: AudioBackend, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._audio_backend = audio_backend
         self._weapon: WeaponConfig | None = None
 
         self._mode_combo = QComboBox()
-        self._mode_combo.addItems(["one_shot", "loop"])
+        self._mode_combo.addItems(["once", "loop"])
         self._interrupt_combo = QComboBox()
         self._interrupt_combo.addItems(["interrupt", "schedule", "ignore"])
 
@@ -157,7 +155,7 @@ class AudioLibraryBrowser(QWidget):
 
         mode = effect.resolved_mode
         if mode == "random":
-            mode = "one_shot"
+            mode = "once"
 
         self._audio_backend.play_audio(
             clip=clip_name,

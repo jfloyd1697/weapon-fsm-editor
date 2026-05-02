@@ -45,7 +45,7 @@ class ActionFile(DataClassYAMLMixin):
     delta: int | None = None
     value: int | None = None
     interrupt: str | None = "interrupt"
-    mode: str | None = "one_shot"
+    mode: str | None = "once"
 
     @classmethod
     def __pre_deserialize__(cls, d: Dict[Any, Any]) -> Dict[Any, Any]:

@@ -8,7 +8,7 @@ from weapon_fsm_core.domain.commands import GunRuntimeCommand, RuntimeCommand, R
 @dataclass(frozen=True, slots=True)
 class PlayAudioCommand(RuntimeCommand, action_type="play_audio"):
     clip: str
-    mode: str = "one_shot"
+    mode: str = "once"
     interrupt: str = "interrupt"
 
     @classmethod
@@ -18,7 +18,7 @@ class PlayAudioCommand(RuntimeCommand, action_type="play_audio"):
             CommandFieldSpec(
                 "mode",
                 expected_types=(str,),
-                enum_values=("one_shot", "loop"),
+                enum_values=("once", "loop"),
             ),
             CommandFieldSpec(
                 "interrupt",
@@ -101,7 +101,7 @@ class PlayRandomAudioCommand(RuntimeCommand, action_type="play_random_audio"):
             return
         PlayAudioCommand(
             clip=random.choice(clips),
-            mode="one_shot",
+            mode="once",
             interrupt=self.interrupt,
         ).execute(env)
 
@@ -127,7 +127,7 @@ class PlayAudioEffectCommand(RuntimeCommand, action_type="play_audio_effect"):
 
         resolved_mode = effect.resolved_mode
         if resolved_mode == "random":
-            resolved_mode = "one_shot"
+            resolved_mode = "once"
 
         PlayAudioCommand(
             clip=selected_clip,

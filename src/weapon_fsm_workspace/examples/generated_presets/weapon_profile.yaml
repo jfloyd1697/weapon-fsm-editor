@@ -9,13 +9,13 @@ audio_effects:
   fire_effect:
     clips:
     - shot
-    mode: one_shot
+    mode: once
     interrupt: interrupt
     gain: 1.0
   reload_effect:
     clips:
     - reload
-    mode: one_shot
+    mode: once
     interrupt: interrupt
     gain: 1.0
 weapon:

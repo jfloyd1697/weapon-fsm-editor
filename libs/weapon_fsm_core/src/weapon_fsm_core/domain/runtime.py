@@ -31,12 +31,12 @@ class WeaponRuntime:
         self._run_actions(self.weapon.states[self.current_state].on_entry)
         self.clip_set_state = {}
 
-    def valid_transitions(self) -> tuple[TransitionDef, ...]:
-        return tuple(
+    def valid_transitions(self) -> list[TransitionDef]:
+        return [
             transition
             for transition in self.weapon.transitions_from(self.current_state)
             if self._guard_allows(transition.guard)
-        )
+        ]
 
     def handle_event(self, event_id: str) -> TransitionResult:
         previous_state = self.current_state
@@ -47,12 +47,7 @@ class WeaponRuntime:
         trigger_pressed_before = self.trigger_pressed
 
         try:
-            if event_id == "trigger_pressed":
-                self.trigger_pressed = True
-                self.variables["trigger_down"] = True
-            elif event_id == "trigger_released":
-                self.trigger_pressed = False
-                self.variables["trigger_down"] = False
+            self._apply_input_event(event_id)
 
             for transition in self.weapon.transitions_from(self.current_state):
                 if transition.trigger != event_id:
@@ -60,42 +55,11 @@ class WeaponRuntime:
                 if not self._guard_allows(transition.guard):
                     continue
 
-                current_state_def = self.weapon.states[self.current_state]
-                emitted_events, scheduled_events, commands = self._run_actions(
-                    current_state_def.on_exit
-                )
-
-                transition_emits, transition_scheduled, transition_commands = self._run_actions(
-                    transition.actions
-                )
-                emitted_events.extend(transition_emits)
-                scheduled_events.extend(transition_scheduled)
-                commands.extend(transition_commands)
-
-                self.current_state = transition.target
-                self.last_transition_id = transition.id
-
-                target_state_def = self.weapon.states[self.current_state]
-                entry_emits, entry_scheduled, entry_commands = self._run_actions(
-                    target_state_def.on_entry
-                )
-                emitted_events.extend(entry_emits)
-                scheduled_events.extend(entry_scheduled)
-                commands.extend(entry_commands)
-
-                self.pending_events.extend(scheduled_events)
-
-                return TransitionResult(
-                    accepted=True,
+                return self._apply_transition(
                     event_id=event_id,
-                    previous_state=previous_state,
-                    current_state=self.current_state,
                     transition=transition,
-                    emitted_events=tuple(emitted_events),
-                    scheduled_events=tuple(scheduled_events),
-                    commands=tuple(commands),
+                    previous_state=previous_state,
                     variables_before=variables_before,
-                    variables_after=dict(self.variables),
                 )
 
         except Exception:
@@ -117,16 +81,16 @@ class WeaponRuntime:
                     f"'{state_at_start}': {traceback.format_exc()}"
                 ),
             )
-        else:
-            return TransitionResult(
-                accepted=False,
-                event_id=event_id,
-                previous_state=previous_state,
-                current_state=self.current_state,
-                variables_before=variables_before,
-                variables_after=dict(self.variables),
-                reason=f"No transition for event '{event_id}' from state '{state_at_start}'",
-            )
+
+        return TransitionResult(
+            accepted=False,
+            event_id=event_id,
+            previous_state=previous_state,
+            current_state=self.current_state,
+            variables_before=variables_before,
+            variables_after=dict(self.variables),
+            reason=f"No transition for event '{event_id}' from state '{state_at_start}'",
+        )
 
     def consume_due_events(self, elapsed_ms: int) -> list[str]:
         ready: list[str] = []
@@ -145,17 +109,113 @@ class WeaponRuntime:
         self.pending_events = remaining
         return ready
 
+    def _apply_input_event(self, event_id: str) -> None:
+        if event_id in ["trigger_pressed", "trigger_held", "trigger_released"]:
+            self.variables["trigger_state"] = event_id
+            
+        if event_id == "trigger_pressed":
+            self.trigger_pressed = True
+            self.variables["trigger_down"] = True
+            return
+
+        if event_id == "trigger_released":
+            self.trigger_pressed = False
+            self.variables["trigger_down"] = False
+            return
+
+    def _apply_transition(
+        self,
+        *,
+        event_id: str,
+        transition: TransitionDef,
+        previous_state: str,
+        variables_before: dict[str, object],
+    ) -> TransitionResult:
+        emitted_events: list[str] = []
+        scheduled_events: list[ScheduledEvent] = []
+        commands: list[GunRuntimeCommand] = []
+
+        if transition.internal:
+            transition_emits, transition_scheduled, transition_commands = self._run_actions(transition.actions)
+            emitted_events.extend(transition_emits)
+            scheduled_events.extend(transition_scheduled)
+            commands.extend(transition_commands)
+            self.last_transition_id = transition.id
+            self.pending_events.extend(scheduled_events)
+            return self._result(
+                event_id=event_id,
+                previous_state=previous_state,
+                transition=transition,
+                emitted_events=emitted_events,
+                scheduled_events=scheduled_events,
+                commands=commands,
+                variables_before=variables_before,
+            )
+
+        current_state_def = self.weapon.states[self.current_state]
+        exit_emits, exit_scheduled, exit_commands = self._run_actions(current_state_def.on_exit)
+        emitted_events.extend(exit_emits)
+        scheduled_events.extend(exit_scheduled)
+        commands.extend(exit_commands)
+
+        transition_emits, transition_scheduled, transition_commands = self._run_actions(transition.actions)
+        emitted_events.extend(transition_emits)
+        scheduled_events.extend(transition_scheduled)
+        commands.extend(transition_commands)
+
+        self.current_state = transition.target
+        self.last_transition_id = transition.id
+
+        target_state_def = self.weapon.states[self.current_state]
+        entry_emits, entry_scheduled, entry_commands = self._run_actions(target_state_def.on_entry)
+        emitted_events.extend(entry_emits)
+        scheduled_events.extend(entry_scheduled)
+        commands.extend(entry_commands)
+
+        self.pending_events.extend(scheduled_events)
+
+        return self._result(
+            event_id=event_id,
+            previous_state=previous_state,
+            transition=transition,
+            emitted_events=emitted_events,
+            scheduled_events=scheduled_events,
+            commands=commands,
+            variables_before=variables_before,
+        )
+
+    def _result(
+        self,
+        *,
+        event_id: str,
+        previous_state: str,
+        transition: TransitionDef,
+        emitted_events: list[str],
+        scheduled_events: list[ScheduledEvent],
+        commands: list[GunRuntimeCommand],
+        variables_before: dict[str, object],
+    ) -> TransitionResult:
+        return TransitionResult(
+            accepted=True,
+            event_id=event_id,
+            previous_state=previous_state,
+            current_state=self.current_state,
+            transition=transition,
+            emitted_events=tuple(emitted_events),
+            scheduled_events=tuple(scheduled_events),
+            commands=tuple(commands),
+            variables_before=variables_before,
+            variables_after=dict(self.variables),
+        )
+
     def _guard_allows(self, guard: GuardDef | None) -> bool:
         if guard is None:
             return True
-        return guard.evaluate(
-            variables=self.variables,
-            trigger_pressed=self.trigger_pressed,
-        )
+        return guard.evaluate(variables=self.variables, trigger_pressed=self.trigger_pressed)
 
     def _run_actions(
-        self,
-        actions: tuple[ActionDef, ...],
+            self,
+            actions: list[ActionDef],
     ) -> tuple[list[str], list[ScheduledEvent], list[GunRuntimeCommand]]:
         env = RuntimeEnvironment(
             weapon=self.weapon,
@@ -167,4 +227,8 @@ class WeaponRuntime:
             command = RuntimeCommand.from_action(action)
             command.execute(env)
 
-        return env.emitted_events, env.scheduled_events, env.gun_commands
+        return (
+            env.emitted_events,
+            env.scheduled_events,
+            env.gun_commands,
+        )

@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from weapon_fsm_audio import QtAudioBackend, AudioLibraryBrowser
+from weapon_fsm_audio.infrastructure.runtime import PortAudioBackend
 from weapon_fsm_lights import QtLightBackend
 
 from weapon_fsm_core import ProfileRepository, SimulationService
@@ -39,6 +40,10 @@ def _format_runtime_variables(variables: dict[str, object]) -> str:
     return ", ".join(parts)
 
 
+def get_call_trace() -> str:
+    return "".join(traceback.format_stack())
+
+
 class MainWindow(QMainWindow):
     def __init__(self, gun_path: Path, weapon_path: Path) -> None:
         super().__init__()
@@ -52,7 +57,10 @@ class MainWindow(QMainWindow):
         self._simulation: SimulationService | None = None
         self._gun: GunConfig | None = None
         self._weapon: WeaponConfig | None = None
-        self._audio_backend = QtAudioBackend(log=self._append_runtime_log)
+        self.log_output = QTextEdit()
+        self.log_output.setReadOnly(True)
+
+        self._audio_backend = PortAudioBackend(log=self._append_runtime_log)
         self.led_preview_panel = LedPreviewPanel(self)
         self._light_backend = QtLightBackend(log=self._append_runtime_log, preview_panel=self.led_preview_panel)
         self._command_bridge = RuntimeCommandBridge(
@@ -66,11 +74,10 @@ class MainWindow(QMainWindow):
         self.event_panel = EventPanel()
         self.summary_panel = SummaryPanel()
         self.gun_control_panel = GunControlPanel(self)
-        self.log_output = QTextEdit()
-        self.log_output.setReadOnly(True)
 
         self._clock_timer = QTimer(self)
-        self._clock_timer.setInterval(50)
+        self._tick_interval_ms = 1
+        self._clock_timer.setInterval(self._tick_interval_ms)
         self._clock_timer.timeout.connect(self._advance_time)
         self._clock_timer.start()
 
@@ -245,14 +252,15 @@ class MainWindow(QMainWindow):
 
     def _save_weapon_to_path(self, path: Path | None) -> None:
         try:
-            weapon = self._repository.load_weapon_text(
-                self.weapon_editor.toPlainText(),
-                source_path=path or self._weapon_path,
-            )
-            normalized = self._profile_builder.dump_weapon(weapon)
+            # weapon = self._repository.load_weapon_text(
+            #     self.weapon_editor.toPlainText(),
+            #     source_path=path or self._weapon_path,
+            # )
+            # normalized = self._profile_builder.dump_weapon(weapon)
             target = path or self._weapon_path
             if target is None:
                 raise RuntimeError("No weapon path is set")
+            normalized = self.weapon_editor.toPlainText()
             target.write_text(normalized, encoding="utf-8")
             self._weapon_path = target
             self.weapon_editor.setPlainText(normalized)
@@ -393,7 +401,7 @@ class MainWindow(QMainWindow):
         if self._simulation is None:
             return
 
-        records = self._simulation.advance_time(50)
+        records = self._simulation.advance_time(self._tick_interval_ms)
         self._handle_records(records, source_prefix="timer")
 
     def _refresh_views(self) -> None:

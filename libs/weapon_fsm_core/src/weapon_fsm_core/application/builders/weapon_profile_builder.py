@@ -177,7 +177,7 @@ class WeaponProfileBuilder:
         *,
         clips: list[str] | tuple[str, ...] | None = None,
         clip: str | None = None,
-        mode: str = "one_shot",
+        mode: str = "once",
         interrupt: str = "interrupt",
         loop: bool = False,
         gain: float = 1.0,
