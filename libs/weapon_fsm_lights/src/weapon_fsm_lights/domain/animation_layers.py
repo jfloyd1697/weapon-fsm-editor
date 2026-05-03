@@ -18,6 +18,7 @@ class LightLayerType(StrEnum):
 
 @dataclass
 class BaseLayerDef(DataClassDictMixin):
+    type: LightLayerType
     name: str = field(default="Layer", metadata={"editor": "text"})
     start_ms: int = field(default=0, metadata={"editor": "int", "min": 0, "max": 10_000_000})
     duration_ms: int = field(default=1000, metadata={"editor": "int", "min": 1, "max": 10_000_000})
@@ -27,19 +28,15 @@ class BaseLayerDef(DataClassDictMixin):
     class Config(BaseConfig):
         forbid_extra_keys = False
 
-    @property
-    def type(self) -> LightLayerType:
-        return LightLayerType(getattr(type(self), "_type"))
-
 
 @dataclass
 class SolidLayerDef(BaseLayerDef):
-    type: ClassVar[str] = "solid"
+    type: LightLayerType = field(default=LightLayerType.SOLID, metadata={"editor": "layer_type"})
 
 
 @dataclass
 class RadialPulseLayerDef(BaseLayerDef):
-    type: ClassVar[str] = "radial_pulse"
+    type: LightLayerType = field(default=LightLayerType.RADIAL_PULSE, metadata={"editor": "layer_type"})
 
     center: list[float] = field(
         default_factory=lambda: [0.5, 0.5],
@@ -52,7 +49,7 @@ class RadialPulseLayerDef(BaseLayerDef):
 
 @dataclass
 class WipeLayerDef(BaseLayerDef):
-    type: ClassVar[str] = "wipe"
+    type: LightLayerType = field(default=LightLayerType.WIPE, metadata={"editor": "layer_type"})
 
     direction: list[float] = field(
         default_factory=lambda: [1.0, 0.0],
@@ -64,14 +61,14 @@ class WipeLayerDef(BaseLayerDef):
 
 @dataclass
 class BlinkLayerDef(BaseLayerDef):
-    type: ClassVar[str] = "blink"
+    type: LightLayerType = field(default=LightLayerType.BLINK, metadata={"editor": "layer_type"})
 
     speed: float = field(default=1.0, metadata={"editor": "float", "min": 0.0, "max": 100.0, "step": 0.05})
 
 
 @dataclass
 class ChaseLayerDef(BaseLayerDef):
-    type: ClassVar[str] = "chase"
+    type: LightLayerType = field(default=LightLayerType.CHASE, metadata={"editor": "layer_type"})
 
     width: float = field(default=0.15, metadata={"editor": "float", "min": 0.0, "max": 10.0, "step": 0.01})
     speed: float = field(default=1.0, metadata={"editor": "float", "min": 0.0, "max": 100.0, "step": 0.05})
@@ -80,7 +77,7 @@ class ChaseLayerDef(BaseLayerDef):
 
 @dataclass
 class SparkleLayerDef(BaseLayerDef):
-    type: ClassVar[str] = "sparkle"
+    type: LightLayerType = field(default=LightLayerType.SPARKLE, metadata={"editor": "layer_type"})
 
     seed: int = field(default=1, metadata={"editor": "int", "min": 0, "max": 2_147_483_647})
     density: float = field(default=0.2, metadata={"editor": "float", "min": 0.0, "max": 1.0, "step": 0.05})

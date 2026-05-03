@@ -446,7 +446,7 @@ class LightAnimationDesignerWindow(QMainWindow):
             self.layer_list.clear()
 
             if animation is None:
-                self.layer_properties.set_layer(None)
+                self.layer_properties.clear_layer()
                 return
 
             enabled = self._layer_enabled_for_animation(animation)
@@ -465,7 +465,7 @@ class LightAnimationDesignerWindow(QMainWindow):
         if self.layer_list.count() > 0:
             self.layer_list.setCurrentRow(0)
         else:
-            self.layer_properties.set_layer(None)
+            self.layer_properties.clear_layer()
 
     def _reload_layer_list_preserve_selection(self) -> None:
         row = self._selected_layer_index or 0
@@ -474,7 +474,8 @@ class LightAnimationDesignerWindow(QMainWindow):
         self._reload_layer_list()
 
         if self.layer_list.count() > 0:
-            self.layer_list.setCurrentRow(min(row, self.layer_list.count() - 1))
+            row = min(row, self.layer_list.count() - 1)
+            self.layer_list.setCurrentRow(row)
 
         self._updating_lists = False
 
@@ -492,8 +493,8 @@ class LightAnimationDesignerWindow(QMainWindow):
             return
 
         states = [
-            self.layer_list.item(index).checkState() == Qt.CheckState.Checked
-            for index in range(self.layer_list.count())
+            item.checkState() == Qt.CheckState.Checked
+            for index in range(self.layer_list.count()) if (item := self.layer_list.item(index)) is not None
         ]
 
         self._layer_enabled_by_animation[self._selected_animation] = states
@@ -583,7 +584,7 @@ class LightAnimationDesignerWindow(QMainWindow):
             self._updating_controls = False
 
     def _load_layer_controls(self) -> None:
-        self.layer_properties.set_layer(self._current_layer())
+        self.layer_properties.set_layer(self.layer_list.currentRow(), self._current_layer())
 
     def _apply_animation_controls(self) -> None:
         if self._updating_controls:
@@ -621,7 +622,7 @@ class LightAnimationDesignerWindow(QMainWindow):
         self._refresh_current_animation_icon()
         self.recompile_preview(autoplay=self.player.is_playing)
 
-    def _on_layer_properties_changed(self, updated_layer: LightLayerDef) -> None:
+    def _on_layer_properties_changed(self, row, updated_layer: LightLayerDef) -> None:
         animation = self._current_animation()
 
         if animation is None or self._selected_layer_index is None:
@@ -632,7 +633,9 @@ class LightAnimationDesignerWindow(QMainWindow):
 
         animation.layers[self._selected_layer_index] = updated_layer
 
-        self._reload_layer_list_preserve_selection()
+        self._update_row(row, updated_layer)
+
+        # self._reload_layer_list_preserve_selection()
         self._refresh_current_animation_icon()
         self.recompile_preview(autoplay=self.player.is_playing)
 
@@ -904,3 +907,9 @@ class LightAnimationDesignerWindow(QMainWindow):
             if item.text() == self._selected_animation:
                 item.setIcon(self._icon_for_animation(animation))
                 break
+
+    def _update_row(self, row, layer):
+        # with QSignalBlocker(self.layer_list):
+            item = self.layer_list.item(row)
+            item.setText(f"{layer.name} ({layer.type})")
+            item.setIcon(self._icon_for_color(layer.color))

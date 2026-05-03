@@ -1,3 +1,4 @@
+import traceback
 from dataclasses import fields, replace
 from typing import Any
 
@@ -16,7 +17,7 @@ from weapon_fsm_lights.presentation.property_editors import (
 
 
 class LayerPropertiesPanel(QWidget):
-    layer_changed = pyqtSignal(object)
+    layer_changed = pyqtSignal(int, object)
 
     def __init__(
         self,
@@ -26,6 +27,7 @@ class LayerPropertiesPanel(QWidget):
     ) -> None:
         super().__init__(parent)
 
+        self._row: int | None = None
         self._layer: LightLayerDef | None = None
         self._editors: dict[str, FieldEditor] = {}
         self._updating = False
@@ -40,7 +42,8 @@ class LayerPropertiesPanel(QWidget):
 
         self.setEnabled(False)
 
-    def set_layer(self, layer: LightLayerDef | None) -> None:
+    def set_layer(self, row, layer: LightLayerDef | None) -> None:
+        self._row = row
         self._layer = layer
         self.setEnabled(layer is not None)
         self._rebuild()
@@ -55,9 +58,6 @@ class LayerPropertiesPanel(QWidget):
         self._updating = True
         try:
             for field_def in fields(type(self._layer)):
-                if not field_def.init:
-                    continue
-
                 editor = self._registry.create_editor(field_def)
                 value = getattr(self._layer, field_def.name)
                 editor.set_value(value)
@@ -67,8 +67,11 @@ class LayerPropertiesPanel(QWidget):
 
                 self._editors[field_def.name] = editor
                 self.form.addRow(self._label_for(field_def.name), editor)
+        except Exception as e:
+            traceback.print_exc()
         finally:
             self._updating = False
+
 
     def _on_field_changed(self, field_name: str, value: object) -> None:
         if self._updating or self._layer is None:
@@ -78,11 +81,12 @@ class LayerPropertiesPanel(QWidget):
             new_type = str(value.value if isinstance(value, LightLayerType) else value)
             self._layer = convert_layer_type(self._layer, new_type)
             self._rebuild()
-            self.layer_changed.emit(self._layer)
+            self.layer_changed.emit(self._row, self._layer)
             return
 
         self._layer = replace(self._layer, **{field_name: value})
-        self.layer_changed.emit(self._layer)
+        self.layer_changed.emit(self._row, self._layer)
+        print("layer_changed", self._layer)
 
     def _clear_form(self) -> None:
         while self.form.rowCount():
@@ -90,3 +94,6 @@ class LayerPropertiesPanel(QWidget):
 
     def _label_for(self, field_name: str) -> str:
         return field_name.replace("_", " ").title()
+
+    def clear_layer(self):
+        self.set_layer(None, None)

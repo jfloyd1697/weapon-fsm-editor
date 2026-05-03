@@ -34,7 +34,7 @@ class TextEditor(FieldEditor):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.edit)
-        self.edit.textChanged.connect(lambda value: self.value_changed.emit(value))
+        self.edit.editingFinished.connect(lambda: self.value_changed.emit(self.edit.text()))
 
     def value(self) -> object:
         return self.edit.text()
@@ -51,7 +51,7 @@ class IntEditor(FieldEditor):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.spin)
-        self.spin.valueChanged.connect(lambda value: self.value_changed.emit(value))
+        self.spin.valueChanged.connect(self.value_changed.emit)
 
     def value(self) -> object:
         return self.spin.value()
