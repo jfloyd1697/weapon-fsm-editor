@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field, fields
 from enum import StrEnum
-from typing import Annotated, Any, ClassVar, Union
+from typing import Any
 
 from mashumaro import DataClassDictMixin
 from mashumaro.config import BaseConfig
@@ -17,7 +17,7 @@ class LightLayerType(StrEnum):
 
 
 @dataclass
-class BaseLayerDef(DataClassDictMixin):
+class LightLayerDef(DataClassDictMixin):
     type: LightLayerType
     name: str = field(default="Layer", metadata={"editor": "text"})
     start_ms: int = field(default=0, metadata={"editor": "int", "min": 0, "max": 10_000_000})
@@ -27,15 +27,19 @@ class BaseLayerDef(DataClassDictMixin):
 
     class Config(BaseConfig):
         forbid_extra_keys = False
+        discriminator = Discriminator(
+            field="type",
+            include_subtypes=True,
+        )
 
 
 @dataclass
-class SolidLayerDef(BaseLayerDef):
+class SolidLayerDef(LightLayerDef):
     type: LightLayerType = field(default=LightLayerType.SOLID, metadata={"editor": "layer_type"})
 
 
 @dataclass
-class RadialPulseLayerDef(BaseLayerDef):
+class RadialPulseLayerDef(LightLayerDef):
     type: LightLayerType = field(default=LightLayerType.RADIAL_PULSE, metadata={"editor": "layer_type"})
 
     center: list[float] = field(
@@ -48,7 +52,7 @@ class RadialPulseLayerDef(BaseLayerDef):
 
 
 @dataclass
-class WipeLayerDef(BaseLayerDef):
+class WipeLayerDef(LightLayerDef):
     type: LightLayerType = field(default=LightLayerType.WIPE, metadata={"editor": "layer_type"})
 
     direction: list[float] = field(
@@ -60,14 +64,14 @@ class WipeLayerDef(BaseLayerDef):
 
 
 @dataclass
-class BlinkLayerDef(BaseLayerDef):
+class BlinkLayerDef(LightLayerDef):
     type: LightLayerType = field(default=LightLayerType.BLINK, metadata={"editor": "layer_type"})
 
     speed: float = field(default=1.0, metadata={"editor": "float", "min": 0.0, "max": 100.0, "step": 0.05})
 
 
 @dataclass
-class ChaseLayerDef(BaseLayerDef):
+class ChaseLayerDef(LightLayerDef):
     type: LightLayerType = field(default=LightLayerType.CHASE, metadata={"editor": "layer_type"})
 
     width: float = field(default=0.15, metadata={"editor": "float", "min": 0.0, "max": 10.0, "step": 0.01})
@@ -76,7 +80,7 @@ class ChaseLayerDef(BaseLayerDef):
 
 
 @dataclass
-class SparkleLayerDef(BaseLayerDef):
+class SparkleLayerDef(LightLayerDef):
     type: LightLayerType = field(default=LightLayerType.SPARKLE, metadata={"editor": "layer_type"})
 
     seed: int = field(default=1, metadata={"editor": "int", "min": 0, "max": 2_147_483_647})
@@ -84,13 +88,7 @@ class SparkleLayerDef(BaseLayerDef):
     speed: float = field(default=1.0, metadata={"editor": "float", "min": 0.0, "max": 100.0, "step": 0.05})
 
 
-LightLayerDef = Annotated[
-    BaseLayerDef,
-    Discriminator(field="type", include_subtypes=True),
-]
-
-
-LAYER_CLASSES_BY_TYPE: dict[str, type[BaseLayerDef]] = {
+LAYER_CLASSES_BY_TYPE: dict[str, type[LightLayerDef]] = {
     "solid": SolidLayerDef,
     "radial_pulse": RadialPulseLayerDef,
     "wipe": WipeLayerDef,
@@ -105,16 +103,13 @@ def normalize_layer_dict(data: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
-def layer_from_dict(data: dict[str, Any]) -> BaseLayerDef:
+def layer_from_dict(data: dict[str, Any]) -> LightLayerDef:
     normalized = normalize_layer_dict(data)
     layer_type = str(normalized.get("type", "solid"))
     return LAYER_CLASSES_BY_TYPE[layer_type].from_dict(normalized)
 
 
-def convert_layer_type(
-    layer: BaseLayerDef,
-    new_type: str | LightLayerType,
-) -> BaseLayerDef:
+def convert_layer_type(layer: LightLayerDef, new_type: str | LightLayerType) -> LightLayerDef:
     type_value = str(new_type.value if isinstance(new_type, LightLayerType) else new_type)
     layer_cls = LAYER_CLASSES_BY_TYPE[type_value]
 

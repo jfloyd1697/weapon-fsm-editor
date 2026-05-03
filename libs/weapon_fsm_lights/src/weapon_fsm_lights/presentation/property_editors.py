@@ -53,10 +53,10 @@ class IntEditor(FieldEditor):
         layout.addWidget(self.spin)
         self.spin.valueChanged.connect(self.value_changed.emit)
 
-    def value(self) -> object:
+    def value(self) -> int:
         return self.spin.value()
 
-    def set_value(self, value: object) -> None:
+    def set_value(self, value: int) -> None:
         self.spin.setValue(int(value or 0))
 
 
@@ -78,12 +78,12 @@ class FloatEditor(FieldEditor):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.spin)
 
-        self.spin.valueChanged.connect(lambda value: self.value_changed.emit(value))
+        self.spin.valueChanged.connect(self.value_changed.emit)
 
-    def value(self) -> object:
+    def value(self) -> float:
         return self.spin.value()
 
-    def set_value(self, value: object) -> None:
+    def set_value(self, value: float) -> None:
         self.spin.setValue(float(value or 0.0))
 
 
@@ -105,13 +105,56 @@ class ColorEditor(FieldEditor):
     def value(self) -> object:
         return self.edit.text()
 
-    def set_value(self, value: object) -> None:
-        self.edit.setText("" if value is None else str(value))
+    def set_value(self, value: str) -> None:
+        if value is None:
+            self.edit.clear()
+        else:
+            self.edit.setText(value)
+            text_color = text_color_for_background(value)
+            self.button.setStyleSheet(f"background-color: {value}; color: {text_color}")
 
     def _pick_color(self) -> None:
         color = QColorDialog.getColor(QColor(self.edit.text()), self)
         if color.isValid():
             self.set_value(color.name())
+
+
+def text_color_for_background(color: str) -> str:
+    """
+    Return '#000000' or '#ffffff' for readable text on the given background.
+
+    Accepts:
+        '#RGB'
+        '#RRGGBB'
+        'RGB'
+        'RRGGBB'
+    """
+    hex_color = color.strip().lstrip("#")
+
+    if len(hex_color) == 3:
+        hex_color = "".join(ch * 2 for ch in hex_color)
+
+    if len(hex_color) != 6:
+        raise ValueError(f"Expected a hex color like '#RRGGBB', got {color!r}")
+
+    red = int(hex_color[0:2], 16)
+    green = int(hex_color[2:4], 16)
+    blue = int(hex_color[4:6], 16)
+
+    def linearize(channel: int) -> float:
+        value = channel / 255.0
+        if value <= 0.04045:
+            return value / 12.92
+        return ((value + 0.055) / 1.055) ** 2.4
+
+    luminance = (
+        0.2126 * linearize(red)
+        + 0.7152 * linearize(green)
+        + 0.0722 * linearize(blue)
+    )
+
+    return "#000000" if luminance > 0.179 else "#ffffff"
+
 
 
 class Point2Editor(FieldEditor):

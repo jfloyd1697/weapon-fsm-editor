@@ -35,6 +35,7 @@ class LedCanvasWidget(QWidget):
         self._background_pixmap: QPixmap | None = None
         self._edit_mode = False
         self._drag_led_id: str | None = None
+        self._show_canvas: bool = False
 
     @property
     def asset(self) -> LightSequenceAsset | None:
@@ -168,11 +169,12 @@ class LedCanvasWidget(QWidget):
         if draw_rect.width() <= 0 or draw_rect.height() <= 0:
             return
 
-        painter.setPen(QPen(QColor("#666666"), 1))
-        painter.drawRoundedRect(draw_rect, 8, 8)
+        if self._show_canvas:
+            painter.setPen(QPen(QColor("#666666"), 1))
+            painter.drawRoundedRect(draw_rect, 8, 8)
 
-        if self._background_pixmap is not None and not self._background_pixmap.isNull():
-            painter.drawPixmap(draw_rect.toRect(), self._background_pixmap)
+            if self._background_pixmap is not None and not self._background_pixmap.isNull():
+                painter.drawPixmap(draw_rect.toRect(), self._background_pixmap)
 
         for led in asset.leds:
             state = self._current_frame_leds.get(led.id)
@@ -210,6 +212,10 @@ class LedCanvasWidget(QWidget):
         painter.setPen(QPen(QColor("#888888"), 1))
         painter.drawRoundedRect(QRectF(self.rect()).adjusted(12, 12, -12, -12), 8, 8)
         painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "No light sequence active")
+
+    def show_canvas(self, show_canvas):
+        self._show_canvas = show_canvas
+        self.update()
 
 
 class LedPreviewPanel(QWidget):
