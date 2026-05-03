@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from weapon_fsm_lights import validate_light_sequence
+from weapon_fsm_lights.loader import validate_light_sequence
 
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation_context import ValidationContext

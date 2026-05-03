@@ -16,9 +16,9 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from weapon_fsm_audio import QtAudioBackend, AudioLibraryBrowser
+from weapon_fsm_audio import AudioLibraryBrowser
 from weapon_fsm_audio.infrastructure.runtime import PortAudioBackend
-from weapon_fsm_lights import QtLightBackend
+from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
 
 from weapon_fsm_core import ProfileRepository, SimulationService
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
