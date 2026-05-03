@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 
 from weapon_fsm_lights.domain.animation_project import LightAnimationProject
-from weapon_fsm_lights.loader import LightSequenceAsset, load_light_sequence
+from weapon_fsm_lights.infrastructure.loader import LightSequenceAsset, load_light_sequence
 
 
 def load_authored_project(path: str | Path) -> LightAnimationProject:

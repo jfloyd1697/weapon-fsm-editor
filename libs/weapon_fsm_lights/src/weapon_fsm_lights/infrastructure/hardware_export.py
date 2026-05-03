@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from weapon_fsm_lights.loader import LightSequenceAsset
+from weapon_fsm_lights.infrastructure.loader import LightSequenceAsset
 
 
 def export_hardware_sequence_json(asset: LightSequenceAsset, path: str | Path) -> None:

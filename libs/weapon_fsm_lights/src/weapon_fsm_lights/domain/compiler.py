@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import math
 import random
 
-from weapon_fsm_lights.loader import LedNode, LightFrame, LightSequenceAsset
+from weapon_fsm_lights.infrastructure.loader import LedNode, LightFrame, LightSequenceAsset
 from weapon_fsm_lights.domain.animation_project import LightAnimationDef
 from weapon_fsm_lights.domain.animation_layers import (
     BlinkLayerDef,
