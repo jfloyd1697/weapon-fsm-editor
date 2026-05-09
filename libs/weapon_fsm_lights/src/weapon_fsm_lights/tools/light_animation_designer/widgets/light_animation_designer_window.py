@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 
 from weapon_fsm_lights.domain.animation_project import LightAnimationProject
 
+from ..controllers.preset_controller import PresetController
 from ..controllers import (
     LayerController,
     AnimationController,
@@ -65,6 +66,7 @@ class LightAnimationDesignerWindow(QMainWindow):
         self.animation_controller = AnimationController(self)
         self.layer_controller = LayerController(self)
         self.project_controller = ProjectController(self)
+        self.preset_controller = PresetController(self)
         self.undo_controller = UndoController(self)
 
         self.ui.player.frame_changed.connect(self.ui.canvas.set_frame)
@@ -82,6 +84,7 @@ class LightAnimationDesignerWindow(QMainWindow):
         self.animation_controller.connect()
         self.layer_controller.connect()
         self.project_controller.connect()
+        self.preset_controller.connect()
         self.undo_controller.connect()
 
         self.undo_controller.install_event_filter(QApplication.instance())

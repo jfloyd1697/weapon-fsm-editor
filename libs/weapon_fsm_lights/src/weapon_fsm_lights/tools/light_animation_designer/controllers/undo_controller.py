@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QShortcut
 
-from light_animation_designer.controllers.timeline_controller import Window
+from .timeline_controller import Window
 from weapon_fsm_lights.tools.light_animation_designer.model.light_designer_undo import UndoRedoKeyFilter
 
 

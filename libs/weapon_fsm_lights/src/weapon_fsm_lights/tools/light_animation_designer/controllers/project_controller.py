@@ -4,7 +4,7 @@ from pathlib import Path
 from PyQt6.QtCore import QSignalBlocker
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
-from light_animation_designer.controllers.timeline_controller import Window
+from .timeline_controller import Window
 from weapon_fsm_lights.infrastructure.authored_project_io import (
     load_authored_project,
     load_project_layout,

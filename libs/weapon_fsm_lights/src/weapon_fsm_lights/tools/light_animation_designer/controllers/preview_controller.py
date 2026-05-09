@@ -1,6 +1,6 @@
 from PyQt6.QtGui import QColor, QIcon, QPixmap
 
-from light_animation_designer.controllers.timeline_controller import Window
+from .timeline_controller import Window
 from weapon_fsm_lights.domain.compiler import compile_animation
 
 

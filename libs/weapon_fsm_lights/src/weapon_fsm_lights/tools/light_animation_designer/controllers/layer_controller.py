@@ -3,7 +3,7 @@ from copy import deepcopy
 from PyQt6.QtCore import Qt, QSignalBlocker
 from PyQt6.QtWidgets import QListWidgetItem
 
-from light_animation_designer.controllers.timeline_controller import Window
+from .timeline_controller import Window
 from weapon_fsm_lights.domain.animation_layers import LightLayerDef, SolidLayerDef
 
 

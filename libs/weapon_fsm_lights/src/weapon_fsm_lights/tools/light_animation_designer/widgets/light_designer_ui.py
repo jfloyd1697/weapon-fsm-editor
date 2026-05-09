@@ -64,6 +64,7 @@ class LightDesignerUi:
 
     def _build_animation_controls(self) -> None:
         self.add_animation_button = QPushButton("Add")
+        self.add_preset_button = QPushButton("Add Preset")
         self.duplicate_animation_button = QPushButton("Duplicate")
         self.delete_animation_button = QPushButton("Delete")
 
@@ -128,6 +129,7 @@ class LightDesignerUi:
 
         animation_buttons = QHBoxLayout()
         animation_buttons.addWidget(self.add_animation_button)
+        animation_buttons.addWidget(self.add_preset_button)
         animation_buttons.addWidget(self.duplicate_animation_button)
         animation_buttons.addWidget(self.delete_animation_button)
         left_layout.addLayout(animation_buttons)
