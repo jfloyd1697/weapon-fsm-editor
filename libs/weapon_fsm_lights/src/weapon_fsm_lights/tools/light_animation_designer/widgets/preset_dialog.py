@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 import logging
+import traceback
 
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
@@ -21,6 +23,10 @@ from weapon_fsm_lights.domain.animation_presets import (
     presets_by_category,
 )
 from weapon_fsm_lights.domain.animation_project import LightAnimationMode
+from weapon_fsm_lights.domain.animation_transforms import (
+    invert_animation,
+    reverse_animation,
+)
 from weapon_fsm_lights.domain.compiler import compile_animation
 from weapon_fsm_lights.presentation.led_canvas_widget import LedCanvasWidget
 
@@ -65,6 +71,9 @@ class PresetDialog(QDialog):
         self.description = QTextEdit()
         self.description.setReadOnly(True)
 
+        self.reverse_animation_checkbox = QCheckBox("Reverse timing")
+        self.invert_animation_checkbox = QCheckBox("Invert light / dark")
+
         LOGGER.debug("PresetDialog creating preview canvas")
         self.preview_canvas = LedCanvasWidget(self)
         LOGGER.debug("PresetDialog preview canvas created")
@@ -87,6 +96,12 @@ class PresetDialog(QDialog):
 
     def selected_preset(self) -> AnimationPreset | None:
         return self._selected_preset
+
+    def reverse_animation_enabled(self) -> bool:
+        return self.reverse_animation_checkbox.isChecked()
+
+    def invert_animation_enabled(self) -> bool:
+        return self.invert_animation_checkbox.isChecked()
 
     def closeEvent(self, event) -> None:  # noqa: ANN001
         LOGGER.debug("PresetDialog.closeEvent")
@@ -130,6 +145,12 @@ class PresetDialog(QDialog):
         picker_column.addWidget(QLabel("Description"))
         picker_column.addWidget(self.description, 1)
 
+        options_row = QHBoxLayout()
+        options_row.addWidget(self.reverse_animation_checkbox)
+        options_row.addWidget(self.invert_animation_checkbox)
+        options_row.addStretch(1)
+        picker_column.addLayout(options_row)
+
         preview_column = QVBoxLayout()
         preview_column.addWidget(QLabel("Preview"))
         preview_column.addWidget(self.preview_canvas, 1)
@@ -149,18 +170,19 @@ class PresetDialog(QDialog):
         self.category_list.currentItemChanged.connect(self._on_category_selected)
         self.preset_list.currentItemChanged.connect(self._on_preset_selected)
 
+        self.reverse_animation_checkbox.toggled.connect(self._refresh_current_preview)
+        self.invert_animation_checkbox.toggled.connect(self._refresh_current_preview)
+
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
 
     def _load_categories(self) -> None:
-        LOGGER.debug(
-            "PresetDialog._load_categories categories=%s",
-            sorted(self._presets_by_category),
-        )
+        categories = sorted(self._presets_by_category)
+        LOGGER.debug("PresetDialog._load_categories categories=%s", categories)
 
         self.category_list.clear()
 
-        for category in sorted(self._presets_by_category):
+        for category in categories:
             self.category_list.addItem(category)
 
         if self.category_list.count() > 0:
@@ -250,14 +272,22 @@ class PresetDialog(QDialog):
 
         self._preview_preset(preset)
 
+    def _refresh_current_preview(self) -> None:
+        if self._selected_preset is None:
+            return
+
+        self._preview_preset(self._selected_preset)
+
     def _preview_preset(self, preset: AnimationPreset) -> None:
         self._preview_generation += 1
         generation = self._preview_generation
 
         LOGGER.debug(
-            "PresetDialog._preview_preset start generation=%s preset=%s",
+            "PresetDialog._preview_preset start generation=%s preset=%s reverse=%s invert=%s",
             generation,
             preset.name,
+            self.reverse_animation_enabled(),
+            self.invert_animation_enabled(),
         )
 
         if self._layout_asset is None:
@@ -269,7 +299,6 @@ class PresetDialog(QDialog):
             return
 
         try:
-            LOGGER.debug("PresetDialog make looping preview generation=%s", generation)
             preview_animation = self._make_looping_preview_animation(preset)
 
             LOGGER.debug(
@@ -284,6 +313,7 @@ class PresetDialog(QDialog):
                 layout=self._layout_asset,
                 animation=preview_animation,
             )
+
             LOGGER.debug(
                 "PresetDialog compile complete generation=%s frames=%s leds=%s",
                 generation,
@@ -294,13 +324,8 @@ class PresetDialog(QDialog):
             self._stop_preview()
 
             if hasattr(self.preview_canvas, "set_canvas_animation"):
-                LOGGER.debug(
-                    "PresetDialog set_canvas_animation generation=%s",
-                    generation,
-                )
                 self.preview_canvas.set_canvas_animation(preview_animation)
 
-            LOGGER.debug("PresetDialog play_sequence generation=%s", generation)
             self.preview_canvas.play_sequence(
                 compiled,
                 sequence_name=preview_animation.name,
@@ -311,16 +336,9 @@ class PresetDialog(QDialog):
             self._preview_frame_index = 0
 
             if self._preview_frames:
-                LOGGER.debug("PresetDialog set first frame generation=%s", generation)
-                self.preview_canvas.set_frame(self._preview_frames[0])
+                self._set_preview_frame(self._preview_frames[0])
 
             frame_ms = max(1, int(preview_animation.frame_duration_ms))
-            LOGGER.debug(
-                "PresetDialog starting timer generation=%s frame_ms=%s frame_count=%s",
-                generation,
-                frame_ms,
-                len(self._preview_frames),
-            )
             self.preview_timer.start(frame_ms)
 
             if preset.animation.mode == LightAnimationMode.ONCE:
@@ -331,26 +349,32 @@ class PresetDialog(QDialog):
             else:
                 self._set_info_message("Preview looping preset.")
 
-            LOGGER.debug("PresetDialog._preview_preset complete generation=%s", generation)
-
         except Exception as exc:  # noqa: BLE001
-            LOGGER.exception(
-                "PresetDialog preview failed generation=%s preset=%s",
-                generation,
-                preset.name,
+            traceback_text = self._print_traceback_here(
+                f"PresetDialog preview failed generation={generation} preset={preset.name}"
             )
             self._clear_preview()
-            self._set_error_message(f"Preset preview failed: {exc}")
+            self._set_error_message(
+                f"Preset preview failed: {exc}\n\n{traceback_text}"
+            )
 
     def _make_looping_preview_animation(self, preset: AnimationPreset):
         LOGGER.debug(
-            "PresetDialog._make_looping_preview_animation preset=%s mode=%s duration=%s",
+            "PresetDialog._make_looping_preview_animation preset=%s mode=%s duration=%s reverse=%s invert=%s",
             preset.name,
             preset.animation.mode.value,
             preset.animation.duration_ms,
+            self.reverse_animation_enabled(),
+            self.invert_animation_enabled(),
         )
 
         preview = deepcopy(preset.animation)
+
+        if self.reverse_animation_enabled():
+            preview = reverse_animation(preview)
+
+        if self.invert_animation_enabled():
+            preview = invert_animation(preview)
 
         if preview.mode == LightAnimationMode.ONCE:
             preview.duration_ms = max(
@@ -387,17 +411,29 @@ class PresetDialog(QDialog):
                 len(self._preview_frames),
             )
 
-            self.preview_canvas.set_frame(frame)
+            self._set_preview_frame(frame)
 
             self._preview_frame_index += 1
 
             if self._preview_frame_index >= len(self._preview_frames):
                 self._preview_frame_index = 0
 
-        except Exception:  # noqa: BLE001
-            LOGGER.exception("PresetDialog timer advance failed")
+        except Exception as exc:  # noqa: BLE001
+            traceback_text = self._print_traceback_here(
+                "PresetDialog timer advance failed"
+            )
             self._stop_preview()
-            self._set_error_message("Preset preview stopped after an error.")
+            self._set_error_message(
+                f"Preset preview stopped after an error: {exc}\n\n{traceback_text}"
+            )
+
+    def _set_preview_frame(self, frame) -> None:  # noqa: ANN001
+        LOGGER.debug(
+            "PresetDialog._set_preview_frame frame_index=%s frame=%r",
+            self._preview_frame_index,
+            frame,
+        )
+        self.preview_canvas.set_frame(self._preview_frame_index, frame)
 
     def _stop_preview(self) -> None:
         LOGGER.debug(
@@ -417,16 +453,23 @@ class PresetDialog(QDialog):
         self._set_info_message("")
 
         try:
-            if hasattr(self.preview_canvas, "set_frame"):
-                LOGGER.debug("PresetDialog clearing preview canvas frame")
-                self.preview_canvas.set_frame({})
-            else:
-                LOGGER.debug("PresetDialog updating preview canvas")
-                self.preview_canvas.update()
-
-        except Exception:  # noqa: BLE001
-            LOGGER.exception("PresetDialog failed while clearing preview canvas")
             self.preview_canvas.update()
+
+        except Exception as exc:  # noqa: BLE001
+            traceback_text = self._print_traceback_here(
+                "PresetDialog failed while clearing preview canvas"
+            )
+            self._set_error_message(
+                f"Preset preview clear failed: {exc}\n\n{traceback_text}"
+            )
+
+    def _print_traceback_here(self, message: str) -> str:
+        traceback_text = traceback.format_exc()
+
+        LOGGER.error("%s\n%s", message, traceback_text)
+        print(f"{message}\n{traceback_text}")
+
+        return traceback_text
 
     def _set_info_message(self, text: str) -> None:
         self.preview_status.setStyleSheet("color: palette(window-text);")

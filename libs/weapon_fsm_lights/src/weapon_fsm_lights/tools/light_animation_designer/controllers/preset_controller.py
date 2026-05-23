@@ -5,6 +5,11 @@ import logging
 from PyQt6.QtWidgets import QDialog
 
 from weapon_fsm_lights.domain.animation_project import LightAnimationProject
+from weapon_fsm_lights.domain.animation_transforms import (
+    invert_animation,
+    reverse_animation,
+)
+
 from ..widgets.preset_dialog import PresetDialog
 
 
@@ -60,10 +65,20 @@ class PresetController:
         name = window.animation_controller.unique_name(preset.animation.name)
         animation = preset.create_animation(name=name)
 
+        if dialog.reverse_animation_enabled():
+            animation = reverse_animation(animation)
+            animation.name = name
+
+        if dialog.invert_animation_enabled():
+            animation = invert_animation(animation)
+            animation.name = name
+
         LOGGER.debug(
-            "PresetController inserting preset animation name=%s layers=%s",
+            "PresetController inserting preset animation name=%s layers=%s reverse=%s invert=%s",
             animation.name,
             len(animation.layers),
+            dialog.reverse_animation_enabled(),
+            dialog.invert_animation_enabled(),
         )
 
         window.project.animations[animation.name] = animation

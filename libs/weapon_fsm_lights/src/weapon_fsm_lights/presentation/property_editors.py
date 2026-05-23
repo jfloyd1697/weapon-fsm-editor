@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QSpinBox,
-    QWidget,
+    QWidget, QCheckBox,
 )
 
 from weapon_fsm_lights.domain.animation_layers import LightLayerType
@@ -219,6 +219,25 @@ class LayerTypeEditor(FieldEditor):
             self.combo.setCurrentText(str(value))
 
 
+class BoolEditor(FieldEditor):
+    value_changed = pyqtSignal(object)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.checkbox = QCheckBox()
+        self.checkbox.toggled.connect(self.value_changed.emit)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.checkbox)
+
+    def value(self) -> bool:
+        return self.checkbox.isChecked()
+
+    def set_value(self, value: Any) -> None:
+        self.checkbox.setChecked(bool(value))
+
+
 EditorFactory = Callable[[Field[Any]], FieldEditor]
 
 
@@ -273,5 +292,7 @@ def default_field_editor_registry() -> FieldEditorRegistry:
     )
 
     registry.register("layer_type", lambda field_def: LayerTypeEditor())
+
+    registry.register("bool", lambda field_def: BoolEditor())
 
     return registry
