@@ -48,7 +48,7 @@ light_sequences:
 
     assert audio_cmd.payload["clip"] == "blast"
     assert audio_cmd.payload["path"] == str((audio_dir / "blast.wav").resolve())
-    assert audio_cmd.payload["mode"] == "one_shot"
+    assert audio_cmd.payload["mode"] == "once"
     assert light_cmd.payload["sequence"] == "flash"
     assert light_cmd.payload["path"] == str((light_dir / "flash.yaml").resolve())
 

@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from weapon_fsm_core import LightFrame, LightSequenceAsset, LedNode, load_light_sequence
+from weapon_fsm_lights import LightSequenceAsset, load_light_sequence
 
 
 class LedCanvasWidget(QWidget):
@@ -26,7 +26,7 @@ class LedCanvasWidget(QWidget):
         self.setMinimumHeight(220)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self._sequence_name: str | None = None
-        self._mode: str = "one_shot"
+        self._mode: str = "once"
         self._asset: LightSequenceAsset | None = None
         self._frame_index: int = 0
         self._current_frame_leds: dict[str, tuple[str, float]] = {}
@@ -44,7 +44,7 @@ class LedCanvasWidget(QWidget):
         self._edit_mode = enabled
         self.update()
 
-    def set_asset(self, asset: LightSequenceAsset, *, sequence_name: str = "layout", mode: str = "one_shot") -> None:
+    def set_asset(self, asset: LightSequenceAsset, *, sequence_name: str = "layout", mode: str = "once") -> None:
         self.play_sequence(asset, sequence_name=sequence_name, mode=mode)
 
     def play_sequence(self, asset: LightSequenceAsset, *, sequence_name: str, mode: str) -> None:
@@ -64,7 +64,7 @@ class LedCanvasWidget(QWidget):
     def stop_sequence(self) -> None:
         self._timer.stop()
         self._sequence_name = None
-        self._mode = "one_shot"
+        self._mode = "once"
         self._asset = None
         self._frame_index = 0
         self._current_frame_leds = {}
@@ -296,7 +296,7 @@ class LedPreviewPanel(QWidget):
     def load_layout_path(self, path: str | Path) -> None:
         asset = load_light_sequence(path)
         self._current_asset_path = Path(path).expanduser().resolve()
-        self.canvas.set_asset(asset, sequence_name=self._current_asset_path.stem, mode="one_shot")
+        self.canvas.set_asset(asset, sequence_name=self._current_asset_path.stem, mode="once")
         self.status_label.setText(f"Loaded layout: {self._current_asset_path.name}")
 
     def _load_layout(self) -> None:

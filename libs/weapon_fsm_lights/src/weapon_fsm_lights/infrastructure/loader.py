@@ -43,6 +43,7 @@ class LightSequenceError(ValueError):
 def load_light_sequence(path: str | Path) -> LightSequenceAsset:
     source_path = Path(path).expanduser().resolve()
     data = _load_mapping_file(source_path)
+
     if source_path.suffix.lower() == ".json" and "coordinate_space" in data and "leds" in data:
         return _load_layout_json_asset(data, source_path)
 
@@ -60,7 +61,7 @@ def load_light_sequence(path: str | Path) -> LightSequenceAsset:
     leds = tuple(_parse_led_node(entry) for entry in led_entries)
     default_duration = int(data.get("frame_duration_ms", 100))
     frames_block = data.get("frames", [])
-    frames: tuple[LightFrame, ...]
+
     if not frames_block:
         frames = (LightFrame(duration_ms=default_duration, leds={}),)
     else:
@@ -71,6 +72,7 @@ def load_light_sequence(path: str | Path) -> LightSequenceAsset:
         frames = tuple(_parse_frame(frame, default_duration) for frame in frames_block)
 
     _validate_frame_led_ids(leds, frames, source_path)
+
     return LightSequenceAsset(
         width=width,
         height=height,
@@ -89,12 +91,38 @@ def validate_light_sequence(path: str | Path) -> list[str]:
     return []
 
 
+def save_layout_json(asset: LightSequenceAsset, path: str | Path, *, name: str | None = None) -> None:
+    output_path = Path(path)
+    payload: dict[str, Any] = {
+        "name": name or output_path.stem,
+        "coordinate_space": "normalized_2d" if asset.width == 1.0 and asset.height == 1.0 else "canvas_2d",
+        "leds": [],
+    }
+
+    for order, led in enumerate(asset.leds):
+        index = led.index if led.index is not None else order
+        entry: dict[str, Any] = {
+            "index": index,
+            "u": led.x / asset.width if asset.width else 0.0,
+            "v": led.y / asset.height if asset.height else 0.0,
+            "led_radius": led.radius / max(asset.width, asset.height, 1.0),
+        }
+        if led.label:
+            entry["label"] = led.label
+        if led.id != str(index):
+            entry["id"] = led.id
+        payload["leds"].append(entry)
+
+    output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def _load_mapping_file(path: Path) -> dict[str, Any]:
     suffix = path.suffix.lower()
     if suffix == ".json":
         data = json.loads(path.read_text(encoding="utf-8")) or {}
     else:
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
     if not isinstance(data, dict):
         raise LightSequenceError(f"File at {path} must contain a mapping/object at the top level")
     return data
@@ -105,13 +133,16 @@ def _load_layout_json_asset(data: dict[str, Any], source_path: Path) -> LightSeq
         raise LightSequenceError(
             f"Layout JSON at {source_path} must use coordinate_space='normalized_2d'"
         )
+
     raw_leds = data.get("leds", [])
     if not isinstance(raw_leds, list) or not raw_leds:
         raise LightSequenceError(f"Layout JSON at {source_path} must contain a non-empty 'leds' list")
+
     leds: list[LedNode] = []
     for item in raw_leds:
         if not isinstance(item, dict):
             raise LightSequenceError("Each layout LED entry must be an object")
+
         index = int(item.get("index", len(leds)))
         led_id = str(item.get("id", index))
         u = float(item["u"])
@@ -127,6 +158,7 @@ def _load_layout_json_asset(data: dict[str, Any], source_path: Path) -> LightSeq
                 index=index,
             )
         )
+
     return LightSequenceAsset(
         width=1.0,
         height=1.0,
@@ -137,25 +169,28 @@ def _load_layout_json_asset(data: dict[str, Any], source_path: Path) -> LightSeq
     )
 
 
-
-
 def _normalize_layout_mapping(data: dict[str, Any]) -> dict[str, Any]:
     if str(data.get("coordinate_space", "")) != "normalized_2d" or "leds" not in data:
         return data
-    leds = []
+
+    leds: list[dict[str, Any]] = []
     for item in data.get("leds", []):
         if not isinstance(item, dict):
             raise LightSequenceError("Each layout LED entry must be an object")
         index = int(item.get("index", len(leds)))
-        leds.append({
+        entry: dict[str, Any] = {
             "id": str(item.get("id", index)),
             "index": index,
             "x": float(item["u"]),
             "y": float(item["v"]),
             "radius": float(item.get("led_radius", item.get("radius", 0.02))),
-            **({"label": str(item["label"])} if item.get("label") is not None else {}),
-        })
+        }
+        if item.get("label") is not None:
+            entry["label"] = str(item["label"])
+        leds.append(entry)
+
     return {"width": 1.0, "height": 1.0, "leds": leds}
+
 
 def _resolve_layout_block(data: dict[str, Any], source_path: Path) -> dict[str, Any]:
     if "layout_file" in data:
@@ -202,8 +237,9 @@ def _parse_frame(entry: Any, default_duration: int) -> LightFrame:
 
     duration_ms = int(entry.get("duration_ms", default_duration))
     led_states = entry.get("leds", {})
+
     if isinstance(led_states, list):
-        led_map = {}
+        led_map: dict[str, tuple[str, float]] = {}
         for item in led_states:
             if not isinstance(item, dict):
                 raise LightSequenceError("Frame LED list entries must be mappings")

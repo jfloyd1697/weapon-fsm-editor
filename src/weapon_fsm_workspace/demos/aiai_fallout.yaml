@@ -48,17 +48,17 @@ weapon:
       on_entry:
         - type: cancel_scheduled_events
           event: charge_tick
-        - type: start_light_sequence
-          sequence: charge_glow
+#        - type: start_light_sequence
+#          sequence: charge_glow
 
     - id: charging
       label: Charging
       on_entry:
-        - type: start_light_sequence
-          sequence: charge_glow
+#        - type: start_light_sequence
+#          sequence: charge_glow
         - type: schedule_event
           event: charge_tick
-          delay_ms: 10
+          delay_ms: 100
 
     - id: normal_shot
       label: Normal Shot
@@ -66,11 +66,11 @@ weapon:
         - type: cancel_scheduled_events
           event: charge_tick
         - type: stop_audio
-        - type: stop_light_sequence
-        - type: play_sound_random
-          clip_set: aiai_scare
-        - type: start_light_sequence
-          sequence: muzzle_flash
+#        - type: stop_light_sequence
+        - type: play_random_audio
+          clips: [aiai_scare1, aiai_scare2, aiai_scare3, aiai_scare4, aiai_scare5, aiai_scare6, aiai_scare7]
+#        - type: start_light_sequence
+#          sequence: muzzle_flash
         - type: set_var
           name: charge_ticks
           value: 0
@@ -84,14 +84,14 @@ weapon:
         - type: cancel_scheduled_events
           event: charge_tick
         - type: stop_audio
-        - type: stop_light_sequence
-        - type: play_sound
+#        - type: stop_light_sequence
+        - type: play_audio
           clip: aiai_fall
           channel: voice
           interrupt: restart
-        - type: start_light_sequence
-          sequence: big_flash
-        - type: play_sound
+#        - type: start_light_sequence
+#          sequence: big_flash
+        - type: play_audio
           clip: fallout
           channel: impact
           interrupt: schedule
@@ -101,28 +101,6 @@ weapon:
         - type: schedule_event
           event: shot_done
           delay_ms: 300
-
-    - id: reloading
-      label: Reloading
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: play_sound
-          clip: reload
-          interrupt: schedule
-        - type: start_light_sequence
-          sequence: reload
-        - type: schedule_event
-          event: reload_complete
-          delay_ms: 1200
-
-    - id: empty
-      label: Empty
 
   transitions:
     - id: start_charge
@@ -161,7 +139,7 @@ weapon:
           value: 1
         - type: schedule_event
           event: charge_tick
-          delay_ms: 10
+          delay_ms: 100
 
     - id: release_early
       source: charging
@@ -171,43 +149,20 @@ weapon:
           name: charge_ticks
           value_from_var: charge_threshold
       target: normal_shot
+      actions:
+        - type: cancel_scheduled_events
+          event: charge_tick
+        - type: set_var
+          name: charge_ticks
+          value: 0
 
     - id: shot_done_normal_ready
       source: normal_shot
       trigger: shot_done
       target: ready
 
-    - id: shot_done_normal_empty
-      source: normal_shot
-      trigger: shot_done
-      target: empty
 
     - id: shot_done_big_ready
       source: big_shot
       trigger: shot_done
-      target: ready
-
-    - id: shot_done_big_empty
-      source: big_shot
-      trigger: shot_done
-      target: empty
-
-    - id: reload_from_ready
-      source: ready
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_empty
-      source: empty
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_charging
-      source: charging
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_done
-      source: reloading
-      trigger: reload_complete
       target: ready

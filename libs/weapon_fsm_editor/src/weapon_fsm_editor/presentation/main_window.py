@@ -16,25 +16,32 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from weapon_fsm_audio import AudioLibraryBrowser
+from weapon_fsm_audio.infrastructure.runtime import PortAudioBackend
+from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
+
 from weapon_fsm_core import ProfileRepository, SimulationService
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
+from weapon_fsm_core.infrastructure.yaml.profile_builder import ProfileYamlBuilder
 from weapon_fsm_hardware import RuntimeCommandDispatcher
 
 from ..infrastructure.runtime import RuntimeCommandBridge
-from weapon_fsm_audio.infrastructure.runtime import QtAudioBackend
-from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
-from weapon_fsm_lights.presentation import LedPreviewPanel
 from .graph.machine_view import MachineWidget
 from .panels.event_panel import EventPanel
 from .panels.gun_control_panel import GunControlPanel
 from .panels.summary_panel import SummaryPanel
+from .panels.led_preview_panel import LedPreviewPanel
 from .weapon_document_editor.editor import WeaponDocumentEditor
 
 
 def _format_runtime_variables(variables: dict[str, object]) -> str:
     parts = [f"{key}={value}" for key, value in sorted(variables.items())]
     return ", ".join(parts)
+
+
+def get_call_trace() -> str:
+    return "".join(traceback.format_stack())
 
 
 class MainWindow(QMainWindow):
@@ -45,30 +52,32 @@ class MainWindow(QMainWindow):
         self._weapon_path = weapon_path
         self._repository = ProfileRepository()
         self._validator = ProfileValidator()
+        self._profile_builder = ProfileYamlBuilder()
+
         self._simulation: SimulationService | None = None
         self._gun: GunConfig | None = None
         self._weapon: WeaponConfig | None = None
-        self._audio_backend = QtAudioBackend(log=self._append_runtime_log)
+        self.log_output = QTextEdit()
+        self.log_output.setReadOnly(True)
+
+        self._audio_backend = PortAudioBackend(log=self._append_runtime_log)
         self.led_preview_panel = LedPreviewPanel(self)
-        self._light_backend = QtLightBackend(
-            log=self._append_runtime_log,
-            preview_panel=self.led_preview_panel,
-        )
+        self._light_backend = QtLightBackend(log=self._append_runtime_log, preview_panel=self.led_preview_panel)
         self._command_bridge = RuntimeCommandBridge(
             RuntimeCommandDispatcher(audio=self._audio_backend, lights=self._light_backend)
         )
 
+        self.audio_library = AudioLibraryBrowser(self._audio_backend, parent=self)
         self.gun_editor = QTextEdit()
         self.weapon_editor = WeaponDocumentEditor(self)
         self.behavior_widget = MachineWidget("Weapon Behavior")
         self.event_panel = EventPanel()
         self.summary_panel = SummaryPanel()
         self.gun_control_panel = GunControlPanel(self)
-        self.log_output = QTextEdit()
-        self.log_output.setReadOnly(True)
 
         self._clock_timer = QTimer(self)
-        self._clock_timer.setInterval(50)
+        self._tick_interval_ms = 1
+        self._clock_timer.setInterval(self._tick_interval_ms)
         self._clock_timer.timeout.connect(self._advance_time)
         self._clock_timer.start()
 
@@ -94,14 +103,28 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(open_weapon_btn)
 
         reload_btn = QPushButton("Reload")
-        reload_btn.clicked.connect(
-            lambda: self._load_documents_from_disk(self._gun_path, self._weapon_path)
-        )
+        reload_btn.clicked.connect(lambda: self._load_documents_from_disk(self._gun_path, self._weapon_path))
         toolbar.addWidget(reload_btn)
 
         apply_btn = QPushButton("Apply Text")
         apply_btn.clicked.connect(self._apply_editor_text)
         toolbar.addWidget(apply_btn)
+
+        save_gun_btn = QPushButton("Save Gun")
+        save_gun_btn.clicked.connect(self._save_gun)
+        toolbar.addWidget(save_gun_btn)
+
+        save_gun_as_btn = QPushButton("Save Gun As")
+        save_gun_as_btn.clicked.connect(self._save_gun_as)
+        toolbar.addWidget(save_gun_as_btn)
+
+        save_weapon_btn = QPushButton("Save Weapon")
+        save_weapon_btn.clicked.connect(self._save_weapon)
+        toolbar.addWidget(save_weapon_btn)
+
+        save_weapon_as_btn = QPushButton("Save Weapon As")
+        save_weapon_as_btn.clicked.connect(self._save_weapon_as)
+        toolbar.addWidget(save_weapon_as_btn)
 
         reset_btn = QPushButton("Reset")
         reset_btn.clicked.connect(self._reset_simulation)
@@ -122,6 +145,7 @@ class MainWindow(QMainWindow):
         weapon_editor_layout.addWidget(QLabel("Weapon YAML"))
         weapon_editor_layout.addWidget(self.weapon_editor)
 
+        left.addWidget(self.audio_library)
         left.addWidget(gun_editor_container)
         left.addWidget(weapon_editor_container)
 
@@ -184,6 +208,67 @@ class MainWindow(QMainWindow):
     def _apply_editor_text(self) -> None:
         self._apply_documents(self.gun_editor.toPlainText(), self.weapon_editor.toPlainText())
 
+    def _save_gun(self) -> None:
+        self._save_gun_to_path(self._gun_path)
+
+    def _save_gun_as(self) -> None:
+        current_path = self._gun_path or self._gun_path
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save gun",
+            str(current_path) if current_path is not None else str(Path.cwd() / "gun.yaml"),
+            "YAML files (*.yaml *.yml)",
+        )
+        if file_name:
+            self._save_gun_to_path(Path(file_name))
+
+    def _save_weapon(self) -> None:
+        self._save_weapon_to_path(self._weapon_path)
+
+    def _save_weapon_as(self) -> None:
+        current_path = self._weapon_path or self._weapon_path
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save weapon",
+            str(current_path) if current_path is not None else str(Path.cwd() / "weapon.yaml"),
+            "YAML files (*.yaml *.yml)",
+        )
+        if file_name:
+            self._save_weapon_to_path(Path(file_name))
+
+    def _save_gun_to_path(self, path: Path | None) -> None:
+        try:
+            gun = self._repository.load_gun_text(self.gun_editor.toPlainText())
+            normalized = self._profile_builder.dump_gun(gun)
+            target = path or self._gun_path
+            if target is None:
+                raise RuntimeError("No gun path is set")
+            target.write_text(normalized, encoding="utf-8")
+            self._gun_path = target
+            self.gun_editor.setPlainText(normalized)
+            self.statusBar().showMessage(f"Saved gun: {target.name}")
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "Save gun failed", repr(exc))
+
+    def _save_weapon_to_path(self, path: Path | None) -> None:
+        try:
+            # weapon = self._repository.load_weapon_text(
+            #     self.weapon_editor.toPlainText(),
+            #     source_path=path or self._weapon_path,
+            # )
+            # normalized = self._profile_builder.dump_weapon(weapon)
+            target = path or self._weapon_path
+            if target is None:
+                raise RuntimeError("No weapon path is set")
+            normalized = self.weapon_editor.toPlainText()
+            target.write_text(normalized, encoding="utf-8")
+            self._weapon_path = target
+            self.weapon_editor.setPlainText(normalized)
+            self._apply_documents(self.gun_editor.toPlainText(), normalized)
+            self.statusBar().showMessage(f"Saved weapon: {target.name}")
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "Save weapon failed", repr(exc))
+
     def _apply_documents(self, gun_text: str, weapon_text: str) -> None:
         try:
             gun = self._repository.load_gun_text(gun_text)
@@ -193,10 +278,19 @@ class MainWindow(QMainWindow):
             )
             issues = self._validator.validate(gun, weapon)
 
+            asset_errors = [
+                issue for issue in issues
+                if issue.path.startswith(("clips.", "light_sequences."))
+            ]
+            if asset_errors:
+                summary = "\n\n".join(f"{issue.path}: {issue.message}" for issue in asset_errors)
+                raise FileNotFoundError(summary)
+
             self._gun = gun
             self._weapon = weapon
             self._simulation = SimulationService(gun, weapon)
             self.weapon_editor.set_gun_config(self._gun)
+            self.audio_library.set_weapon(self._weapon)
 
             self.event_panel.set_events(list(gun.events))
             self.gun_control_panel.reset_trigger()
@@ -212,6 +306,7 @@ class MainWindow(QMainWindow):
         except Exception as exc:  # noqa: BLE001
             traceback.print_exc()
             QMessageBox.critical(self, "Apply failed", repr(exc))
+
 
     def _on_equip(self) -> None:
         if self._simulation is None:
@@ -246,15 +341,27 @@ class MainWindow(QMainWindow):
             return
 
         records = self._simulation.dispatch_external_event(event_id)
+        self._handle_records(records, source_prefix=None)
+
+    def _handle_records(self, records, source_prefix: str | None) -> None:
+        if not records:
+            return
+
         for record in records:
             result = record.result
 
             if result.accepted:
                 transition_id = result.transition.id if result.transition else "?"
-                self.log_output.append(
-                    f"[{record.machine_id}] event={result.event_id} "
-                    f"{result.previous_state} -> {result.current_state} via {transition_id}"
-                )
+                prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
+                if source_prefix is not None:
+                    self.log_output.append(
+                        f"{prefix}{result.event_id}: {result.previous_state} -> {result.current_state} via {transition_id}"
+                    )
+                else:
+                    self.log_output.append(
+                        f"{prefix}event={result.event_id} "
+                        f"{result.previous_state} -> {result.current_state} via {transition_id}"
+                    )
 
                 self.log_output.append(
                     f"[vars] before: {_format_runtime_variables(result.variables_before)}"
@@ -275,10 +382,16 @@ class MainWindow(QMainWindow):
                 for command in result.commands:
                     self.log_output.append(f"[command] {command.type}: {command.payload}")
             else:
-                self.log_output.append(
-                    f"[{record.machine_id}] event={result.event_id} ignored in "
-                    f"{result.current_state}: {result.reason}"
-                )
+                prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
+                if source_prefix is not None:
+                    self.log_output.append(
+                        f"{prefix}{result.event_id} ignored in {result.current_state}: {result.reason}"
+                    )
+                else:
+                    self.log_output.append(
+                        f"{prefix}event={result.event_id} ignored in "
+                        f"{result.current_state}: {result.reason}"
+                    )
 
             self.log_output.append("")
 
@@ -288,28 +401,8 @@ class MainWindow(QMainWindow):
         if self._simulation is None:
             return
 
-        records = self._simulation.advance_time(50)
-        if not records:
-            return
-
-        for record in records:
-            result = record.result
-            if result.accepted:
-                transition_id = result.transition.id if result.transition else "?"
-                self.log_output.append(
-                    f"[timer] {result.event_id}: {result.previous_state} -> "
-                    f"{result.current_state} via {transition_id}"
-                )
-                if result.commands:
-                    print(f"sending commands to bridge: {result.commands}")
-                    self._command_bridge.dispatch_commands(result.commands)
-                    for command in result.commands:
-                        self.log_output.append(f"[command] {command.type}: {command.payload}")
-            else:
-                self.log_output.append(
-                    f"[timer] {result.event_id} ignored in {result.current_state}: {result.reason}"
-                )
-        self._refresh_views()
+        records = self._simulation.advance_time(self._tick_interval_ms)
+        self._handle_records(records, source_prefix="timer")
 
     def _refresh_views(self) -> None:
         if self._simulation is None or self._weapon is None:

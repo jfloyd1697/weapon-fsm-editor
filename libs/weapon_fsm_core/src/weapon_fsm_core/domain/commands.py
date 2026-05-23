@@ -1,11 +1,9 @@
-import enum
-import random
-import typing
 from dataclasses import MISSING, dataclass, field, fields, is_dataclass
-from typing import ClassVar
+import random
+from typing import ClassVar, Any
 
 from .command_schema import CommandFieldSpec, ValidationContext
-from .model import ActionDef, WeaponConfig
+from .model import ActionDef, WeaponConfig, AudioEffectDef
 from .runtime_types import ScheduledEvent
 
 
@@ -17,6 +15,9 @@ class RuntimeEnvironment:
     emitted_events: list[str] = field(default_factory=list)
     scheduled_events: list[ScheduledEvent] = field(default_factory=list)
     gun_commands: list["GunRuntimeCommand"] = field(default_factory=list)
+
+    def cancel_scheduled_events(self, event_id: str) -> None:
+        self.scheduled_events = [event for event in self.scheduled_events if not event.event_id == event_id]
 
 
 @dataclass(frozen=True)
@@ -112,13 +113,6 @@ class RuntimeCommand:
         return
 
 
-class GunCommandType(enum.StrEnum):
-    PLAY_AUDIO = "play_audio"
-    STOP_AUDIO = "stop_audio"
-    PLAY_LIGHT = "play_light"
-    STOP_LIGHT = "stop_light"
-
-
 @dataclass(frozen=True)
 class GunRuntimeCommand(RuntimeCommand):
     type: str
@@ -127,28 +121,191 @@ class GunRuntimeCommand(RuntimeCommand):
     def execute(self, env: RuntimeEnvironment) -> None:
         env.gun_commands.append(self)
 
-    @classmethod
-    def play_audio(cls, payload: dict[str, object]) -> typing.Self:
-        return cls(type=GunCommandType.PLAY_AUDIO, payload=payload)
+
+@dataclass(frozen=True, slots=True)
+class PlayAudioCommand(RuntimeCommand, action_type="play_audio"):
+    clip: str
+    mode: str = "once"
+    interrupt: str = "interrupt"
 
     @classmethod
-    def stop_audio(cls, payload: dict[str, object]) -> typing.Self:
-        return cls(type=GunCommandType.STOP_AUDIO, payload=payload)
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec("clip", required=True, expected_types=(str,), reference_target="clips"),
+            CommandFieldSpec(
+                "mode",
+                expected_types=(str,),
+                enum_values=("once", "loop"),
+            ),
+            CommandFieldSpec(
+                "interrupt",
+                expected_types=(str,),
+                enum_values=("interrupt", "schedule", "ignore"),
+            ),
+        )
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        clip_def = env.weapon.clips.get(self.clip)
+        path = env.weapon.resolve_asset_path(clip_def.path) if clip_def is not None else self.clip
+        env.gun_commands.append(
+            GunRuntimeCommand(
+                type="play_audio",
+                payload={
+                    "clip": self.clip,
+                    "path": path,
+                    "mode": self.mode,
+                    "interrupt": self.interrupt,
+                },
+            )
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class PlayAudioLoopCommand(RuntimeCommand, action_type="play_audio_loop"):
+    clip: str
+    interrupt: str = "interrupt"
 
     @classmethod
-    def play_light(cls, payload: dict[str, object]) -> typing.Self:
-        return cls(type=GunCommandType.PLAY_LIGHT, payload=payload)
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec("clip", required=True, expected_types=(str,), reference_target="clips"),
+            CommandFieldSpec(
+                "interrupt",
+                expected_types=(str,),
+                enum_values=("interrupt", "schedule", "ignore"),
+            ),
+        )
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        PlayAudioCommand(clip=self.clip, mode="loop", interrupt=self.interrupt).execute(env)
+
+
+@dataclass(frozen=True, slots=True)
+class PlayRandomAudioCommand(RuntimeCommand, action_type="play_random_audio"):
+    clips: tuple[str, ...]
+    interrupt: str = "interrupt"
 
     @classmethod
-    def stop_light(cls) -> typing.Self:
-        return cls(type=GunCommandType.STOP_LIGHT, payload={})
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec("clips", required=True, expected_types=(tuple,)),
+            CommandFieldSpec(
+                "interrupt",
+                expected_types=(str,),
+                enum_values=("interrupt", "schedule", "ignore"),
+            ),
+        )
+
+    @classmethod
+    def validate_kwargs(
+        cls,
+        kwargs: dict[str, object],
+        context: ValidationContext | None = None,
+    ) -> None:
+        clips = kwargs.get("clips", ())
+        if not clips:
+            raise ValueError("play_random_audio requires at least one clip")
+        if context is not None:
+            missing = [str(item) for item in clips if str(item) not in context.clips]
+            if missing:
+                quoted = ", ".join(repr(item) for item in missing)
+                raise ValueError(f"Unknown clip(s): {quoted}")
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        if not self.clips:
+            return
+        PlayAudioCommand(
+            clip=random.choice(self.clips),
+            mode="once",
+            interrupt=self.interrupt,
+        ).execute(env)
+
 
 
 
 @dataclass(frozen=True, slots=True)
-class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
+class PlayAudioEffectCommand(RuntimeCommand, action_type="play_audio_effect"):
+    effect: str
+
+    @classmethod
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (CommandFieldSpec("effect", required=True, expected_types=(str,), reference_target="audio_effects"),)
+
+    @classmethod
+    def validate_kwargs(
+        cls,
+        kwargs: dict[str, object],
+        context: ValidationContext | None = None,
+    ) -> None:
+        effect_name = str(kwargs.get("effect", ""))
+        if not effect_name:
+            raise ValueError("play_audio_effect requires an effect")
+        if context is not None and effect_name not in context.audio_effects:
+            raise ValueError(f"Unknown audio effect: {effect_name!r}")
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        effect_def = env.weapon.audio_effects.get(self.effect)
+        if effect_def is None or not effect_def.clips:
+            return
+        clip_name = effect_def.clips[0]
+        mode = "loop" if effect_def.loop or effect_def.mode == "loop" else "once"
+        PlayAudioCommand(clip=clip_name, mode=mode, interrupt=effect_def.interrupt).execute(env)
+
+
+
+@dataclass(frozen=True, slots=True)
+class PlaySoundRandomCommand(RuntimeCommand, action_type="play_sound_random"):
+    clip_set: str
+    interrupt: str = "interrupt"
+
+    @classmethod
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec("clip_set", required=True, expected_types=(str,), reference_target="clip_sets"),
+            CommandFieldSpec(
+                "interrupt",
+                expected_types=(str,),
+                enum_values=("interrupt", "schedule", "ignore"),
+            ),
+        )
+
+    @classmethod
+    def validate_kwargs(
+        cls,
+        kwargs: dict[str, object],
+        context: ValidationContext | None = None,
+    ) -> None:
+        clip_set_name = str(kwargs.get("clip_set", ""))
+        if not clip_set_name:
+            raise ValueError("play_sound_random requires a clip_set")
+        if context is not None and clip_set_name not in context.clip_sets:
+            raise ValueError(f"Unknown clip set '{clip_set_name}'")
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        clip_set_def = env.weapon.clip_sets.get(self.clip_set)
+        if clip_set_def is None or not clip_set_def.clips:
+            return
+        state = env.clip_set_state.setdefault(self.clip_set, {})
+        if clip_set_def.mode == "sequence":
+            index = int(state.get("index", len(clip_set_def.clips))) - 1
+            if index < 0:
+                index = len(clip_set_def.clips) - 1
+            state["index"] = index
+            clip_name = clip_set_def.clips[index]
+        else:
+            clip_name = random.choice(clip_set_def.clips)
+        PlayAudioCommand(clip=clip_name, mode="once", interrupt=self.interrupt).execute(env)
+
+@dataclass(frozen=True, slots=True)
+class StopAudioCommand(RuntimeCommand, action_type="stop_audio"):
+    def execute(self, env: RuntimeEnvironment) -> None:
+        env.gun_commands.append(GunRuntimeCommand(type="stop_audio", payload={}))
+
+
+@dataclass(frozen=True, slots=True)
+class PlayLightCommand(RuntimeCommand, action_type="play_light"):
     sequence: str
-    mode: str = "one_shot"
+    mode: str = "once"
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
@@ -157,7 +314,7 @@ class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
             CommandFieldSpec(
                 "mode",
                 expected_types=(str,),
-                enum_values=("one_shot", "loop"),
+                enum_values=("once", "loop"),
             ),
         )
 
@@ -165,7 +322,8 @@ class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
         sequence_def = env.weapon.light_sequences.get(self.sequence)
         path = env.weapon.resolve_asset_path(sequence_def.path) if sequence_def is not None else self.sequence
         env.gun_commands.append(
-            GunRuntimeCommand.play_light(
+            GunRuntimeCommand(
+                type="play_light",
                 payload={
                     "sequence": self.sequence,
                     "path": path,
@@ -178,7 +336,7 @@ class PlayLightCommand(RuntimeCommand, action_type=GunCommandType.PLAY_LIGHT):
 @dataclass(frozen=True, slots=True)
 class StopLightCommand(RuntimeCommand, action_type="stop_light"):
     def execute(self, env: RuntimeEnvironment) -> None:
-        env.gun_commands.append(GunRuntimeCommand.stop_light())
+        env.gun_commands.append(GunRuntimeCommand(type="stop_light", payload={}))
 
 
 @dataclass(frozen=True, slots=True)
@@ -287,16 +445,105 @@ class EmitEventCommand(RuntimeCommand, action_type="emit_event"):
 class ScheduleEventCommand(RuntimeCommand, action_type="schedule_event"):
     event: str
     delay_ms: int = 0
+    delay_ms_from_var: str | None = None
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
         return (
-            CommandFieldSpec("event", required=True, expected_types=(str,), reference_target="events"),
-            CommandFieldSpec("delay_ms", expected_types=(int,)),
+            CommandFieldSpec(
+                "event",
+                required=True,
+                expected_types=(str,),
+                reference_target="events",
+            ),
+            CommandFieldSpec(
+                "delay_ms",
+                expected_types=(int,),
+            ),
+            CommandFieldSpec(
+                "delay_ms_from_var",
+                expected_types=(str,),
+                reference_target="variables",
+            ),
+        )
+
+    @classmethod
+    def validate_kwargs(
+        cls,
+        kwargs: dict[str, object],
+        context: ValidationContext | None = None,
+    ) -> None:
+        has_delay_ms = "delay_ms" in kwargs
+        has_delay_ms_from_var = "delay_ms_from_var" in kwargs
+
+        if has_delay_ms and has_delay_ms_from_var:
+            raise ValueError(
+                "schedule_event cannot specify both 'delay_ms' and "
+                "'delay_ms_from_var'"
+            )
+
+        if has_delay_ms:
+            delay_ms = int(kwargs.get("delay_ms", 0))
+            if delay_ms < 0:
+                raise ValueError("schedule_event 'delay_ms' cannot be negative")
+
+        if has_delay_ms_from_var:
+            variable_name = str(kwargs["delay_ms_from_var"])
+
+            if not variable_name:
+                raise ValueError(
+                    "schedule_event 'delay_ms_from_var' cannot be empty"
+                )
+
+            if context is not None and variable_name not in context.variables:
+                raise ValueError(
+                    f"schedule_event references unknown delay variable "
+                    f"'{variable_name}'"
+                )
+
+    def execute(self, env: RuntimeEnvironment) -> None:
+        delay_ms = self._resolve_delay_ms(env)
+        env.scheduled_events.append(ScheduledEvent(self.event, delay_ms))
+
+    def _resolve_delay_ms(self, env: RuntimeEnvironment) -> int:
+        if self.delay_ms_from_var is None:
+            return int(self.delay_ms)
+
+        value = env.variables.get(self.delay_ms_from_var)
+        if value is None:
+            raise ValueError(
+                f"Unknown delay variable '{self.delay_ms_from_var}' "
+                f"for scheduled event '{self.event}'"
+            )
+
+        delay_ms = int(value)
+
+        if delay_ms < 0:
+            raise ValueError(
+                f"Delay variable '{self.delay_ms_from_var}' for scheduled "
+                f"event '{self.event}' cannot be negative"
+            )
+
+        return delay_ms
+
+
+@dataclass(frozen=True, slots=True)
+class CancelScheduledEventsCommand(RuntimeCommand, action_type="cancel_scheduled_events"):
+    event: str
+
+    @classmethod
+    def schema(cls) -> tuple[CommandFieldSpec, ...]:
+        return (
+            CommandFieldSpec(
+                "event",
+                required=True,
+                expected_types=(str,),
+                reference_target="events",
+            ),
         )
 
     def execute(self, env: RuntimeEnvironment) -> None:
-        env.scheduled_events.append(ScheduledEvent(self.event, self.delay_ms))
+        env.cancel_scheduled_events(self.event)
 
 
 @dataclass(frozen=True, slots=True)

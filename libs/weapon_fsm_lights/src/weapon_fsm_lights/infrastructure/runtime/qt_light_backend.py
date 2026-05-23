@@ -1,10 +1,12 @@
 from pathlib import Path
 from typing import Callable
 
-from weapon_fsm_lights.domain.light_sequence import load_light_sequence
+from weapon_fsm_core.domain.enums import LightMode
+from weapon_fsm_hardware import LightBackend
+from weapon_fsm_lights import load_light_sequence
 
 
-class QtLightBackend:
+class QtLightBackend(LightBackend):
     def __init__(
         self,
         log: Callable[[str], None] | None = None,
@@ -15,7 +17,7 @@ class QtLightBackend:
         self._active_sequence: str | None = None
         self._active_path: Path | None = None
 
-    def play_light(self, *, sequence: str, path: str, mode: str) -> None:
+    def play_light(self, *, sequence: str, path: str, mode: str = LightMode.ONCE) -> None:
         self._active_sequence = sequence
         self._active_path = Path(path).expanduser()
         self._log(f"[light] play sequence={sequence} mode={mode} path={path}")

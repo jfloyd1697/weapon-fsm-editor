@@ -19,7 +19,7 @@ class RuntimeCommandDispatcher:
             self.audio.play_audio(
                 clip=str(payload.get("clip", "")),
                 path=str(payload.get("path", payload.get("clip", ""))),
-                mode=str(payload.get("mode", "one_shot")),
+                mode=str(payload.get("mode", "once")),
                 interrupt=str(payload.get("interrupt", "interrupt")),
             )
             return
@@ -32,7 +32,7 @@ class RuntimeCommandDispatcher:
             self.lights.play_light(
                 sequence=str(payload.get("sequence", "")),
                 path=str(payload.get("path", payload.get("sequence", ""))),
-                mode=str(payload.get("mode", "one_shot")),
+                mode=str(payload.get("mode", "once")),
             )
             return
 

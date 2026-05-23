@@ -1,0 +1,185 @@
+weapon:
+  initial_state: ready
+  variables:
+    ammo: 6
+    mag_capacity: 6
+    charge_ticks: 0
+    charge_threshold: 25
+  states:
+  - id: ready
+    label: Ready
+  - id: charging
+    label: Charging
+    on_entry:
+    - type: play_audio_loop
+      clip: charge_loop
+      interrupt: ignore
+    - type: start_light_sequence
+      sequence: charge_glow
+    - type: schedule_event
+      event: charge_tick
+      delay_ms: 10
+  - id: charged
+    label: Charged
+    on_entry:
+    - type: stop_audio
+    - type: play_audio
+      clip: charged_ready
+      interrupt: interrupt
+    - type: start_light_sequence
+      sequence: charged_glow
+  - id: firing
+    label: Firing
+    on_entry:
+    - type: stop_audio
+    - type: stop_light_sequence
+    - type: play_audio
+      clip: charged_fire
+      interrupt: interrupt
+    - type: start_light_sequence
+      sequence: big_flash
+    - type: adjust_ammo
+      delta: -1
+    - type: set_var
+      name: charge_ticks
+      value: 0
+    - type: schedule_event
+      event: shot_done
+      delay_ms: 180
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: stop_audio
+    - type: stop_light_sequence
+    - type: set_var
+      name: charge_ticks
+      value: 0
+    - type: play_audio
+      clip: reload
+      interrupt: interrupt
+    - type: start_light_sequence
+      sequence: reload
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 1200
+  - id: empty
+    label: Empty
+  transitions:
+  - id: start_charge
+    source: ready
+    trigger: trigger_pressed
+    target: charging
+    guard:
+      var_gt:
+        name: ammo
+        value: 0
+    actions:
+    - type: set_var
+      name: charge_ticks
+      value: 0
+  - id: pull_on_empty
+    source: ready
+    trigger: trigger_pressed
+    target: empty
+    guard:
+      var_lte:
+        name: ammo
+        value: 0
+  - id: charge_tick_continue
+    source: charging
+    trigger: charge_tick
+    target: charging
+    guard:
+      all:
+      - trigger_pressed: true
+      - var_lt:
+          name: charge_ticks
+          value_from_var: charge_threshold
+    actions:
+    - type: add_var
+      name: charge_ticks
+      value: 1
+    - type: schedule_event
+      event: charge_tick
+      delay_ms: 10
+  - id: charge_done
+    source: charging
+    trigger: charge_tick
+    target: charged
+    guard:
+      all:
+      - trigger_pressed: true
+      - var_gte:
+          name: charge_ticks
+          value_from_var: charge_threshold
+  - id: release_early
+    source: charging
+    trigger: trigger_released
+    target: ready
+    guard:
+      var_lt:
+        name: charge_ticks
+        value_from_var: charge_threshold
+    actions:
+    - type: stop_audio
+    - type: stop_light_sequence
+    - type: play_audio
+      clip: charge_fail
+      interrupt: interrupt
+    - type: set_var
+      name: charge_ticks
+      value: 0
+  - id: release_charged
+    source: charged
+    trigger: trigger_released
+    target: firing
+  - id: shot_done_ready
+    source: firing
+    trigger: shot_done
+    target: ready
+    guard:
+      var_gt:
+        name: ammo
+        value: 0
+  - id: shot_done_empty
+    source: firing
+    trigger: shot_done
+    target: empty
+    guard:
+      var_lte:
+        name: ammo
+        value: 0
+  - id: reload_from_ready
+    source: ready
+    trigger: reload_pressed
+    target: reloading
+  - id: reload_from_empty
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+  - id: reload_done
+    source: reloading
+    trigger: reload_complete
+    target: ready
+    actions:
+    - type: set_ammo_full
+clips:
+  charge_loop:
+    path: assets/audio/charge/charge_loop.wav
+  charged_ready:
+    path: assets/audio/charge/charged_ready.wav
+  charge_fail:
+    path: assets/audio/charge/charge_fail.wav
+  charged_fire:
+    path: assets/audio/charge/charged_fire.wav
+  reload:
+    path: assets/audio/shared/reload.wav
+light_sequences:
+  charge_glow:
+    path: assets/lights/charge_glow.yaml
+  charged_glow:
+    path: assets/lights/charged_glow.yaml
+  big_flash:
+    path: assets/lights/big_flash.yaml
+  reload:
+    path: assets/lights/reload.yaml
