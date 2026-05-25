@@ -30,13 +30,13 @@ You can use it to:
 
 The main window is the central workspace for opening a project, navigating editor pages, and working with weapon profile tools.
 
-![Main window](docs/images/main-window.png)
+![Main window](docs/images/main-window.gif)
 
 ### Light Editor
 
 The light editor is used to work with LED layouts and visual light effects such as muzzle flashes, charge glows, reload sweeps, and charged-shot bursts.
 
-![Light Designer](docs/images/light-designer.png)
+![Light Designer](docs/images/light-designer.gif)
 
 ### Loop Editor
 
