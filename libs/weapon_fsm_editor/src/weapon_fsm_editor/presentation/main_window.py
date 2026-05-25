@@ -18,7 +18,6 @@ from PyQt6.QtWidgets import (
 
 from weapon_fsm_audio import AudioLibraryBrowser
 from weapon_fsm_audio.infrastructure.runtime import PortAudioBackend
-from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
 
 from weapon_fsm_core import ProfileRepository, SimulationService
 from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
@@ -26,12 +25,14 @@ from weapon_fsm_core.domain.validation import ProfileValidator
 from weapon_fsm_core.infrastructure.yaml.profile_builder import ProfileYamlBuilder
 from weapon_fsm_hardware import RuntimeCommandDispatcher
 
+from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
+from weapon_fsm_lights.presentation.led_canvas_widget import LedPreviewPanel
+
 from ..infrastructure.runtime import RuntimeCommandBridge
 from .graph.machine_view import MachineWidget
 from .panels.event_panel import EventPanel
 from .panels.gun_control_panel import GunControlPanel
 from .panels.summary_panel import SummaryPanel
-from .panels.led_preview_panel import LedPreviewPanel
 from .weapon_document_editor.editor import WeaponDocumentEditor
 
 

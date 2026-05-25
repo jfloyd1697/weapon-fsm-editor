@@ -1,0 +1,503 @@
+layout:
+  path: layouts/cpx_ring_61.json
+animations:
+  prime_charge_warm_build:
+    name: prime_charge_warm_build
+    frame_duration_ms: 33
+    duration_ms: 1900
+    mode: loop
+    layers:
+    - type: solid
+      name: dark cannon glow
+      start_ms: 0
+      duration_ms: 1900
+      color: '#1a1206'
+      intensity: 0.18
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: solid
+      name: warm yellow core
+      start_ms: 250
+      duration_ms: 1650
+      color: '#ffe066'
+      intensity: 0.34
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: radial_pulse
+      name: amber charge shell
+      start_ms: 0
+      duration_ms: 1900
+      color: '#ffb02e'
+      intensity: 0.85
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.08
+      radius_to: 0.7
+      width: 0.25
+    - type: radial_pulse
+      name: white-hot inner ring
+      start_ms: 300
+      duration_ms: 1600
+      color: '#fff3b0'
+      intensity: 0.72
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.05
+      radius_to: 0.46
+      width: 0.12
+    - type: radial_pulse
+      name: cyan outer shimmer
+      start_ms: 450
+      duration_ms: 1350
+      color: '#4ad8ff'
+      intensity: 0.45
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.2
+      radius_to: 0.78
+      width: 0.08
+    - type: chase
+      name: orange orbit streaks
+      start_ms: 250
+      duration_ms: 1650
+      color: '#ff8a22'
+      intensity: 0.85
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      width: 0.07
+      speed: 2.8
+      led_count: 1
+    - type: sparkle
+      name: charge flecks
+      start_ms: 350
+      duration_ms: 1500
+      color: '#fff7d6'
+      intensity: 0.65
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      seed: 2200
+      density: 0.13
+      speed: 2.1
+  prime_charge_warm_hold:
+    name: prime_charge_warm_hold
+    frame_duration_ms: 33
+    duration_ms: 1150
+    mode: loop
+    layers:
+    - type: solid
+      name: amber base glow
+      start_ms: 0
+      duration_ms: 1150
+      color: '#5a3200'
+      intensity: 0.34
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: solid
+      name: white-yellow core
+      start_ms: 0
+      duration_ms: 1150
+      color: '#fff2a0'
+      intensity: 0.48
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: radial_pulse
+      name: breathing amber shell
+      start_ms: 0
+      duration_ms: 1150
+      color: '#ffb02e'
+      intensity: 0.95
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.3
+      radius_to: 0.62
+      width: 0.3
+    - type: radial_pulse
+      name: thin cyan edge
+      start_ms: 0
+      duration_ms: 1150
+      color: '#4ad8ff'
+      intensity: 0.55
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.48
+      radius_to: 0.72
+      width: 0.08
+    - type: chase
+      name: fast amber orbit
+      start_ms: 0
+      duration_ms: 1150
+      color: '#ffd166'
+      intensity: 0.9
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      width: 0.055
+      speed: 3.4
+      led_count: 1
+    - type: sparkle
+      name: charged white sparks
+      start_ms: 0
+      duration_ms: 1150
+      color: '#ffffff'
+      intensity: 0.78
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      seed: 2210
+      density: 0.18
+      speed: 2.8
+  prime_charge_warm_release:
+    name: prime_charge_warm_release
+    frame_duration_ms: 33
+    duration_ms: 720
+    mode: once
+    layers:
+    - type: solid
+      name: white release flash
+      start_ms: 0
+      duration_ms: 80
+      color: '#ffffff'
+      intensity: 1.0
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: solid
+      name: gold blast core
+      start_ms: 0
+      duration_ms: 160
+      color: '#ffd34d'
+      intensity: 0.95
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: radial_pulse
+      name: amber shock sphere
+      start_ms: 0
+      duration_ms: 440
+      color: '#ff9f1a'
+      intensity: 1.0
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.0
+      radius_to: 1.05
+      width: 0.3
+    - type: radial_pulse
+      name: cyan shock rim
+      start_ms: 30
+      duration_ms: 390
+      color: '#4ad8ff'
+      intensity: 0.75
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.05
+      radius_to: 1.0
+      width: 0.09
+    - type: wipe
+      name: forward blue-white bolt
+      start_ms: 40
+      duration_ms: 420
+      color: '#9beeff'
+      intensity: 1.0
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      direction:
+      - 1.0
+      - 0.0
+      width: 0.13
+      speed: 1.85
+    - type: sparkle
+      name: gold-white fragments
+      start_ms: 90
+      duration_ms: 540
+      color: '#fff7d6'
+      intensity: 0.95
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      seed: 2220
+      density: 0.22
+      speed: 3.4
+  prime_charge_warm_cooldown:
+    name: prime_charge_warm_cooldown
+    frame_duration_ms: 33
+    duration_ms: 950
+    mode: once
+    layers:
+    - type: solid
+      name: fading amber residue
+      start_ms: 0
+      duration_ms: 950
+      color: '#5a3200'
+      intensity: 0.25
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+    - type: radial_pulse
+      name: small fading ring
+      start_ms: 0
+      duration_ms: 650
+      color: '#ffb02e'
+      intensity: 0.45
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.25
+      radius_to: 0.55
+      width: 0.18
+    - type: sparkle
+      name: cooldown flecks
+      start_ms: 0
+      duration_ms: 850
+      color: '#9beeff'
+      intensity: 0.45
+      reverse: false
+      invert: false
+      mask_enabled: false
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 1.0
+      mask_softness: 0.0
+      mask_invert: false
+      seed: 2230
+      density: 0.08
+      speed: 1.5
+  prime_charge_dark_ring_hold:
+    name: prime_charge_dark_ring_hold
+    frame_duration_ms: 33
+    duration_ms: 1200
+    mode: loop
+    layers:
+    - type: solid
+      name: amber charge field
+      start_ms: 0
+      duration_ms: 1200
+      color: '#ffb02e'
+      intensity: 0.75
+      reverse: false
+      invert: false
+      mask_enabled: true
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 0.72
+      mask_softness: 0.12
+      mask_invert: false
+    - type: solid
+      name: white hot core
+      start_ms: 0
+      duration_ms: 1200
+      color: '#fff2a0'
+      intensity: 0.45
+      reverse: false
+      invert: false
+      mask_enabled: true
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 0.35
+      mask_softness: 0.1
+      mask_invert: false
+    - type: radial_pulse
+      name: dark outward ring
+      start_ms: 0
+      duration_ms: 1200
+      color: '#000000'
+      intensity: 0.9
+      reverse: false
+      invert: true
+      mask_enabled: true
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 0.75
+      mask_softness: 0.08
+      mask_invert: false
+      center:
+      - 0.5
+      - 0.5
+      radius_from: 0.15
+      radius_to: 0.72
+      width: 0.12
+    - type: sparkle
+      name: edge sparks
+      start_ms: 0
+      duration_ms: 1200
+      color: '#fff7d6'
+      intensity: 0.65
+      reverse: false
+      invert: false
+      mask_enabled: true
+      mask_center:
+      - 0.5
+      - 0.5
+      mask_radius: 0.78
+      mask_softness: 0.05
+      mask_invert: false
+      seed: 2240
+      density: 0.12
+      speed: 2.4
