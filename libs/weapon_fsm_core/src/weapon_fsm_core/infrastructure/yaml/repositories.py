@@ -8,7 +8,7 @@ from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 
 class ProfileRepository:
     DEMOS_PATH = Path(
-        "D:/Python/weapon-fsm-starter/src/weapon_fsm_workspace/demos"
+        "E:/Python/weapon-fsm-starter/src/weapon_fsm_workspace/demos"
     )
 
     def load_weapon(self, path: str | Path) -> WeaponConfig:
@@ -51,10 +51,7 @@ class ProfileRepository:
             weapon_raw.get("light_sequences", {})
         )
 
-        # Hardcoded by design.
-        # Do not use the caller's source_path here, because the editor may pass
-        # the profile file path instead of the profile folder.
-        weapon_raw["source_path"] = self.DEMOS_PATH
+        weapon_raw["source_path"] = source_path.parent
 
         return WeaponConfig.from_dict(weapon_raw)
 

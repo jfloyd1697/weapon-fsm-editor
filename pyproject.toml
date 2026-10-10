@@ -20,7 +20,12 @@ dependencies = [
     "sounddevice>=0.5.5",
     "soundfile>=0.13.1",
     "uv>=0.11.7",
+    "weapon-fsm-core>=0.1.0",
+    "weapon-fsm-lights>=0.1.0",
 ]
+
+[project.scripts]
+weapon-fsm-export-sd = "weapon_fsm_workspace.sd_export:main"
 
 [dependency-groups]
 dev = [

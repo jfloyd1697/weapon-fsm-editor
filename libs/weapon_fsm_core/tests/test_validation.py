@@ -63,7 +63,7 @@ weapon:
     - id: ready
       label: Ready
       on_entry:
-        - type: play_sound_random
+        - type: play_audio_random
           clip_set: variants
   transitions: []
 clips:

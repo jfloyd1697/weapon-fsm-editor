@@ -379,3 +379,14 @@ Future ideas:
 
 Add the project license here.
 
+
+## SD-card runtime export
+
+The editor is the authoring environment; microcontrollers do not load the YAML documents directly. Export with:
+
+```powershell
+uv run weapon-fsm-export-sd --sd-root E:\ --bank Default src/weapon_fsm_workspace/demos/metroid_prime.yaml
+```
+
+Each weapon is compiled to `weapon.bin` (`WFSMBIN1`) plus copied audio and compiled light assets. The binary puts the asset tables first so firmware can validate the SD layout without decoding the complete FSM. The full state machine is decoded only when the weapon is equipped.
+

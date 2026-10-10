@@ -41,7 +41,7 @@ weapon:
     - id: hurt
       label: Hurt
       on_entry:
-        - type: play_sound_random
+        - type: play_audio_random
           clip_set: c3_hurt
           interrupt: schedule
         - type: add_var
@@ -54,7 +54,7 @@ weapon:
     - id: dead
       label: Dead
       on_entry:
-        - type: play_sound_random
+        - type: play_audio_random
           clip_set: c3_die
 
     - id: healing

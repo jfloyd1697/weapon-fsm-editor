@@ -88,6 +88,7 @@ weapon:
     guard:
       var_gt:
         name: health
+        value: 0
   - id: hurt_done_alive
     source: hurt
     trigger: hurt_done
@@ -95,6 +96,7 @@ weapon:
     guard:
       var_gt:
         name: health
+        value: 0
   - id: hurt_done_dead
     source: hurt
     trigger: hurt_done
@@ -102,6 +104,7 @@ weapon:
     guard:
       var_eq:
         name: health
+        value: 0
   - id: heal_from_alive
     source: alive
     trigger: reload_pressed

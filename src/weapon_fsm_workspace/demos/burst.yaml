@@ -21,7 +21,7 @@ weapon:
     - id: burst
       label: Burst
       on_entry:
-        - type: play_sound
+        - type: play_audio
           clip: shot
         - type: start_light_sequence
           sequence: muzzle_flash

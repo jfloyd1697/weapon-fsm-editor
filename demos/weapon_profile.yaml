@@ -6,7 +6,7 @@ weapon:
     - id: equipping
       label: Equipping
       on_entry:
-        - type: play_sound
+        - type: play_audio
           sound: equip
         - type: schedule_event
           event: equip_complete
@@ -19,7 +19,7 @@ weapon:
     - id: firing
       label: Firing
       on_entry:
-        - type: play_sound
+        - type: play_audio
           sound: fire
         - type: set_light_pattern
           pattern: muzzle_flash
@@ -31,7 +31,7 @@ weapon:
     - id: reloading
       label: Reloading
       on_entry:
-        - type: play_sound
+        - type: play_audio
           sound: reload
         - type: set_light_pattern
           pattern: reload
@@ -41,7 +41,7 @@ weapon:
     - id: empty
       label: Empty
       on_entry:
-        - type: play_sound
+        - type: play_audio
           sound: dry_fire
         - type: set_light_pattern
           pattern: empty

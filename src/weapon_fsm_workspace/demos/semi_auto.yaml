@@ -21,7 +21,7 @@ weapon:
       label: Firing
       on_entry:
         - type: stop_audio
-        - type: play_sound
+        - type: play_audio
           clip: shot
         - type: start_light_sequence
           sequence: muzzle_flash
@@ -34,7 +34,7 @@ weapon:
       on_entry:
         - type: stop_audio
         - type: stop_light_sequence
-        - type: play_sound
+        - type: play_audio
           clip: reload
         - type: start_light_sequence
           sequence: reload

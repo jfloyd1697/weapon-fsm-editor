@@ -1346,6 +1346,8 @@ dependencies = [
     { name = "sounddevice" },
     { name = "soundfile" },
     { name = "uv" },
+    { name = "weapon-fsm-core" },
+    { name = "weapon-fsm-lights" },
 ]
 
 [package.dev-dependencies]
@@ -1369,6 +1371,8 @@ requires-dist = [
     { name = "sounddevice", specifier = ">=0.5.5" },
     { name = "soundfile", specifier = ">=0.13.1" },
     { name = "uv", specifier = ">=0.11.7" },
+    { name = "weapon-fsm-core", editable = "libs/weapon_fsm_core" },
+    { name = "weapon-fsm-lights", editable = "libs/weapon_fsm_lights" },
 ]
 
 [package.metadata.requires-dev]

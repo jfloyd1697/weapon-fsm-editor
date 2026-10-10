@@ -254,7 +254,7 @@ class PlayAudioEffectCommand(RuntimeCommand, action_type="play_audio_effect"):
 
 
 @dataclass(frozen=True, slots=True)
-class PlaySoundRandomCommand(RuntimeCommand, action_type="play_sound_random"):
+class PlaySoundRandomCommand(RuntimeCommand, action_type="play_audio_random"):
     clip_set: str
     interrupt: str = "interrupt"
 
@@ -277,7 +277,7 @@ class PlaySoundRandomCommand(RuntimeCommand, action_type="play_sound_random"):
     ) -> None:
         clip_set_name = str(kwargs.get("clip_set", ""))
         if not clip_set_name:
-            raise ValueError("play_sound_random requires a clip_set")
+            raise ValueError("play_audio_random requires a clip_set")
         if context is not None and clip_set_name not in context.clip_sets:
             raise ValueError(f"Unknown clip set '{clip_set_name}'")
 
