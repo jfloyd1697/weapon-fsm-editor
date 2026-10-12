@@ -53,7 +53,7 @@ light_sequences:
     assert light_cmd.payload["path"] == str((light_dir / "flash.yaml").resolve())
 
 
-def test_play_sound_random_uses_named_clip_set(tmp_path: Path) -> None:
+def test_play_audio_random_uses_named_clip_set(tmp_path: Path) -> None:
     audio_dir = tmp_path / "assets" / "audio"
     audio_dir.mkdir(parents=True)
     (audio_dir / "a.wav").write_text("wav", encoding="utf-8")
@@ -68,7 +68,7 @@ weapon:
     - id: ready
       label: Ready
       on_entry:
-        - type: play_sound_random
+        - type: play_audio_random
           clip_set: shots
   transitions: []
 clips:
