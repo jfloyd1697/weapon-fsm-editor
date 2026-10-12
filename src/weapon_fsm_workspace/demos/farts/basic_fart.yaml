@@ -1,0 +1,19 @@
+weapon:
+  initial_state: ready
+  clips:
+    fart:
+      path: ../assets/audio/fart/basic_fart.wav
+  states:
+  - id: ready
+    label: Ready
+  transitions:
+  - id: play_fart
+    source: ready
+    trigger: trigger_pressed
+    target: ready
+    internal: true
+    actions:
+    - type: play_audio
+      clip: fart
+      mode: once
+      interrupt: interrupt_all

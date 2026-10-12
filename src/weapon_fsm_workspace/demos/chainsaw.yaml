@@ -18,50 +18,50 @@ weapon:
       path: assets/lights/saw_active.yaml
 
   states:
-    - id: idle
-      label: Idle
-      on_entry:
-        - type: stop_audio
-        - type: play_sound
-          clip: idle_loop
-          mode: loop
-          channel: engine
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: idle_glow
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: stop_audio
+    - type: play_audio
+      clip: idle_loop
+      mode: loop
+      channel: engine
+      interrupt: restart
+    - type: start_light_sequence
+      sequence: idle_glow
 
-    - id: active
-      label: Active
-      on_entry:
-        - type: stop_audio
-          channel: engine
-        - type: stop_light_sequence
-        - type: play_sound
-          clip: rev_start
-          channel: oneshot
-          interrupt: restart
-        - type: play_sound
-          clip: rev_loop
-          mode: loop
-          channel: engine
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: saw_active
+  - id: active
+    label: Active
+    on_entry:
+    - type: stop_audio
+      channel: engine
+    - type: stop_light_sequence
+    - type: play_audio
+      clip: rev_start
+      channel: oneshot
+      interrupt: restart
+    - type: play_audio
+      clip: rev_loop
+      mode: loop
+      channel: engine
+      interrupt: restart
+    - type: start_light_sequence
+      sequence: saw_active
 
   transitions:
-    - id: start_saw
-      source: idle
-      trigger: trigger_pressed
-      target: active
+  - id: start_saw
+    source: idle
+    trigger: trigger_pressed
+    target: active
 
-    - id: stop_saw
-      source: active
-      trigger: trigger_released
-      target: idle
-      actions:
-        - type: stop_audio
-          channel: engine
-        - type: play_sound
-          clip: rev_stop
-          channel: oneshot
-          interrupt: restart
+  - id: stop_saw
+    source: active
+    trigger: trigger_released
+    target: idle
+    actions:
+    - type: stop_audio
+      channel: engine
+    - type: play_audio
+      clip: rev_stop
+      channel: oneshot
+      interrupt: restart

@@ -1,0 +1,120 @@
+weapon:
+  initial_state: idle
+  variables: {}
+  clips:
+    audio_0:
+      path: assets/audio/shinespark/shinespark_start.wav
+    audio_1:
+      path: assets/audio/shinespark/shinespark_loop.wav
+    audio_2:
+      path: assets/audio/shinespark/shinespark_stop.wav
+  light_sequences:
+    light_0:
+      path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
+    light_1:
+      path: assets/lights/legacy/legacy_ef15f7267c9d.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_a02a51eeef18.yaml
+    muzzle_flash:
+      path: assets/lights/legacy/legacy_0b8a55dbf486.yaml
+    light_4:
+      path: assets/lights/legacy/legacy_fb47467a16e5.yaml
+  states:
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: play_light
+      sequence: light_0
+      mode: loop
+  - id: charging
+    label: Charging
+    on_entry:
+    - type: play_light
+      sequence: light_1
+      mode: loop
+  - id: charged
+    label: Charged
+    on_entry:
+    - type: play_light
+      sequence: light_2
+      mode: loop
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_4
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 700
+  transitions:
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: charging
+    actions:
+    - type: play_audio
+      clip: audio_0
+      mode: once
+    - type: play_audio
+      clip: audio_1
+      mode: loop
+    - type: schedule_event
+      event: charge_complete
+      delay_ms: 800
+  - id: idle_1_ammo_empty
+    source: idle
+    trigger: ammo_empty
+    target: empty
+  - id: idle_2_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+  - id: charging_0_charge_complete
+    source: charging
+    trigger: charge_complete
+    target: charged
+  - id: charging_1_trigger_released
+    source: charging
+    trigger: trigger_released
+    target: idle
+    actions:
+    - type: stop_audio
+  - id: charging_2_reload
+    source: charging
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: stop_audio
+  - id: charged_0_trigger_released
+    source: charged
+    trigger: trigger_released
+    target: idle
+    actions:
+    - type: stop_audio
+    - type: play_audio
+      clip: audio_2
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+  - id: charged_1_reload
+    source: charged
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: stop_audio
+  - id: empty_0_reload_complete
+    source: empty
+    trigger: reload_complete
+    target: idle
+  - id: empty_1_reload
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle

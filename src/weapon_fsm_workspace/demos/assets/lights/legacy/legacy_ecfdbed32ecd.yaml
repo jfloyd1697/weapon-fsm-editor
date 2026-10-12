@@ -1,0 +1,188 @@
+layout:
+  path: ../layouts/cpx_ring_61_outside_in.json
+frames:
+- duration_ms: 250
+  leds:
+    '0':
+      color: '#ff2800'
+      intensity: 0.7059
+    '1':
+      color: '#ff2800'
+      intensity: 0.7059
+    '2':
+      color: '#ff2800'
+      intensity: 0.7059
+    '3':
+      color: '#ff2800'
+      intensity: 0.7059
+    '4':
+      color: '#ff2800'
+      intensity: 0.7059
+    '5':
+      color: '#ff2800'
+      intensity: 0.7059
+    '6':
+      color: '#ff2800'
+      intensity: 0.7059
+    '7':
+      color: '#ff2800'
+      intensity: 0.7059
+    '8':
+      color: '#ff2800'
+      intensity: 0.7059
+    '9':
+      color: '#ff2800'
+      intensity: 0.7059
+    '10':
+      color: '#ff2800'
+      intensity: 0.7059
+    '11':
+      color: '#ff2800'
+      intensity: 0.7059
+    '12':
+      color: '#ff2800'
+      intensity: 0.7059
+    '13':
+      color: '#ff2800'
+      intensity: 0.7059
+    '14':
+      color: '#ff2800'
+      intensity: 0.7059
+    '15':
+      color: '#ff2800'
+      intensity: 0.7059
+    '16':
+      color: '#ff2800'
+      intensity: 0.7059
+    '17':
+      color: '#ff2800'
+      intensity: 0.7059
+    '18':
+      color: '#ff2800'
+      intensity: 0.7059
+    '19':
+      color: '#ff2800'
+      intensity: 0.7059
+    '20':
+      color: '#ff2800'
+      intensity: 0.7059
+    '21':
+      color: '#ff2800'
+      intensity: 0.7059
+    '22':
+      color: '#ff2800'
+      intensity: 0.7059
+    '23':
+      color: '#ff2800'
+      intensity: 0.7059
+    '24':
+      color: '#ff2800'
+      intensity: 0.7059
+    '25':
+      color: '#ff2800'
+      intensity: 0.7059
+    '26':
+      color: '#ff2800'
+      intensity: 0.7059
+    '27':
+      color: '#ff2800'
+      intensity: 0.7059
+    '28':
+      color: '#ff2800'
+      intensity: 0.7059
+    '29':
+      color: '#ff2800'
+      intensity: 0.7059
+    '30':
+      color: '#ff2800'
+      intensity: 0.7059
+    '31':
+      color: '#ff2800'
+      intensity: 0.7059
+    '32':
+      color: '#ff2800'
+      intensity: 0.7059
+    '33':
+      color: '#ff2800'
+      intensity: 0.7059
+    '34':
+      color: '#ff2800'
+      intensity: 0.7059
+    '35':
+      color: '#ff2800'
+      intensity: 0.7059
+    '36':
+      color: '#ff2800'
+      intensity: 0.7059
+    '37':
+      color: '#ff2800'
+      intensity: 0.7059
+    '38':
+      color: '#ff2800'
+      intensity: 0.7059
+    '39':
+      color: '#ff2800'
+      intensity: 0.7059
+    '40':
+      color: '#ff2800'
+      intensity: 0.7059
+    '41':
+      color: '#ff2800'
+      intensity: 0.7059
+    '42':
+      color: '#ff2800'
+      intensity: 0.7059
+    '43':
+      color: '#ff2800'
+      intensity: 0.7059
+    '44':
+      color: '#ff2800'
+      intensity: 0.7059
+    '45':
+      color: '#ff2800'
+      intensity: 0.7059
+    '46':
+      color: '#ff2800'
+      intensity: 0.7059
+    '47':
+      color: '#ff2800'
+      intensity: 0.7059
+    '48':
+      color: '#ff2800'
+      intensity: 0.7059
+    '49':
+      color: '#ff2800'
+      intensity: 0.7059
+    '50':
+      color: '#ff2800'
+      intensity: 0.7059
+    '51':
+      color: '#ff2800'
+      intensity: 0.7059
+    '52':
+      color: '#ff2800'
+      intensity: 0.7059
+    '53':
+      color: '#ff2800'
+      intensity: 0.7059
+    '54':
+      color: '#ff2800'
+      intensity: 0.7059
+    '55':
+      color: '#ff2800'
+      intensity: 0.7059
+    '56':
+      color: '#ff2800'
+      intensity: 0.7059
+    '57':
+      color: '#ff2800'
+      intensity: 0.7059
+    '58':
+      color: '#ff2800'
+      intensity: 0.7059
+    '59':
+      color: '#ff2800'
+      intensity: 0.7059
+    '60':
+      color: '#ff2800'
+      intensity: 0.7059

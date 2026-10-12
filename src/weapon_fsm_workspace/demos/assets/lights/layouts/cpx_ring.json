@@ -1,0 +1,18 @@
+{
+  "name": "cpx_ring",
+  "coordinate_space": "normalized_2d",
+  "leds": [
+    { "index": 0, "u": 0.50, "v": 0.05, "label": "0" },
+    { "index": 1, "u": 0.72, "v": 0.12, "label": "1" },
+    { "index": 2, "u": 0.88, "v": 0.28, "label": "2" },
+    { "index": 3, "u": 0.95, "v": 0.50, "label": "3" },
+    { "index": 4, "u": 0.88, "v": 0.72, "label": "4" },
+    { "index": 5, "u": 0.72, "v": 0.88, "label": "5" },
+    { "index": 6, "u": 0.50, "v": 0.95, "label": "6" },
+    { "index": 7, "u": 0.28, "v": 0.88, "label": "7" },
+    { "index": 8, "u": 0.12, "v": 0.72, "label": "8" },
+    { "index": 9, "u": 0.05, "v": 0.50, "label": "9" },
+    { "index": 10, "u": 0.12, "v": 0.28, "label": "10" },
+    { "index": 11, "u": 0.28, "v": 0.12, "label": "11" }
+  ]
+}

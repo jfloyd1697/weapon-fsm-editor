@@ -1,3 +1,3 @@
 # weapon-fsm-audio
 
-Audio authoring, preview, and runtime integration for weapon FSM.
+Audio asset browsing, effect authoring, runtime commands, and Qt preview backend for weapon FSM projects.

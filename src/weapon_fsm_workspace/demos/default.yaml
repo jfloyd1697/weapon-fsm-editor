@@ -1,0 +1,29 @@
+clips:
+  shot: assets/audio/default/shot.wav
+  reload: assets/audio/default/reload.wav
+weapon:
+  initial_state: ready
+  states:
+  - id: ready
+    label: Ready
+  - id: reloading
+    label: Reloading
+  transitions:
+  - id: fire
+    source: ready
+    target: ready
+    trigger: trigger_pressed
+    actions:
+    - type: play_audio
+      clip: shot
+  - id: reload
+    source: ready
+    target: reloading
+    trigger: reload_pressed
+    actions:
+    - type: play_audio
+      clip: reload
+  - id: reload_done
+    source: reloading
+    target: ready
+    trigger: reload_finished

@@ -1,0 +1,146 @@
+weapon:
+  initial_state: idle
+  variables:
+    mag_capacity: 3
+    ammo: 3
+  clips:
+    audio_0:
+      path: assets/audio/sawn_off/30_sound_sawnOffFire.wav
+    audio_1:
+      path: assets/audio/sawn_off/32_sound_sawnOffShellReload.wav
+    audio_2:
+      path: assets/audio/sawn_off/31_sound_sawnOffPump.wav
+  light_sequences:
+    light_0:
+      path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
+    muzzle_flash:
+      path: assets/lights/legacy/legacy_3f36a020a1d2.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_3:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_4:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_5:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_6:
+      path: assets/lights/legacy/legacy_fb47467a16e5.yaml
+    light_7:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_8:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_9:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_10:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+  states:
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: play_light
+      sequence: light_0
+      mode: loop
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_6
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 700
+  transitions:
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: idle
+    actions:
+    - type: play_audio
+      clip: audio_0
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+    internal: true
+  - id: idle_1_ammo_empty
+    source: idle
+    trigger: ammo_empty
+    target: empty
+    guard:
+      var_lte:
+        name: ammo
+        value: 0
+  - id: idle_2_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_2
+      mode: loop
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_3
+      mode: loop
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_4
+      mode: loop
+    - type: play_audio
+      clip: audio_2
+      mode: once
+    - type: play_light
+      sequence: light_5
+      mode: loop
+  - id: empty_0_reload_complete
+    source: empty
+    trigger: reload_complete
+    target: idle
+  - id: empty_1_reload
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_7
+      mode: loop
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_8
+      mode: loop
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_9
+      mode: loop
+    - type: play_audio
+      clip: audio_2
+      mode: once
+    - type: play_light
+      sequence: light_10
+      mode: loop
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle
+    actions:
+    - type: set_ammo_full

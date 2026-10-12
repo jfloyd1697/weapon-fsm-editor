@@ -1,0 +1,48 @@
+clips:
+  charge_loop: assets/audio/charge/charge_loop.wav
+  charge_fail: assets/audio/charge/charge_fail.wav
+  charge_fire: assets/audio/charge/charge_fire.wav
+weapon:
+  initial_state: ready
+  states:
+  - id: ready
+    label: Ready
+  - id: charging
+    label: Charging
+  - id: charged
+    label: Charged
+  - id: firing
+    label: Firing
+  transitions:
+  - id: start_charge
+    source: ready
+    target: charging
+    trigger: trigger_pressed
+    actions:
+    - type: play_audio_loop
+      clip: charge_loop
+      loop: true
+  - id: charge_done
+    source: charging
+    target: charged
+    trigger: charge_complete
+  - id: release_early
+    source: charging
+    target: ready
+    trigger: trigger_released
+    actions:
+    - type: stop_audio
+    - type: play_audio
+      clip: charge_fail
+  - id: release_full
+    source: charged
+    target: firing
+    trigger: trigger_released
+    actions:
+    - type: stop_audio
+    - type: play_audio
+      clip: charge_fire
+  - id: fire_done
+    source: firing
+    target: ready
+    trigger: fire_done

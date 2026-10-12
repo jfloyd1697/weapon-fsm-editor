@@ -1,11 +1,4 @@
-from .domain.audio_commands import PlayAudioCommand, PlayAudioLoopCommand, PlayAudioRandomCommand
-from .infrastructure.runtime.qt_audio_backend import QtAudioBackend
-from .presentation.widgets.audio_library_browser import AudioLibraryBrowser
+from .application import AudioConfigBuilder
+from .presentation.widgets import AudioLibraryBrowser
 
-__all__ = [
-    "AudioLibraryBrowser",
-    "PlayAudioCommand",
-    "PlayAudioLoopCommand",
-    "PlayAudioRandomCommand",
-    "QtAudioBackend",
-]
+__all__ = ["AudioConfigBuilder", "AudioLibraryBrowser"]

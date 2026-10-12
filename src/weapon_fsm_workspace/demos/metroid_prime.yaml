@@ -1,279 +1,316 @@
+clips:
+  equip: assets/audio/prime-arm-cannon/prime-arm-cannon-equip.wav
+  charge_start: assets/audio/prime-arm-cannon/prime-charge-start.wav
+  charge_loop: assets/audio/prime-arm-cannon/prime-charge-loop.wav
+  shot: assets/audio/prime-arm-cannon/prime-basic.wav
+light_sequences:
+  prime_charge_warm_build: assets/lights/metroid-prime-lights.yaml
+  prime_charge_warm_hold: assets/lights/metroid-prime-lights.yaml
+  prime_charge_warm_release: assets/lights/metroid-prime-lights.yaml
+  prime_charge_warm_cooldown: assets/lights/metroid-prime-lights.yaml
+  prime_regular_shot: assets/lights/metroid_prime_regular_shot.yaml
+  prime_equip_radial:
+    path: assets/lights/metroid_prime_equip_pulse.yaml
 weapon:
   initial_state: ready
-
   variables:
-    charge_ticks: 0
-    charge_threshold: 80
-
-  clips:
-    charge_start:
-      path: assets/audio/prime-arm-cannon/prime-charge-start.wav
-    charge_loop:
-      path: assets/audio/prime-arm-cannon/prime-charge-start.wav
-    normal_fire:
-      path: assets/audio/prime-arm-cannon/prime-basic.wav
-    charged_fire:
-      path: assets/audio/prime-arm-cannon/prime-big1.wav
-    reload:
-      path: assets/audio/reload.wav
-
-#  light_sequences:
-#    charge_glow:
-#      path: assets/lights/charge_glow.yaml
-#    fully_charged:
-#      path: assets/lights/fully_charged.yaml
-#    muzzle_flash:
-#      path: assets/lights/muzzle_flash.yaml
-#    charged_flash:
-#      path: assets/lights/charged_flash.yaml
-#    reload:
-#      path: assets/lights/reload.yaml
-
+    trigger_hold_ticks: 0
+    equip_done_ms: 500
+    tick_interval_ms: 50
+    burst_second_shot_tick: 2
+    burst_third_shot_tick: 4
+    charge_start_tick: 8
+    charged_tick: 50
+    charge_start_to_loop_delay_ms: 450
+    charged_shot_done_ms: 180
   states:
-    - id: ready
-      label: Ready
-      on_entry:
-        - type: cancel_scheduled_events
-          event: precharge_done
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_light_sequence
-
-    - id: precharging
-      label: Precharging
-      on_entry:
-        - type: schedule_event
-          event: precharge_done
-          delay_ms: 120
-
-    - id: charge_start
-      label: Charge Start
-      on_entry:
-        - type: play_sound
-          clip: charge_start
-          channel: oneshot
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: charge_glow
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 10
-
-    - id: charge_loop
-      label: Charge Loop
-      on_entry:
-        - type: play_sound
-          clip: charge_start
-          channel: oneshot
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: charge_glow
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 10
-
-    - id: charged
-      label: Charged
-      on_entry:
-        - type: stop_light_sequence
-        - type: start_light_sequence
-          sequence: fully_charged
-
-    - id: normal_shot
-      label: Normal Shot
-      on_entry:
-        - type: cancel_scheduled_events
-          event: precharge_done
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-          channel: charge
-        - type: stop_light_sequence
-        - type: play_sound
-          clip: normal_fire
-          channel: fire
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: muzzle_flash
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 10
-
-    - id: charged_shot
-      label: Charged Shot
-      on_entry:
-        - type: cancel_scheduled_events
-          event: precharge_done
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-          channel: charge
-        - type: stop_light_sequence
-        - type: play_sound
-          clip: charged_fire
-          channel: fire
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: charged_flash
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 180
-
-    - id: reloading
-      label: Reloading
-      on_entry:
-        - type: cancel_scheduled_events
-          event: precharge_done
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: play_sound
-          clip: reload
-          channel: reload
-          interrupt: restart
-        - type: start_light_sequence
-          sequence: reload
-        - type: schedule_event
-          event: reload_complete
-          delay_ms: 120
-
-    - id: empty
-      label: Empty
-
+  - id: ready
+    label: Ready
+    on_entry:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+    - type: set_var
+      name: trigger_hold_ticks
+      value: 0
+  - id: equipping
+    label: Equipping
+    on_entry:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+    - type: stop_light
+    - type: set_var
+      name: trigger_hold_ticks
+      value: 0
+    - type: play_audio
+      clip: equip
+      mode: once
+      interrupt: interrupt_all
+    - type: play_light
+      sequence: prime_equip_radial
+      mode: once
+      interrupt: interrupt
+    - type: schedule_event
+      event: equip_done
+      delay_ms_from_var: equip_done_ms
+  - id: holding
+    label: Holding Trigger
+    on_entry:
+    - type: play_audio
+      clip: shot
+      mode: once
+      interrupt: overlap
+    - type: play_light
+      sequence: prime_regular_shot
+      mode: once
+      interrupt: interrupt
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: charging
+    label: Charging
+    on_entry:
+    - type: play_audio
+      clip: charge_start
+      mode: once
+      interrupt: ignore
+    - type: play_light
+      sequence: prime_charge_warm_build
+      mode: loop
+      interrupt: interrupt
+    - type: schedule_event
+      event: charge_loop_start
+      delay_ms_from_var: charge_start_to_loop_delay_ms
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: charged
+    label: Charged
+    on_entry:
+    - type: play_light
+      sequence: prime_charge_warm_hold
+      mode: loop
+      interrupt: interrupt
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: charged_shot
+    label: Charged Shot
+    on_entry:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+    - type: stop_audio
+    - type: play_audio
+      clip: shot
+      mode: once
+      interrupt: interrupt_all
+    - type: play_light
+      sequence: prime_charge_warm_release
+      mode: once
+      interrupt: interrupt
+    - type: set_var
+      name: trigger_hold_ticks
+      value: 0
+    - type: schedule_event
+      event: shot_done
+      delay_ms_from_var: charged_shot_done_ms
   transitions:
-    - id: start_precharge
-      source: ready
-      trigger: trigger_pressed
-      target: precharging
-      actions:
-        - type: set_var
-          name: charge_ticks
-          value: 0
-
-    - id: release_during_precharge
-      source: precharging
-      trigger: trigger_released
-      target: normal_shot
-
-    - id: precharge_to_charge_start
-      source: precharging
-      trigger: precharge_done
-      guard:
-        trigger_pressed: true
-      target: charge_start
-
-    - id: charge_start_to_loop
-      source: charge_start
-      trigger: charge_tick
-      target: charge_loop
-      guard:
-        trigger_pressed: true
-      actions:
-        - type: cancel_scheduled_events
-          event: charge_tick
-
-    - id: charge_done
-      source: charge_loop
-      trigger: charge_tick
-      guard:
-        all:
-          - trigger_pressed: true
-          - var_gte:
-              name: charge_ticks
-              value_from_var: charge_threshold
-      target: charged
-      actions:
-        - type: cancel_scheduled_events
-          event: charge_tick
-
-    - id: charge_tick_continue
-      source: charge_loop
-      trigger: charge_tick
-      guard:
-        all:
-          - trigger_pressed: true
-          - var_lt:
-              name: charge_ticks
-              value_from_var: charge_threshold
-      target: charge_loop
-      actions:
-        - type: add_var
-          name: charge_ticks
-          value: 1
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 10
-
-    - id: release_early
-      source: charge_loop
-      trigger: trigger_released
-      guard:
-        var_lt:
-          name: charge_ticks
-          value_from_var: charge_threshold
-      target: normal_shot
-
-    - id: release_charged
-      source: charged
-      trigger: trigger_released
-      target: charged_shot
-
-    - id: shot_done_normal_ready
-      source: normal_shot
-      trigger: shot_done
-      target: ready
-
-    - id: shot_done_normal_empty
-      source: normal_shot
-      trigger: shot_done
-      target: empty
-
-    - id: shot_done_charged_ready
-      source: charged_shot
-      trigger: shot_done
-      target: ready
-
-    - id: shot_done_charged_empty
-      source: charged_shot
-      trigger: shot_done
-      target: empty
-
-    - id: reload_from_ready
-      source: ready
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_precharging
-      source: precharging
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_charging
-      source: charge_loop
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_charged
-      source: charged
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_from_empty
-      source: empty
-      trigger: reload_pressed
-      target: reloading
-
-    - id: reload_done
-      source: reloading
-      trigger: reload_complete
-      target: ready
+  - id: on_equip_start_equipping
+    source: ready
+    trigger: on_equip
+    target: equipping
+  - id: ignore_duplicate_on_equip_while_equipping
+    source: equipping
+    trigger: on_equip
+    target: equipping
+    internal: true
+  - id: equip_done_ready
+    source: equipping
+    trigger: equip_done
+    target: ready
+  - id: trigger_press_start_cycle
+    source: ready
+    trigger: trigger_pressed
+    target: holding
+    actions:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+    - type: stop_light
+    - type: set_var
+      name: trigger_hold_ticks
+      value: 1
+  - id: release_before_charge
+    source: holding
+    trigger: trigger_released
+    target: ready
+    actions:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+    - type: stop_light
+    - type: set_var
+      name: trigger_hold_ticks
+      value: 0
+  - id: holding_second_burst_shot
+    source: holding
+    trigger: trigger_tick
+    target: holding
+    internal: true
+    guard:
+      var_eq:
+        name: trigger_hold_ticks
+        value_from_var: burst_second_shot_tick
+    actions:
+    - type: play_audio
+      clip: shot
+      mode: once
+      interrupt: overlap
+    - type: play_light
+      sequence: prime_regular_shot
+      mode: once
+      interrupt: interrupt
+    - type: add_var
+      name: trigger_hold_ticks
+      value: 1
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: holding_third_burst_shot
+    source: holding
+    trigger: trigger_tick
+    target: holding
+    internal: true
+    guard:
+      var_eq:
+        name: trigger_hold_ticks
+        value_from_var: burst_third_shot_tick
+    actions:
+    - type: play_audio
+      clip: shot
+      mode: once
+      interrupt: overlap
+    - type: play_light
+      sequence: prime_regular_shot
+      mode: once
+      interrupt: interrupt
+    - type: add_var
+      name: trigger_hold_ticks
+      value: 1
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: holding_begin_charge
+    source: holding
+    trigger: trigger_tick
+    target: charging
+    guard:
+      var_gte:
+        name: trigger_hold_ticks
+        value_from_var: charge_start_tick
+  - id: holding_tick_continue
+    source: holding
+    trigger: trigger_tick
+    target: holding
+    internal: true
+    actions:
+    - type: add_var
+      name: trigger_hold_ticks
+      value: 1
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: start_charge_loop
+    source: charging
+    trigger: charge_loop_start
+    target: charging
+    internal: true
+    guard:
+      var_gt:
+        name: trigger_hold_ticks
+        value: 0
+    actions:
+    - type: play_audio
+      clip: charge_loop
+      mode: loop
+      interrupt: ignore
+  - id: start_charge_loop_when_already_charged
+    source: charged
+    trigger: charge_loop_start
+    target: charged
+    internal: true
+    guard:
+      var_gt:
+        name: trigger_hold_ticks
+        value: 0
+    actions:
+    - type: play_audio
+      clip: charge_loop
+      mode: loop
+      interrupt: ignore
+  - id: charging_to_charged
+    source: charging
+    trigger: trigger_tick
+    target: charged
+    guard:
+      var_gte:
+        name: trigger_hold_ticks
+        value_from_var: charged_tick
+  - id: charging_tick_continue
+    source: charging
+    trigger: trigger_tick
+    target: charging
+    internal: true
+    actions:
+    - type: add_var
+      name: trigger_hold_ticks
+      value: 1
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: release_after_charge_started
+    source: charging
+    trigger: trigger_released
+    target: charged_shot
+    actions:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+  - id: charged_tick_continue
+    source: charged
+    trigger: trigger_tick
+    target: charged
+    internal: true
+    actions:
+    - type: add_var
+      name: trigger_hold_ticks
+      value: 1
+    - type: schedule_event
+      event: trigger_tick
+      delay_ms_from_var: tick_interval_ms
+  - id: release_charged
+    source: charged
+    trigger: trigger_released
+    target: charged_shot
+    actions:
+    - type: cancel_scheduled_events
+      event: trigger_tick
+    - type: cancel_scheduled_events
+      event: charge_loop_start
+  - id: shot_done_charged_ready
+    source: charged_shot
+    trigger: shot_done
+    target: ready
+    actions:
+    - type: play_light
+      sequence: prime_charge_warm_cooldown
+      mode: once
+      interrupt: interrupt

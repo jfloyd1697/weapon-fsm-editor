@@ -14,64 +14,64 @@ weapon:
       path: assets/lights/reload.yaml
 
   states:
-    - id: ready
-      label: Ready
+  - id: ready
+    label: Ready
 
-    - id: firing
-      label: Firing
-      on_entry:
-        - type: stop_audio
-        - type: play_sound
-          clip: shot
-        - type: start_light_sequence
-          sequence: muzzle_flash
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 80
+  - id: firing
+    label: Firing
+    on_entry:
+    - type: stop_audio
+    - type: play_audio
+      clip: shot
+    - type: start_light_sequence
+      sequence: muzzle_flash
+    - type: schedule_event
+      event: shot_done
+      delay_ms: 80
 
-    - id: reloading
-      label: Reloading
-      on_entry:
-        - type: stop_audio
-        - type: stop_light_sequence
-        - type: play_sound
-          clip: reload
-        - type: start_light_sequence
-          sequence: reload
-        - type: schedule_event
-          event: reload_complete
-          delay_ms: 1200
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: stop_audio
+    - type: stop_light_sequence
+    - type: play_audio
+      clip: reload
+    - type: start_light_sequence
+      sequence: reload
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 1200
 
-    - id: empty
-      label: Empty
+  - id: empty
+    label: Empty
 
   transitions:
-    - id: fire
-      source: ready
-      trigger: trigger_pressed
-      target: firing
+  - id: fire
+    source: ready
+    trigger: trigger_pressed
+    target: firing
 
-    - id: fire_done_ready
-      source: firing
-      trigger: shot_done
-      target: ready
+  - id: fire_done_ready
+    source: firing
+    trigger: shot_done
+    target: ready
 
-    - id: fire_done_empty
-      source: firing
-      trigger: shot_done
-      target: empty
+  - id: fire_done_empty
+    source: firing
+    trigger: shot_done
+    target: empty
 
-    - id: reload_from_ready
-      source: ready
-      trigger: reload_pressed
-      target: reloading
+  - id: reload_from_ready
+    source: ready
+    trigger: reload_pressed
+    target: reloading
 
-    - id: reload_from_empty
-      source: empty
-      trigger: reload_pressed
-      target: reloading
+  - id: reload_from_empty
+    source: empty
+    trigger: reload_pressed
+    target: reloading
 
-    - id: reload_done
-      source: reloading
-      trigger: reload_complete
-      target: ready
+  - id: reload_done
+    source: reloading
+    trigger: reload_complete
+    target: ready

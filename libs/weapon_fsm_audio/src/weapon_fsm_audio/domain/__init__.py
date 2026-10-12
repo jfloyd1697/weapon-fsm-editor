@@ -1,7 +1,11 @@
-from .audio_commands import PlayAudioCommand, PlayAudioLoopCommand, PlayAudioRandomCommand
+from .audio_commands import PlayAudioCommand, PlayRandomAudioCommand, StopAudioCommand, PlayAudioLoopCommand, PlayAudioEffectCommand
 
 __all__ = [
     "PlayAudioCommand",
+    "PlayRandomAudioCommand",
+    "StopAudioCommand",
     "PlayAudioLoopCommand",
-    "PlayAudioRandomCommand",
+    "PlayAudioEffectCommand",
+    "PlayRandomAudioCommand",
+    "StopAudioCommand",
 ]

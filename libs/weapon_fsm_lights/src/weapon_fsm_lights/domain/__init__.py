@@ -1,10 +1,7 @@
-from .light_sequence import LightFrame, LightSequenceAsset, LightSequenceError, LedNode, load_light_sequence, validate_light_sequence
+from .compiler import LedSample, sample_animation_at_led, compile_animation
 
 __all__ = [
-    "LightFrame",
-    "LightSequenceAsset",
-    "LightSequenceError",
-    "LedNode",
-    "load_light_sequence",
-    "validate_light_sequence",
+    "LedSample",
+    "compile_animation",
+    "sample_animation_at_led",
 ]

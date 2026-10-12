@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "source_audio_path": "C:\\Users\\user\\Downloads\\Weapons_0.wav",
+  "sample_rate": 22050,
+  "sample_count": 87040,
+  "channels": 1,
+  "loop_start_sample": 41880,
+  "loop_end_sample": 87039
+}

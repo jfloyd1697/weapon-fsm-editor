@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Dict
 
-from .mixins import DataClassYAMLMixin
+from mashumaro.mixins.dict import T
+from mashumaro.mixins.yaml import DataClassYAMLMixin
 
 
 @dataclass
@@ -43,8 +44,19 @@ class ActionFile(DataClassYAMLMixin):
     delay_ms: int | None = None
     delta: int | None = None
     value: int | None = None
-    interrupt: str | None = None
-    mode: str | None = None
+    interrupt: str | None = "interrupt"
+    mode: str | None = "once"
+
+    @classmethod
+    def __pre_deserialize__(cls, d: Dict[Any, Any]) -> Dict[Any, Any]:
+        return {k: v for k, v in d.items() if v}
+
+    def __post_serialize__(
+            self: T,
+            d: dict[Any, Any],
+            # context: Any = None,  # added with ADD_SERIALIZATION_CONTEXT option
+    ) -> dict[Any, Any]:
+        return {k: v for k, v in d.items() if v}
 
 
 @dataclass
@@ -93,6 +105,17 @@ class WeaponFile(DataClassYAMLMixin):
 @dataclass
 class WeaponProfileFile(DataClassYAMLMixin):
     weapon: WeaponFile = field(default_factory=WeaponFile)
-    clips: dict[str, ClipFile] = field(default_factory=dict)
+    clips: dict[str, str] = field(default_factory=dict)
     clip_sets: dict[str, ClipSetFile] = field(default_factory=dict)
     light_sequences: dict[str, LightSequenceFile] = field(default_factory=dict)
+
+    def __post_serialize__(
+            self: T,
+            d: dict[Any, Any],
+            # context: Any = None,  # added with ADD_SERIALIZATION_CONTEXT option
+    ) -> dict[Any, Any]:
+        return {
+            k: self.__post_serialize__(v) if isinstance(v, dict)
+            else [self.__post_serialize__(vl) for vl in v] if isinstance(v, list)
+            else v for k, v in d.items() if v
+        }

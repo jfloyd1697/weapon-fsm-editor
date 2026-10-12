@@ -1,0 +1,64 @@
+weapon:
+  initial_state: idle
+  variables: {}
+  clips:
+    audio_0:
+      path: assets/audio/fart/dry-fart.wav
+  light_sequences:
+    light_0:
+      path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
+    muzzle_flash:
+      path: assets/lights/legacy/legacy_80ef3c385aee.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_fb47467a16e5.yaml
+  states:
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: play_light
+      sequence: light_0
+      mode: loop
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_2
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 700
+  transitions:
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: idle
+    actions:
+    - type: play_audio
+      clip: audio_0
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+    internal: true
+  - id: idle_1_ammo_empty
+    source: idle
+    trigger: ammo_empty
+    target: empty
+  - id: idle_2_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+  - id: empty_0_reload_complete
+    source: empty
+    trigger: reload_complete
+    target: idle
+  - id: empty_1_reload
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle

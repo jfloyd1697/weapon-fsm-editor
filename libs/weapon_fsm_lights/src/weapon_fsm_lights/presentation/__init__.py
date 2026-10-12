@@ -1,3 +1,11 @@
-from .widgets.led_preview_panel import LedCanvasWidget, LedPreviewPanel
+from .led_canvas_widget import LedCanvasWidget, LedPreviewPanel
+from .light_animation_player import LightAnimationPlayer, LightPlaybackState
+from .light_player_controls import LightPlayerControls
 
-__all__ = ["LedCanvasWidget", "LedPreviewPanel"]
+__all__ = [
+    "LedCanvasWidget",
+    "LedPreviewPanel",
+    "LightAnimationPlayer",
+    "LightPlaybackState",
+    "LightPlayerControls",
+]

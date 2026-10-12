@@ -1,0 +1,78 @@
+weapon:
+  initial_state: idle
+  variables:
+    mag_capacity: 1
+    ammo: 1
+  clips:
+    audio_0:
+      path: assets/audio/chainsaw/23_sound_chainsawIdle.wav
+    audio_1:
+      path: assets/audio/chainsaw/26_sound_chainsawWorking.wav
+    audio_2:
+      path: assets/audio/chainsaw/24_sound_chainsawEnd.wav
+  clip_sets: {}
+  light_sequences:
+    light_0:
+      path: assets/lights/legacy/legacy_e5762b18aedc.yaml
+    light_1:
+      path: assets/lights/legacy/legacy_1601ba790eed.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_ff9a6e2d0230.yaml
+  states:
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: play_light
+      sequence: light_0
+      mode: loop
+    - type: play_audio
+      clip: audio_0
+      mode: loop
+    on_exit:
+    - type: stop_audio
+  - id: working
+    label: Working
+    on_entry:
+    - type: play_light
+      sequence: light_1
+      mode: loop
+    on_exit:
+    - type: stop_audio
+  - id: ending
+    label: Ending
+    on_entry:
+    - type: play_light
+      sequence: light_2
+      mode: loop
+    - type: schedule_event
+      event: return_to_idle
+      delay_ms: 800
+  transitions:
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: working
+    actions:
+    - type: play_audio
+      clip: audio_1
+      mode: loop
+  - id: working_0_trigger_released
+    source: working
+    trigger: trigger_released
+    target: ending
+    actions:
+    - type: play_audio
+      clip: audio_2
+      mode: once
+  - id: ending_0_return_to_idle
+    source: ending
+    trigger: return_to_idle
+    target: idle
+  - id: ending_1_trigger_pressed
+    source: ending
+    trigger: trigger_pressed
+    target: working
+    actions:
+    - type: play_audio
+      clip: audio_1
+      mode: loop

@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "PyYAML>=6.0",
-  "mashumaro[yaml]>=3.13",
+  "mashumaro>=3.20",
 ]
 
 [tool.setuptools]
