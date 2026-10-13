@@ -11,16 +11,28 @@ Run from the editor workspace:
 uv run weapon-fsm-export-sd --sd-root E:\ --bank Default
 ```
 
-With no positional arguments, the command exports every YAML profile from the
-workspace `src/weapon_fsm_workspace/demos` directory. To export specific profiles:
+With no positional arguments, the command exports the standalone weapon profiles
+in `src/weapon_fsm_workspace/demos`. Gun-only templates are not weapon FSMs and
+are skipped. Each weapon is validated **before** any audio conversion or SD
+writes. Profiles with missing clip/light references, unknown actions, or invalid
+state graphs are reported as failures rather than added to the manifest. After
+a bulk export the bank manifest is rebuilt from successful profiles, removing
+stale entries from prior exports. If any profile fails, the command returns a
+nonzero exit status and prints each failure; successful exports remain usable.
+
+Some demo YAML files are intentionally incomplete examples (for instance,
+`charge_shot_ticks.yaml` has unresolved audio and lighting references). Fix
+those references before exporting them; the exporter will not fabricate assets.
+To export specific profiles:
 
 ```powershell
 uv run weapon-fsm-export-sd --sd-root E:\ --bank Default src/weapon_fsm_workspace/demos/metroid_prime.yaml
 ```
 
 Prefer an **empty SD staging directory** for a complete rebuild; this avoids
-retaining unreferenced assets from older versions. The exporter merges repeated
-exports into an existing binary manifest and removes the previous JSON manifest.
+retaining unreferenced assets from older versions. Individual exports merge
+into the binary manifest; a complete bank export rebuilds that bank's entries.
+The previous JSON manifest is removed.
 Failed profiles are printed and cause a nonzero process exit code.
 
 Output:

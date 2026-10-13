@@ -1,0 +1,10 @@
+gun:
+  events:
+  - id: on_equip
+  - id: trigger_pressed
+  - id: trigger_released
+  - id: reload_pressed
+  - id: fire_tick
+  - id: charge_tick
+  - id: shot_done
+  - id: reload_complete

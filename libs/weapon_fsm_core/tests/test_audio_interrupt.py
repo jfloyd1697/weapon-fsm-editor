@@ -7,7 +7,7 @@ from weapon_fsm_core.infrastructure.yaml.repositories import ProfileRepository
 def _load_demo() -> SimulationService:
     demo_dir = Path(__file__).resolve().parents[3] / "demos"
     repo = ProfileRepository()
-    gun = repo.load_gun(demo_dir / "default_gun.yaml")
+    gun = repo.load_gun(demo_dir / "default_gun.gun.yaml")
     weapon = repo.load_weapon(demo_dir / "weapon_profile.yaml")
     return SimulationService(gun, weapon)
 

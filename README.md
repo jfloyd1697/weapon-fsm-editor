@@ -390,3 +390,8 @@ uv run weapon-fsm-export-sd --sd-root E:\ --bank Default src/weapon_fsm_workspac
 
 Each weapon is compiled to `weapon.bin` (`WFSMBIN1`) plus copied audio and compiled light assets. The binary puts the asset tables first so firmware can validate the SD layout without decoding the complete FSM. The full state machine is decoded only when the weapon is equipped.
 
+
+## Complete 58-Weapon SD Library
+
+See [the bank-export guide](docs/MERGED_BANK_EXPORT.md) for the six merged banks,
+lighting and audio deduplication, and complete binary export.

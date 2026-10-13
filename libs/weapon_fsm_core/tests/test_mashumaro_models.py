@@ -24,7 +24,7 @@ weapon:
     - id: ready
       label: Ready
       on_entry:
-        - type: play_audio
+        - type: play_sound
           clip: shot
     - id: firing
       label: Firing
@@ -36,7 +36,7 @@ weapon:
       guard:
         ammo_gt: 0
       actions:
-        - type: play_audio
+        - type: play_sound
           clip: shot
           interrupt: interrupt
 """
@@ -73,7 +73,7 @@ def test_weapon_config_from_dict_round_trip_uses_mashumaro():
                     "source": "ready",
                     "trigger": "trigger_pressed",
                     "target": "ready",
-                    "actions": [{"type": "play_audio", "arguments": {"clip": "shot"}}],
+                    "actions": [{"type": "play_sound", "arguments": {"clip": "shot"}}],
                 }
             ],
             "clips": {"shot": {"name": "shot", "path": "assets/audio/shot.wav"}},
