@@ -14,11 +14,8 @@ class RuntimeCommandBridge:
         for command in commands:
             if not isinstance(command, GunRuntimeCommand):
                 continue
-            try:
-                self.dispatcher.dispatch(command)
-                self.command_log.append(f"{command.type}: {command.payload}")
-            except Exception as e:
-                self.command_log.append(f"{command.type}: {e}")
+            self.dispatcher.dispatch(command)
+            self.command_log.append(f"{command.type}: {command.payload}")
 
     def reset(self) -> None:
         if self.dispatcher.audio is not None:

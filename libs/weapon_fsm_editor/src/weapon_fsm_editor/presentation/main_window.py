@@ -2,6 +2,7 @@ import traceback
 from pathlib import Path
 
 from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
     QFileDialog,
     QLabel,
@@ -24,6 +25,8 @@ from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 from weapon_fsm_core.domain.validation import ProfileValidator
 from weapon_fsm_core.infrastructure.yaml.profile_builder import ProfileYamlBuilder
 from weapon_fsm_hardware import RuntimeCommandDispatcher
+
+from weapon_fsm_workspace.hardware_bridge.dialog import HardwareBridgeDialog
 
 from weapon_fsm_lights.infrastructure.runtime import QtLightBackend
 from weapon_fsm_lights.presentation.led_canvas_widget import LedPreviewPanel
@@ -63,11 +66,13 @@ class MainWindow(QMainWindow):
 
         self._audio_backend = PortAudioBackend(log=self._append_runtime_log)
         self.led_preview_panel = LedPreviewPanel(self)
+        self.led_preview_panel.player.frame_changed.connect(self._send_rendered_frame)
         self._light_backend = QtLightBackend(log=self._append_runtime_log, preview_panel=self.led_preview_panel)
         self._command_bridge = RuntimeCommandBridge(
             RuntimeCommandDispatcher(audio=self._audio_backend, lights=self._light_backend)
         )
 
+        self._hardware_bridge_dialog: HardwareBridgeDialog | None = None
         self.audio_library = AudioLibraryBrowser(self._audio_backend, parent=self)
         self.gun_editor = QTextEdit()
         self.weapon_editor = WeaponDocumentEditor(self)
@@ -88,12 +93,47 @@ class MainWindow(QMainWindow):
         self._build_ui()
         self._load_documents_from_disk(gun_path, weapon_path)
 
+    def _open_hardware_bridge(self) -> None:
+        if self._hardware_bridge_dialog is None:
+            self._hardware_bridge_dialog = HardwareBridgeDialog(
+                self,
+                current_weapon=lambda: (self._weapon_path, self.weapon_editor.toPlainText()),
+            )
+        self._hardware_bridge_dialog.show()
+        self._hardware_bridge_dialog.raise_()
+
+    def _send_rendered_frame(self, index: int, frame) -> None:
+        dialog = self._hardware_bridge_dialog
+        if dialog is None or dialog.client.mode != 2:
+            return
+        asset = self.led_preview_panel.canvas.asset
+        if asset is None:
+            return
+        count = max((led.index if led.index is not None else order)
+                    for order, led in enumerate(asset.leds)) + 1
+        if count > 128:
+            return
+        rgb = bytearray(count * 3)
+        for order, led in enumerate(asset.leds):
+            state = frame.leds.get(led.id)
+            if state is None:
+                continue
+            color = QColor(state[0])
+            brightness = min(1.0, max(0.0, float(state[1])))
+            pos = (led.index if led.index is not None else order) * 3
+            rgb[pos:pos+3] = bytes(round(channel * brightness)
+                                  for channel in (color.red(), color.green(), color.blue()))
+        dialog.send_rendered_frame(bytes(rgb))
+
     def _append_runtime_log(self, message: str) -> None:
         self.log_output.append(message)
 
     def _build_ui(self) -> None:
         toolbar = QToolBar("Main")
         self.addToolBar(toolbar)
+        bridge_btn = QPushButton("Live Hardware")
+        bridge_btn.clicked.connect(self._open_hardware_bridge)
+        toolbar.addWidget(bridge_btn)
 
         open_gun_btn = QPushButton("Open Gun")
         open_gun_btn.clicked.connect(self._open_gun)
@@ -320,15 +360,26 @@ class MainWindow(QMainWindow):
         self._dispatch_event("on_equip")
 
     def _dispatch_trigger_pressed(self) -> None:
+        if self._hardware_bridge_dialog and self._hardware_bridge_dialog.client.mode == 1:
+            self._hardware_bridge_dialog.send_editor_input(0, True)
+            return
         self._dispatch_named_event("trigger_pressed")
 
     def _dispatch_trigger_held(self) -> None:
+        if self._hardware_bridge_dialog and self._hardware_bridge_dialog.client.mode == 1:
+            return
         self._dispatch_named_event("trigger_held")
 
     def _dispatch_trigger_released(self) -> None:
+        if self._hardware_bridge_dialog and self._hardware_bridge_dialog.client.mode == 1:
+            self._hardware_bridge_dialog.send_editor_input(0, False)
+            return
         self._dispatch_named_event("trigger_released")
 
     def _dispatch_reload(self) -> None:
+        if self._hardware_bridge_dialog and self._hardware_bridge_dialog.client.mode == 1:
+            self._hardware_bridge_dialog._run("reload tap", self._hardware_bridge_dialog.client.tap_reload)
+            return
         self._dispatch_named_event("reload_pressed")
 
     def _dispatch_named_event(self, event_id: str) -> None:
@@ -338,6 +389,20 @@ class MainWindow(QMainWindow):
         self._dispatch_event(event_id)
 
     def _dispatch_event(self, event_id: str) -> None:
+        dialog = self._hardware_bridge_dialog
+        if dialog is not None and dialog.client.mode == 1:
+            input_events = {
+                "trigger_pressed": (0, True),
+                "trigger_released": (0, False),
+            }
+            if event_id in input_events:
+                button, pressed = input_events[event_id]
+                dialog.send_editor_input(button, pressed)
+            elif event_id == "reload_pressed":
+                dialog._run("reload tap", dialog.client.tap_reload)
+            else:
+                self._append_runtime_log(f"[remote input] unsupported event: {event_id}")
+            return
         if self._simulation is None:
             return
 
@@ -379,7 +444,22 @@ class MainWindow(QMainWindow):
                         f"[scheduler] scheduled {scheduled.event_id} in {scheduled.delay_ms} ms"
                     )
 
-                self._command_bridge.dispatch_commands(result.commands)
+                if self._hardware_bridge_dialog and self._hardware_bridge_dialog.client.mode == 2:
+                    for command in result.commands:
+                        if command.type == "play_light":
+                            payload = command.payload
+                            self._light_backend.play_light(
+                                sequence=str(payload.get("sequence", "")),
+                                path=str(payload.get("path", "")),
+                                mode=str(payload.get("mode", "once")),
+                            )
+                        elif command.type == "stop_light":
+                            self._light_backend.stop_light()
+                            self._hardware_bridge_dialog.send_editor_command(command)
+                        else:
+                            self._hardware_bridge_dialog.send_editor_command(command)
+                else:
+                    self._command_bridge.dispatch_commands(result.commands)
                 for command in result.commands:
                     self.log_output.append(f"[command] {command.type}: {command.payload}")
             else:
@@ -399,6 +479,9 @@ class MainWindow(QMainWindow):
         self._refresh_views()
 
     def _advance_time(self) -> None:
+        if self._hardware_bridge_dialog is not None and self._hardware_bridge_dialog.client.mode == 1:
+            # The MCU exclusively owns the FSM scheduler in Remote Input mode.
+            return
         if self._simulation is None:
             return
 

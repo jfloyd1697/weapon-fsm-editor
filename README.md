@@ -395,3 +395,8 @@ Each weapon is compiled to `weapon.bin` (`WFSMBIN1`) plus copied audio and compi
 
 See [the bank-export guide](docs/MERGED_BANK_EXPORT.md) for the six merged banks,
 lighting and audio deduplication, and complete binary export.
+
+## Complete 58-Weapon SD Library
+
+See [the bank-export guide](docs/MERGED_BANK_EXPORT.md) for the six merged banks,
+lighting and audio deduplication, and complete binary export.

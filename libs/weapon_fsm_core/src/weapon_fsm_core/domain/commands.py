@@ -306,21 +306,34 @@ class StopAudioCommand(RuntimeCommand, action_type="stop_audio"):
 class PlayLightCommand(RuntimeCommand, action_type="play_light"):
     sequence: str
     mode: str = "once"
+    value: int | None = None
+    value_from_var: str | None = None
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
         return (
             CommandFieldSpec("sequence", required=True, expected_types=(str,), reference_target="light_sequences"),
-            CommandFieldSpec(
-                "mode",
-                expected_types=(str,),
-                enum_values=("once", "loop"),
-            ),
+            CommandFieldSpec("mode", expected_types=(str,), enum_values=("once", "loop", "frame")),
+            CommandFieldSpec("value", expected_types=(int,)),
+            CommandFieldSpec("value_from_var", expected_types=(str,), reference_target="variables"),
         )
+
+    @classmethod
+    def validate_kwargs(
+        cls,
+        kwargs: dict[str, object],
+        context: ValidationContext | None = None,
+    ) -> None:
+        if kwargs.get("value") is not None and kwargs.get("value_from_var") is not None:
+            raise ValueError("Only one of value and value_from_var may select the first light frame")
+        value = kwargs.get("value")
+        if value is not None and (type(value) is not int or value < 0):
+            raise ValueError("Light frame index must be a nonnegative integer")
 
     def execute(self, env: RuntimeEnvironment) -> None:
         sequence_def = env.weapon.light_sequences.get(self.sequence)
         path = env.weapon.resolve_asset_path(sequence_def.path) if sequence_def is not None else self.sequence
+        value = self.value if self.value_from_var is None else env.variables.get(self.value_from_var)
         env.gun_commands.append(
             GunRuntimeCommand(
                 type="play_light",
@@ -328,10 +341,10 @@ class PlayLightCommand(RuntimeCommand, action_type="play_light"):
                     "sequence": self.sequence,
                     "path": path,
                     "mode": self.mode,
+                    "value": value,
                 },
             )
         )
-
 
 @dataclass(frozen=True, slots=True)
 class StopLightCommand(RuntimeCommand, action_type="stop_light"):
@@ -342,14 +355,20 @@ class StopLightCommand(RuntimeCommand, action_type="stop_light"):
 @dataclass(frozen=True, slots=True)
 class StartLightSequenceCommand(RuntimeCommand, action_type="start_light_sequence"):
     sequence: str
+    value: int | None = None
+    value_from_var: str | None = None
 
     @classmethod
     def schema(cls) -> tuple[CommandFieldSpec, ...]:
-        return (CommandFieldSpec("sequence", required=True, expected_types=(str,), reference_target="light_sequences"),)
+        return (
+            CommandFieldSpec("sequence", required=True, expected_types=(str,), reference_target="light_sequences"),
+            CommandFieldSpec("value", expected_types=(int,)),
+            CommandFieldSpec("value_from_var", expected_types=(str,), reference_target="variables"),
+        )
 
     def execute(self, env: RuntimeEnvironment) -> None:
-        PlayLightCommand(sequence=self.sequence, mode="loop").execute(env)
-
+        PlayLightCommand(sequence=self.sequence, mode="loop", value=self.value,
+                         value_from_var=self.value_from_var).execute(env)
 
 @dataclass(frozen=True, slots=True)
 class StopLightSequenceCommand(RuntimeCommand, action_type="stop_light_sequence"):
