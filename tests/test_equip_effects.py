@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from weapon_fsm_workspace.merged_sd import DEMOS, _load_sequence, profiles_by_bank
+from weapon_fsm_workspace.merged_sd import PROFILES, _load_sequence, profiles_by_bank
 from weapon_fsm_workspace.runtime_validation import validate_runtime_payload
 
 
@@ -27,12 +27,12 @@ def actions(weapon: dict, state_name: str) -> list[dict]:
 def sequence_for(weapon: dict, name: str):
     value = weapon['light_sequences'][name]
     path = value if isinstance(value, str) else value['path']
-    source = DEMOS / path
+    source = PROFILES.parents[1] / path
     return yaml.safe_load(source.read_text(encoding='utf-8')), _load_sequence(source, name)
 
 
 def test_prime_equips_with_outward_then_inward_pulse():
-    weapon = load(DEMOS / 'metroid_prime.yaml')
+    weapon = load(PROFILES / 'metroid_prime.yaml')
     equip = actions(weapon, 'equipping')
     assert any(a.get('type') == 'play_audio' and a.get('clip') == 'equip' for a in equip)
     assert any(a.get('type') == 'play_light' and a.get('sequence') == 'prime_equip_radial' for a in equip)
@@ -52,8 +52,8 @@ def test_prime_equips_with_outward_then_inward_pulse():
 
 
 def test_every_lego_character_equips_with_switch_sound_and_color_wipe():
-    expected = [p for p in (DEMOS / 'legacy/Characters').glob('*.yaml') if p.stem != 'true_jedi']
-    expected += [DEMOS / f'{n}.yaml' for n in ('C3_hurt', 'yoda_hurt', 'darth_maul_hurt')]
+    expected = [p for p in (PROFILES / 'legacy/Characters').glob('*.yaml') if p.stem != 'true_jedi']
+    expected += [PROFILES / f'{n}.yaml' for n in ('C3_hurt', 'yoda_hurt', 'darth_maul_hurt')]
     assert len(expected) == 11
     for profile in expected:
         weapon = load(profile)

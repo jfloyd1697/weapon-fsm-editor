@@ -44,4 +44,4 @@ def test_repository_loads_assets_and_source_path(tmp_path: Path) -> None:
     assert "ready" in weapon.states
     assert weapon.clips["ready_hum"].path == "assets/audio/ready_hum.wav"
     assert weapon.light_sequences["muzzle_flash"].path == "assets/lights/muzzle_flash.yaml"
-    assert weapon.source_path == weapon_path
+    assert weapon.source_path == weapon_path.parent

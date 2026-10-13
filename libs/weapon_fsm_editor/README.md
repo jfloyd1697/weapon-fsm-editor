@@ -56,4 +56,4 @@ See `examples/light_layout.yaml` and `examples/muzzle_flash.yaml` for a small
 reference pair.
 
 
-The bundled example ring layout comes from `examples/ring_layout.json`, and `examples/ring_sequence.yaml` shows how to reference it from a sequence file.
+The bundled example ring layout comes from `assets/lights/layouts/cpx_ring_61_outside_in.json`, and `assets/lights/ring_sequence.yaml` shows how to reference it from a sequence file.

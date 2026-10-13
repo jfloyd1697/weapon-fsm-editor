@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PyQt6.QtCore import QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QTextCursor, QTextCharFormat
 from PyQt6.QtWidgets import QPlainTextEdit, QTextEdit
@@ -15,6 +17,7 @@ class WeaponDocumentEditor(QPlainTextEdit):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._gun: GunConfig | None = None
+        self._source_path: Path | None = None
         self._analyzer = WeaponDocumentAnalyzer()
         self._diagnostics: list[EditorDiagnostic] = []
         self._highlighter = WeaponYamlHighlighter(self.document())
@@ -33,6 +36,10 @@ class WeaponDocumentEditor(QPlainTextEdit):
 
     def set_gun_config(self, gun: GunConfig | None) -> None:
         self._gun = gun
+        self._schedule_analysis()
+
+    def set_source_path(self, path: Path) -> None:
+        self._source_path = path
         self._schedule_analysis()
 
     def diagnostics(self) -> list[EditorDiagnostic]:
@@ -60,7 +67,9 @@ class WeaponDocumentEditor(QPlainTextEdit):
         self._apply_diagnostics(local_diagnostics, local_only=True)
 
     def _run_full_analysis(self) -> None:
-        diagnostics = self._analyzer.analyze_document(self.toPlainText(), self._gun)
+        diagnostics = self._analyzer.analyze_document(
+            self.toPlainText(), self._gun, source_path=self._source_path
+        )
         self._apply_diagnostics(diagnostics, local_only=False)
         self.diagnostics_changed.emit(list(self._diagnostics))
 

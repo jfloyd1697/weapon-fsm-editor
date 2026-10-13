@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 import yaml
 from yaml.error import MarkedYAMLError
@@ -30,6 +31,7 @@ class WeaponDocumentAnalyzer:
         self,
         text: str,
         gun: GunConfig | None,
+        source_path: str | Path | None = None,
     ) -> list[EditorDiagnostic]:
         diagnostics: list[EditorDiagnostic] = []
         block_spans = self._build_block_spans(text)
@@ -60,7 +62,7 @@ class WeaponDocumentAnalyzer:
             return diagnostics
 
         try:
-            weapon = self._repository.load_weapon_text(text)
+            weapon = self._repository.load_weapon_text(text, source_path=source_path)
         except Exception as exc:
             diagnostics.append(
                 EditorDiagnostic(
@@ -94,6 +96,7 @@ class WeaponDocumentAnalyzer:
         text: str,
         cursor_line: int,
         gun: GunConfig | None,
+        source_path: str | Path | None = None,
     ) -> list[EditorDiagnostic]:
         block = self._extract_local_block(text, cursor_line)
         if not block.strip():

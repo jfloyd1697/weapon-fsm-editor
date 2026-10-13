@@ -51,11 +51,11 @@ def _generated_fallback(output: Path, frequency: int, duration: float) -> None:
 
 
 class LegacyMigrator:
-    def __init__(self, source_assets: Path, demos: Path) -> None:
+    def __init__(self, source_assets: Path, project_root: Path) -> None:
         self.source_assets = source_assets.resolve()
-        self.demos = demos.resolve()
-        self.assets = self.demos / "assets"
-        self.profiles = self.demos / "legacy"
+        self.project_root = project_root.resolve()
+        self.assets = self.project_root / "assets"
+        self.profiles = self.assets / "profiles/legacy"
         self.layout_path = self.assets / "lights/layouts/cpx_ring_61_outside_in.json"
         self.generated_patterns: set[str] = set()
         self._clip_sets: dict[tuple[str, ...], str] = {}
@@ -81,7 +81,7 @@ class LegacyMigrator:
             counts[bank] = counts.get(bank, 0) + 1
         # Missing original sound effects are audible placeholders, not claimed originals.
         for missing in sorted(self.missing_sources):
-            target = self.demos / missing
+            target = self.project_root / missing
             if missing in REF_MISSING:
                 _generated_fallback(target, *REF_MISSING[missing])
             elif missing == "assets/audio/super_metroid_gun/reload.wav":
@@ -107,7 +107,7 @@ class LegacyMigrator:
         if not relative.startswith("assets/audio/") or ".." in Path(relative).parts:
             raise ValueError(f"Invalid legacy audio reference {relative!r}")
         source = self.source_assets.parent / relative
-        destination = self.demos / relative
+        destination = self.project_root / relative
         if source.is_file():
             if not destination.is_file():
                 destination.parent.mkdir(parents=True, exist_ok=True)
@@ -289,9 +289,9 @@ class LegacyMigrator:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--firmware-assets", type=Path, required=True)
-    parser.add_argument("--demos", type=Path, default=Path(__file__).parent / "demos")
+    parser.add_argument("--project-root", type=Path, default=Path(__file__).resolve().parents[2])
     options = parser.parse_args(argv)
-    migration = LegacyMigrator(options.firmware_assets, options.demos)
+    migration = LegacyMigrator(options.firmware_assets, options.project_root)
     counts = migration.migrate_all()
     for bank, count in sorted(counts.items()):
         print(f"{bank}: {count} profiles")

@@ -9,10 +9,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-DIRECTORIES = (
-    ROOT / "libs/weapon_fsm_lights/examples/layouts",
-    ROOT / "src/weapon_fsm_workspace/demos/assets/lights/layouts",
-)
+LAYOUT_DIRECTORY = ROOT / "assets/lights/layouts"
 LAYOUT_NAMES = ("cpx_ring_61.json", "cpx_ring_61_outside_in.json")
 RINGS = (1, 8, 12, 16, 24)
 
@@ -25,14 +22,14 @@ def rings_for(document):
 
 
 class CpxRing61LayoutTests(unittest.TestCase):
-    def test_both_layouts_exist_and_match_between_editor_sources(self):
+    def test_canonical_layouts_exist(self):
         for filename in LAYOUT_NAMES:
-            layouts = [json.loads((directory / filename).read_text(encoding="utf-8")) for directory in DIRECTORIES]
-            self.assertEqual(layouts[0], layouts[1])
+            layout = json.loads((LAYOUT_DIRECTORY / filename).read_text(encoding="utf-8"))
+            self.assertEqual(layout["coordinate_space"], "normalized_2d")
 
     def test_opposite_wiring_indices_preserve_physical_geometry(self):
-        inside = json.loads((DIRECTORIES[0] / LAYOUT_NAMES[0]).read_text(encoding="utf-8"))
-        outside = json.loads((DIRECTORIES[0] / LAYOUT_NAMES[1]).read_text(encoding="utf-8"))
+        inside = json.loads((LAYOUT_DIRECTORY / LAYOUT_NAMES[0]).read_text(encoding="utf-8"))
+        outside = json.loads((LAYOUT_DIRECTORY / LAYOUT_NAMES[1]).read_text(encoding="utf-8"))
         inside_dist, inside_leds = rings_for(inside)
         outside_dist, outside_leds = rings_for(outside)
         self.assertEqual((inside_leds[0]["u"], inside_leds[0]["v"]), (.5, .5))
@@ -53,7 +50,7 @@ class CpxRing61LayoutTests(unittest.TestCase):
             self.assertTrue(all((a > b if descending else a < b) for a, b in zip(radii, radii[1:])))
 
     def test_wired_demos_choose_outside_in(self):
-        base = ROOT / "src/weapon_fsm_workspace/demos/assets/lights"
+        base = ROOT / "assets/lights"
         for name in ("idle_glow", "rainbow_ring_61", "metroid-prime-lights"):
             project = yaml.safe_load((base / f"{name}.yaml").read_text(encoding="utf-8"))
             self.assertEqual(project["layout"]["path"], "layouts/cpx_ring_61_outside_in.json")

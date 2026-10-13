@@ -9,7 +9,7 @@ from weapon_fsm_workspace.runtime_validation import validate_runtime_payload
 
 PROFILE = (
     Path(__file__).resolve().parents[1]
-    / "src/weapon_fsm_workspace/demos/legacy/Characters/true_jedi.yaml"
+    / "assets/profiles/legacy/Characters/true_jedi.yaml"
 )
 
 

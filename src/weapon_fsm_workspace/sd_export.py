@@ -60,8 +60,7 @@ class SdCardExporter:
         weapon_name: str | None = None,
     ) -> Path:
         source = Path(profile_path).expanduser().resolve()
-        assets_root = next((parent for parent in (source.parent, *source.parents)
-                            if (parent / "assets").is_dir()), source.parent)
+        assets_root = self.repository.asset_root_for_profile(source)
         weapon = self.repository.load_weapon_text(
             source.read_text(encoding="utf-8"),
             source_path=assets_root,
@@ -222,12 +221,12 @@ class SdCardExporter:
         manifest_path.with_suffix(".json").unlink(missing_ok=True)
 
 
-def _default_profiles(demos: Path) -> list[Path]:
+def _default_profiles(profiles_root: Path) -> list[Path]:
     """Standalone weapon examples, excluding editor-only gun configuration documents."""
     import yaml
 
     return [
-        path for path in sorted(demos.glob("*.yaml"))
+        path for path in sorted(profiles_root.glob("*.yaml"))
         if "weapon" in (yaml.safe_load(path.read_text(encoding="utf-8")) or {})
     ]
 
@@ -253,16 +252,17 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Total: {sum(map(len, banks.values()))} compiled weapons")
         return 0
 
-    demos = Path(__file__).parent / "demos"
+    from weapon_fsm_workspace.paths import PROFILES_ROOT
+    profiles_root = PROFILES_ROOT
     if args.profiles:
         batches = [(args.bank, args.profiles, False)]
     elif args.bank.lower() == "farts":
-        batches = [("Farts", sorted((demos / "farts").glob("*.yaml")), True)]
+        batches = [("Farts", sorted((profiles_root / "farts").glob("*.yaml")), True)]
     else:
-        batches = [(args.bank, _default_profiles(demos), True)]
+        batches = [(args.bank, _default_profiles(profiles_root), True)]
         if args.bank == "Default":
             # A complete Default export creates both usable demo banks.
-            batches.append(("Farts", sorted((demos / "farts").glob("*.yaml")), True))
+            batches.append(("Farts", sorted((profiles_root / "farts").glob("*.yaml")), True))
 
     exporter = SdCardExporter(args.sd_root)
     failed: list[tuple[str, Path, Exception]] = []

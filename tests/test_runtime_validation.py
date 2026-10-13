@@ -66,7 +66,7 @@ def test_real_demo_profile_references_are_checked():
     from pathlib import Path
     import yaml
 
-    demos = Path(__file__).resolve().parents[1] / "src" / "weapon_fsm_workspace" / "demos"
+    demos = Path(__file__).resolve().parents[1] / "assets" / "profiles"
     for filename in ("aiai_health.yaml", "character_sounds.yaml", "metroid_prime.yaml"):
         authored = yaml.safe_load((demos / filename).read_text(encoding="utf-8"))
         weapon = authored["weapon"]

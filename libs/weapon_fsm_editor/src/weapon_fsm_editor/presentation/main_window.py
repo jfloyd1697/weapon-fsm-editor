@@ -87,7 +87,8 @@ class MainWindow(QMainWindow):
         self._clock_timer.timeout.connect(self._advance_time)
         self._clock_timer.start()
 
-        example_layout = Path(__file__).resolve().parents[3] / "examples" / "ring_layout.json"
+        from weapon_fsm_workspace.paths import ASSETS_ROOT
+        example_layout = ASSETS_ROOT / "lights/layouts/cpx_ring_61_outside_in.json"
         self.led_preview_panel.set_example_layout_path(example_layout)
 
         self._build_ui()
@@ -315,7 +316,7 @@ class MainWindow(QMainWindow):
             gun = self._repository.load_gun_text(gun_text)
             weapon = self._repository.load_weapon_text(
                 weapon_text,
-                source_path=self._weapon_path,
+                source_path=self._repository.asset_root_for_profile(self._weapon_path),
             )
             issues = self._validator.validate(gun, weapon)
 
@@ -330,6 +331,7 @@ class MainWindow(QMainWindow):
             self._gun = gun
             self._weapon = weapon
             self._simulation = SimulationService(gun, weapon)
+            self.weapon_editor.set_source_path(self._repository.asset_root_for_profile(self._weapon_path))
             self.weapon_editor.set_gun_config(self._gun)
             self.audio_library.set_weapon(self._weapon)
 

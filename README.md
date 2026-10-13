@@ -4,6 +4,24 @@ Weapon FSM Editor is a desktop editor, simulator, and validation tool for buildi
 
 The editor uses a YAML-based weapon profile format and a modular subsystem architecture so features like audio, lights, haptics, displays, or future runtime systems can be added without rewriting the core state machine.
 
+## Asset structure and SD export
+
+All editable assets are in **`assets/`**:
+
+- `assets/profiles/` contains weapon YAML profiles, legacy banks, curated profiles, and examples.
+- `assets/audio/` contains authored WAV clips; their `assets/audio/...` YAML references are project-relative.
+- `assets/lights/` contains authored light animations and LED layouts.
+
+The old root-level `demos/` and package-level `src/weapon_fsm_workspace/demos/` directories have been consolidated. Open profiles directly from `assets/profiles/` or launch the editor without arguments to open `default_gun.yaml` and `weapon_profile.yaml`. Paths are resolved from the project root, not from the current working directory or a developer machine.
+
+To regenerate the six weapon banks into the **firmware's SD staging directory** from the editor project, run:
+
+```bash
+weapon-fsm-export-sd --all-banks --sd-root ../blaster-firmware/sdcard
+```
+
+The firmware uses `assets/...` paths **on the SD card**, even though the local compiled files live inside the `sdcard/` staging folder. The Live Hardware dialog can deploy that directory over the existing USB serial connection.
+
 ![Weapon FSM Editor main window](docs/images/main-window.png)
 
 ## What It Does
@@ -385,16 +403,11 @@ Add the project license here.
 The editor is the authoring environment; microcontrollers do not load the YAML documents directly. Export with:
 
 ```powershell
-uv run weapon-fsm-export-sd --sd-root E:\ --bank Default src/weapon_fsm_workspace/demos/metroid_prime.yaml
+uv run weapon-fsm-export-sd --sd-root E:\ --bank Default assets/profiles/metroid_prime.yaml
 ```
 
 Each weapon is compiled to `weapon.bin` (`WFSMBIN1`) plus copied audio and compiled light assets. The binary puts the asset tables first so firmware can validate the SD layout without decoding the complete FSM. The full state machine is decoded only when the weapon is equipped.
 
-
-## Complete 58-Weapon SD Library
-
-See [the bank-export guide](docs/MERGED_BANK_EXPORT.md) for the six merged banks,
-lighting and audio deduplication, and complete binary export.
 
 ## Complete 58-Weapon SD Library
 

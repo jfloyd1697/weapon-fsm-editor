@@ -7,13 +7,20 @@ from weapon_fsm_core.domain.model import GunConfig, WeaponConfig
 
 
 class ProfileRepository:
-    DEMOS_PATH = Path(
-        "D:/Python/weapon-fsm-starter/src/weapon_fsm_workspace/demos"
-    )
+    @staticmethod
+    def asset_root_for_profile(path: str | Path) -> Path:
+        """Locate the directory against which assets/... paths are resolved."""
+        profile = Path(path).expanduser().resolve()
+        for parent in profile.parents:
+            if (parent / "assets").is_dir():
+                return parent
+        return profile.parent
 
     def load_weapon(self, path: str | Path) -> WeaponConfig:
+        source = Path(path).expanduser().resolve()
         return self.load_weapon_text(
-            Path(path).read_text(encoding="utf-8"),
+            source.read_text(encoding="utf-8"),
+            source_path=self.asset_root_for_profile(source),
         )
 
     def load_weapon_text(
@@ -51,9 +58,8 @@ class ProfileRepository:
             weapon_raw.get("light_sequences", {})
         )
 
-        # The editor/exporter passes a directory containing profile assets.
-        # Keep the demo fallback for callers loading in-memory example YAML.
-        weapon_raw["source_path"] = Path(source_path) if source_path is not None else self.DEMOS_PATH
+        # In-memory profiles have no implicit on-disk location.
+        weapon_raw["source_path"] = Path(source_path) if source_path is not None else None
 
         return WeaponConfig.from_dict(weapon_raw)
 

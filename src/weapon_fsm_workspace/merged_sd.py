@@ -33,7 +33,7 @@ from weapon_fsm_workspace.compiled_assets import (
 from weapon_fsm_workspace.runtime_binary import encode_runtime
 from weapon_fsm_workspace.runtime_validation import normalize_runtime_payload, validate_runtime_payload
 
-DEMOS = ROOT / "src/weapon_fsm_workspace/demos"
+PROFILES = ROOT / "assets/profiles"
 MANIFEST = Path("assets/weapons/weapons_manifest.bin")
 EXTRAS = {
     "Characters": ("yoda_hurt", "darth_maul_hurt"),
@@ -41,20 +41,20 @@ EXTRAS = {
 }
 
 
-def profiles_by_bank(demos: Path = DEMOS) -> dict[str, list[Path]]:
+def profiles_by_bank(profiles_root: Path = PROFILES) -> dict[str, list[Path]]:
     result = {
         path.name: sorted(path.glob("*.yaml"))
-        for path in (demos / "legacy").iterdir()
+        for path in (profiles_root / "legacy").iterdir()
         if path.is_dir()
     }
     for bank, names in EXTRAS.items():
-        result.setdefault(bank, []).extend(demos / f"{name}.yaml" for name in names)
+        result.setdefault(bank, []).extend(profiles_root / f"{name}.yaml" for name in names)
     return result
 
 
-def _asset_path(demos: Path, reference: str) -> Path:
-    path = (demos / reference).resolve()
-    if not path.is_relative_to(demos.resolve()) or not path.is_file():
+def _asset_path(project_root: Path, reference: str) -> Path:
+    path = (project_root / reference).resolve()
+    if not path.is_relative_to((project_root / "assets").resolve()) or not path.is_file():
         raise FileNotFoundError(f"Missing or unsafe source asset: {reference}")
     return path
 
@@ -108,13 +108,13 @@ def _weapon_payload(weapon: dict[str, Any], audio_paths: dict[str, str], light_p
     }
 
 
-def compile_bank_library(sd_root: Path, demos: Path = DEMOS) -> dict[str, list[str]]:
+def compile_bank_library(sd_root: Path, profiles_root: Path = PROFILES) -> dict[str, list[str]]:
     sd_root.mkdir(parents=True, exist_ok=True)
     banks: dict[str, list[str]] = {}
     audio_cache: dict[str, Path] = {}
     sequence_cache: dict[tuple[Path, str], tuple[bytes, bytes]] = {}
     errors: list[str] = []
-    for bank, profiles in sorted(profiles_by_bank(demos).items()):
+    for bank, profiles in sorted(profiles_by_bank(profiles_root).items()):
         entries = []
         for profile in profiles:
             try:
@@ -132,7 +132,7 @@ def compile_bank_library(sd_root: Path, demos: Path = DEMOS) -> dict[str, list[s
                 audio_paths = {}
                 for name, clip in weapon.get("clips", {}).items():
                     clip_ref = clip if isinstance(clip, str) else clip["path"]
-                    audio_src = _asset_path(demos, clip_ref)
+                    audio_src = _asset_path(profiles_root.parents[1], clip_ref)
                     # Global content-addressed audio deduplication, across all banks.
                     # Identical source WAV data needs to be normalized only once.
                     digest = hashlib.sha256(audio_src.read_bytes()).hexdigest()[:24]
@@ -146,7 +146,7 @@ def compile_bank_library(sd_root: Path, demos: Path = DEMOS) -> dict[str, list[s
                 light_paths = {}
                 for name, seq in weapon.get("light_sequences", {}).items():
                     seq_ref = seq if isinstance(seq, str) else seq["path"]
-                    light_src = _asset_path(demos, seq_ref)
+                    light_src = _asset_path(profiles_root.parents[1], seq_ref)
                     key = (light_src, name if "animations" in light_src.read_text(encoding="utf-8")[:600] else "")
                     if key not in sequence_cache:
                         asset = _load_sequence(light_src, name)

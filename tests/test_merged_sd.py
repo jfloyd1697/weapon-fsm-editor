@@ -4,7 +4,7 @@ import yaml
 
 from weapon_fsm_workspace.compiled_assets import decode_manifest
 from weapon_fsm_workspace.light_project_compiler import compile_animation_project
-from weapon_fsm_workspace.merged_sd import DEMOS, _load_sequence, profiles_by_bank
+from weapon_fsm_workspace.merged_sd import PROFILES, _load_sequence, profiles_by_bank
 from weapon_fsm_workspace.runtime_validation import validate_runtime_payload
 
 
@@ -31,24 +31,24 @@ def test_all_original_weapons_and_added_banks_are_present() -> None:
             for resource in ("clips", "light_sequences"):
                 for asset in weapon.get(resource, {}).values():
                     path = asset if isinstance(asset, str) else asset["path"]
-                    assert (DEMOS / path).is_file(), (profile, path)
+                    assert (PROFILES.parents[1] / path).is_file(), (profile, path)
 
 
 def test_heart_effect_referenced_by_character_heal() -> None:
-    heart = DEMOS / "assets/lights/heart_heal_red.yaml"
+    heart = PROFILES.parents[1] / "assets/lights/heart_heal_red.yaml"
     data = yaml.safe_load(heart.read_text(encoding="utf-8"))
     assert len(data["frames"]) >= 4
     assert any(frame["leds"] for frame in data["frames"])
-    c3 = _weapon(DEMOS / "legacy/Characters/c3p0_hurt.yaml")
+    c3 = _weapon(PROFILES / "legacy/Characters/c3p0_hurt.yaml")
     assert any(spec["path"] == "assets/lights/heart_heal_red.yaml"
                for spec in c3["light_sequences"].values())
     for name in ("yoda_hurt", "darth_maul_hurt"):
-        data = _weapon(DEMOS / f"{name}.yaml")
+        data = _weapon(PROFILES / f"{name}.yaml")
         assert data["light_sequences"]["heal_heart"]["path"] == "assets/lights/heart_heal_red.yaml"
 
 
 def test_metroid_three_shots_use_short_decay() -> None:
-    weapon = _weapon(DEMOS / "metroid_prime.yaml")
+    weapon = _weapon(PROFILES / "metroid_prime.yaml")
     short = "prime_regular_shot"
     assert weapon["light_sequences"][short] == "assets/lights/metroid_prime_regular_shot.yaml"
     first = next(s for s in weapon["states"] if s["id"] == "holding")
@@ -60,7 +60,7 @@ def test_metroid_three_shots_use_short_decay() -> None:
     assert all(any(a.get("type") == "play_light" and a.get("sequence") == short
                    for a in group) for group in action_groups)
 
-    file = DEMOS / "assets/lights/metroid_prime_regular_shot.yaml"
+    file = PROFILES.parents[1] / "assets/lights/metroid_prime_regular_shot.yaml"
     raw = yaml.safe_load(file.read_text(encoding="utf-8"))
     assert sum(f["duration_ms"] for f in raw["frames"]) == 180
     peaks = [max((p["intensity"] for p in f["leds"].values()), default=0.0)
@@ -73,7 +73,7 @@ def test_metroid_three_shots_use_short_decay() -> None:
 
 
 def test_authored_light_projects_compile_without_gui() -> None:
-    file = DEMOS / "assets/lights/metroid-prime-lights.yaml"
+    file = PROFILES.parents[1] / "assets/lights/metroid-prime-lights.yaml"
     for name in ("prime_charge_warm_build", "prime_charge_warm_hold", "prime_charge_warm_release"):
         compiled = _load_sequence(file, name)
         assert len(compiled.leds) == 61
