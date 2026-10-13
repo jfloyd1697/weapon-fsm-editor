@@ -1,700 +1,118 @@
 weapon:
-  initial_state: studs_00
-  variables:
-    progress_interval_ms: 400
-    completion_hold_ms: 1500
+  initial_state: idle
+  variables: {}
   clips:
-    collect:
+    audio_0:
       path: assets/audio/true_jedi/lego_true_jedi_loop.wav
-    complete:
+    audio_1:
       path: assets/audio/true_jedi/lego_true_jedi_end.wav
   light_sequences:
-    stud_progress:
-      path: assets/lights/true_jedi/stud_progress.yaml
+    light_0:
+      path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
+    light_1:
+      path: assets/lights/legacy/legacy_ef15f7267c9d.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_a02a51eeef18.yaml
+    muzzle_flash:
+      path: assets/lights/legacy/legacy_0f5521b90406.yaml
+    light_4:
+      path: assets/lights/legacy/legacy_fb47467a16e5.yaml
   states:
-  - id: studs_00
-    label: STUDS 00/20
+  - id: idle
+    label: Idle
     on_entry:
     - type: play_light
-      sequence: stud_progress
-      value: 0
-      mode: frame
-  - id: studs_01
-    label: STUDS 01/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 1
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_02
-    label: STUDS 02/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 2
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_03
-    label: STUDS 03/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 3
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_04
-    label: STUDS 04/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 4
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_05
-    label: STUDS 05/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 5
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_06
-    label: STUDS 06/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 6
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_07
-    label: STUDS 07/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 7
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_08
-    label: STUDS 08/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 8
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_09
-    label: STUDS 09/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 9
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_10
-    label: STUDS 10/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 10
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_11
-    label: STUDS 11/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 11
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_12
-    label: STUDS 12/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 12
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_13
-    label: STUDS 13/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 13
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_14
-    label: STUDS 14/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 14
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_15
-    label: STUDS 15/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 15
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_16
-    label: STUDS 16/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 16
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_17
-    label: STUDS 17/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 17
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_18
-    label: STUDS 18/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 18
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_19
-    label: STUDS 19/20
-    on_entry:
-    - type: play_light
-      sequence: stud_progress
-      value: 19
-      mode: frame
-    - type: play_audio
-      clip: collect
-    - type: schedule_event
-      event: progress_tick
-      delay_ms_from_var: progress_interval_ms
-  - id: studs_20
-    label: STUDS 20/20
-    on_entry:
-    - type: start_light_sequence
-      sequence: stud_progress
-      value: 20
+      sequence: light_0
       mode: loop
-    - type: play_audio
-      clip: complete
-    - type: cancel_scheduled_events
-      event: progress_tick
+  - id: charging
+    label: Charging
+    on_entry:
+    - type: play_light
+      sequence: light_1
+      mode: loop
+  - id: charged
+    label: Charged
+    on_entry:
+    - type: play_light
+      sequence: light_2
+      mode: loop
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_4
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
     - type: schedule_event
-      event: completion_done
-      delay_ms_from_var: completion_hold_ms
+      event: reload_complete
+      delay_ms: 700
   transitions:
-  - id: start_collecting
-    source: studs_00
+  - id: idle_0_trigger_pressed
+    source: idle
     trigger: trigger_pressed
-    target: studs_01
-  - id: advance_01
-    source: studs_01
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_02
-  - id: release_01
-    source: studs_01
+    target: charging
+    actions:
+    - type: play_audio
+      clip: audio_0
+      mode: once
+    - type: play_audio
+      clip: audio_0
+      mode: loop
+    - type: schedule_event
+      event: charge_complete
+      delay_ms: 800
+  - id: idle_1_ammo_empty
+    source: idle
+    trigger: ammo_empty
+    target: empty
+  - id: idle_2_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+  - id: charging_0_charge_complete
+    source: charging
+    trigger: charge_complete
+    target: charged
+  - id: charging_1_trigger_released
+    source: charging
     trigger: trigger_released
-    target: studs_00
+    target: idle
     actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
     - type: stop_audio
-  - id: reset_01
-    source: studs_01
+  - id: charging_2_reload
+    source: charging
     trigger: reload_pressed
-    target: studs_00
+    target: reloading
     actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
     - type: stop_audio
-  - id: advance_02
-    source: studs_02
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_03
-  - id: release_02
-    source: studs_02
+  - id: charged_0_trigger_released
+    source: charged
     trigger: trigger_released
-    target: studs_00
+    target: idle
     actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
     - type: stop_audio
-  - id: reset_02
-    source: studs_02
+    - type: play_audio
+      clip: audio_1
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+  - id: charged_1_reload
+    source: charged
     trigger: reload_pressed
-    target: studs_00
+    target: reloading
     actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
     - type: stop_audio
-  - id: advance_03
-    source: studs_03
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_04
-  - id: release_03
-    source: studs_03
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_03
-    source: studs_03
+  - id: empty_0_reload_complete
+    source: empty
+    trigger: reload_complete
+    target: idle
+  - id: empty_1_reload
+    source: empty
     trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_04
-    source: studs_04
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_05
-  - id: release_04
-    source: studs_04
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_04
-    source: studs_04
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_05
-    source: studs_05
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_06
-  - id: release_05
-    source: studs_05
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_05
-    source: studs_05
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_06
-    source: studs_06
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_07
-  - id: release_06
-    source: studs_06
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_06
-    source: studs_06
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_07
-    source: studs_07
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_08
-  - id: release_07
-    source: studs_07
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_07
-    source: studs_07
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_08
-    source: studs_08
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_09
-  - id: release_08
-    source: studs_08
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_08
-    source: studs_08
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_09
-    source: studs_09
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_10
-  - id: release_09
-    source: studs_09
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_09
-    source: studs_09
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_10
-    source: studs_10
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_11
-  - id: release_10
-    source: studs_10
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_10
-    source: studs_10
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_11
-    source: studs_11
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_12
-  - id: release_11
-    source: studs_11
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_11
-    source: studs_11
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_12
-    source: studs_12
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_13
-  - id: release_12
-    source: studs_12
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_12
-    source: studs_12
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_13
-    source: studs_13
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_14
-  - id: release_13
-    source: studs_13
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_13
-    source: studs_13
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_14
-    source: studs_14
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_15
-  - id: release_14
-    source: studs_14
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_14
-    source: studs_14
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_15
-    source: studs_15
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_16
-  - id: release_15
-    source: studs_15
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_15
-    source: studs_15
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_16
-    source: studs_16
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_17
-  - id: release_16
-    source: studs_16
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_16
-    source: studs_16
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_17
-    source: studs_17
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_18
-  - id: release_17
-    source: studs_17
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_17
-    source: studs_17
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_18
-    source: studs_18
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_19
-  - id: release_18
-    source: studs_18
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_18
-    source: studs_18
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: advance_19
-    source: studs_19
-    trigger: progress_tick
-    guard:
-      trigger_pressed: true
-    target: studs_20
-  - id: release_19
-    source: studs_19
-    trigger: trigger_released
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: reset_19
-    source: studs_19
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: progress_tick
-    - type: stop_audio
-  - id: finish_completion
-    source: studs_20
-    trigger: completion_done
-    target: studs_00
-    actions:
-    - type: stop_audio
-  - id: reset_completion
-    source: studs_20
-    trigger: reload_pressed
-    target: studs_00
-    actions:
-    - type: cancel_scheduled_events
-      event: completion_done
-    - type: stop_audio
+    target: reloading
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle
