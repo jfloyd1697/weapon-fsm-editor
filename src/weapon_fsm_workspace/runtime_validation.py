@@ -99,6 +99,16 @@ def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
             elif kind in ("play_light", "start_light_sequence"):
                 if action.get("sequence") not in sequences:
                     issues.append(f"{where}: unknown light sequence {action.get('sequence')!r}")
+                if action.get("mode", "once") not in ("once", "loop", "frame"):
+                    issues.append(f"{where}: invalid light playback mode")
+                frame = action.get("value")
+                if frame is not None and (type(frame) is not int or frame < 0):
+                    issues.append(f"{where}: light frame index must be a nonnegative integer")
+                source = action.get("value_from_var")
+                if frame is not None and source is not None:
+                    issues.append(f"{where}: supply either value or value_from_var, not both")
+                if source is not None and source not in (payload.get("variables") or {}):
+                    issues.append(f"{where}: unknown frame index variable {source!r}")
 
     for state in states:
         name = state.get("id")
