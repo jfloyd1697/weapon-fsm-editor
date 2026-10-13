@@ -1,40 +1,95 @@
 layout:
-  path: layouts/cpx_ring_61.json
-
+  path: layouts/cpx_ring_61_outside_in.json
 frames:
-  - duration_ms: 140
-    leds:
-      "0": {color: "#ffb347", intensity: 0.45}
-  - duration_ms: 140
-    leds:
-      "0": {color: "#ffc766", intensity: 0.75}
-      "1": {color: "#ff9f2e", intensity: 0.40}
-      "3": {color: "#ff9f2e", intensity: 0.40}
-      "5": {color: "#ff9f2e", intensity: 0.40}
-      "7": {color: "#ff9f2e", intensity: 0.40}
-  - duration_ms: 140
-    leds:
-      "0": {color: "#ffe08a", intensity: 1.0}
-      "1": {color: "#ffbf4d", intensity: 0.80}
-      "2": {color: "#ff9f2e", intensity: 0.55}
-      "3": {color: "#ffbf4d", intensity: 0.80}
-      "4": {color: "#ff9f2e", intensity: 0.55}
-      "5": {color: "#ffbf4d", intensity: 0.80}
-      "6": {color: "#ff9f2e", intensity: 0.55}
-      "7": {color: "#ffbf4d", intensity: 0.80}
-      "8": {color: "#ff9f2e", intensity: 0.55}
-  - duration_ms: 180
-    leds:
-      "0": {color: "#fff0b3", intensity: 1.0}
-      "1": {color: "#ffd166", intensity: 0.95}
-      "2": {color: "#ffbf4d", intensity: 0.80}
-      "3": {color: "#ffd166", intensity: 0.95}
-      "4": {color: "#ffbf4d", intensity: 0.80}
-      "5": {color: "#ffd166", intensity: 0.95}
-      "6": {color: "#ffbf4d", intensity: 0.80}
-      "7": {color: "#ffd166", intensity: 0.95}
-      "8": {color: "#ffbf4d", intensity: 0.80}
-      "9": {color: "#ff9f2e", intensity: 0.45}
-      "12": {color: "#ff9f2e", intensity: 0.45}
-      "15": {color: "#ff9f2e", intensity: 0.45}
-      "18": {color: "#ff9f2e", intensity: 0.45}
+- duration_ms: 140
+  leds:
+    '60':
+      color: '#ffb347'
+      intensity: 0.45
+- duration_ms: 140
+  leds:
+    '52':
+      color: '#ff9f2e'
+      intensity: 0.4
+    '54':
+      color: '#ff9f2e'
+      intensity: 0.4
+    '56':
+      color: '#ff9f2e'
+      intensity: 0.4
+    '58':
+      color: '#ff9f2e'
+      intensity: 0.4
+    '60':
+      color: '#ffc766'
+      intensity: 0.75
+- duration_ms: 140
+  leds:
+    '52':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '53':
+      color: '#ff9f2e'
+      intensity: 0.55
+    '54':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '55':
+      color: '#ff9f2e'
+      intensity: 0.55
+    '56':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '57':
+      color: '#ff9f2e'
+      intensity: 0.55
+    '58':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '59':
+      color: '#ff9f2e'
+      intensity: 0.55
+    '60':
+      color: '#ffe08a'
+      intensity: 1.0
+- duration_ms: 180
+  leds:
+    '40':
+      color: '#ff9f2e'
+      intensity: 0.45
+    '43':
+      color: '#ff9f2e'
+      intensity: 0.45
+    '46':
+      color: '#ff9f2e'
+      intensity: 0.45
+    '49':
+      color: '#ff9f2e'
+      intensity: 0.45
+    '52':
+      color: '#ffd166'
+      intensity: 0.95
+    '53':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '54':
+      color: '#ffd166'
+      intensity: 0.95
+    '55':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '56':
+      color: '#ffd166'
+      intensity: 0.95
+    '57':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '58':
+      color: '#ffd166'
+      intensity: 0.95
+    '59':
+      color: '#ffbf4d'
+      intensity: 0.8
+    '60':
+      color: '#fff0b3'
+      intensity: 1.0

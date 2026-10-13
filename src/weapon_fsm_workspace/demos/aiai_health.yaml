@@ -1,45 +1,3 @@
-clips:
-  death:
-    path: assets/audio/aiai_fallout/aiai_fall.wav
-    preload: true
-  fallout:
-    path: assets/audio/aiai_fallout/fallout.wav
-    preload: true
-  reload:
-    path: assets/audio/reload.wav
-    preload: true
-  aiai_scare1:
-    path: assets/audio/aiai_fallout/aiai_scare1.wav
-    preload: true
-  aiai_scare2:
-    path: assets/audio/aiai_fallout/aiai_scare2.wav
-    preload: true
-  aiai_scare3:
-    path: assets/audio/aiai_fallout/aiai_scare3.wav
-    preload: true
-  aiai_scare4:
-    path: assets/audio/aiai_fallout/aiai_scare4.wav
-    preload: true
-  aiai_scare5:
-    path: assets/audio/aiai_fallout/aiai_scare5.wav
-    preload: true
-  aiai_scare6:
-    path: assets/audio/aiai_fallout/aiai_scare6.wav
-    preload: true
-  aiai_scare7:
-    path: assets/audio/aiai_fallout/aiai_scare7.wav
-    preload: true
-clip_sets:
-  aiai_scare:
-    clips:
-    - aiai_scare1
-    - aiai_scare2
-    - aiai_scare3
-    - aiai_scare4
-    - aiai_scare5
-    - aiai_scare6
-    - aiai_scare7
-    mode: random
 weapon:
   initial_state: alive
   variables:
@@ -52,6 +10,7 @@ weapon:
     label: Hurt
     on_entry:
     - type: play_random_audio
+      interrupt: schedule
       clips:
       - aiai_scare1
       - aiai_scare2
@@ -60,7 +19,9 @@ weapon:
       - aiai_scare5
       - aiai_scare6
       - aiai_scare7
-      interrupt: schedule
+    - type: play_light
+      sequence: hurt_green
+      mode: once
     - type: add_var
       name: health
       value: -1
@@ -72,11 +33,17 @@ weapon:
     on_entry:
     - type: play_audio
       clip: death
+    - type: play_light
+      sequence: death_red
+      mode: loop
   - id: healing
     label: Healing
     on_entry:
     - type: play_audio
-      clip: reload_health
+      clip: reload
+    - type: play_light
+      sequence: heal_green
+      mode: once
     - type: schedule_event
       event: heal_done
       delay_ms: 700
@@ -121,3 +88,41 @@ weapon:
     - type: set_var
       name: health
       value_from_var: max_health
+  clips:
+    death:
+      path: assets/audio/aiai_fallout/aiai_fall.wav
+      preload: true
+    fallout:
+      path: assets/audio/aiai_fallout/fallout.wav
+      preload: true
+    reload:
+      path: assets/audio/reload.wav
+      preload: true
+    aiai_scare1:
+      path: assets/audio/aiai_fallout/aiai_scare1.wav
+      preload: true
+    aiai_scare2:
+      path: assets/audio/aiai_fallout/aiai_scare2.wav
+      preload: true
+    aiai_scare3:
+      path: assets/audio/aiai_fallout/aiai_scare3.wav
+      preload: true
+    aiai_scare4:
+      path: assets/audio/aiai_fallout/aiai_scare4.wav
+      preload: true
+    aiai_scare5:
+      path: assets/audio/aiai_fallout/aiai_scare5.wav
+      preload: true
+    aiai_scare6:
+      path: assets/audio/aiai_fallout/aiai_scare6.wav
+      preload: true
+    aiai_scare7:
+      path: assets/audio/aiai_fallout/aiai_scare7.wav
+      preload: true
+  light_sequences:
+    hurt_green:
+      path: assets/lights/special/hurt_green.yaml
+    death_red:
+      path: assets/lights/special/death_red.yaml
+    heal_green:
+      path: assets/lights/special/heal_green.yaml

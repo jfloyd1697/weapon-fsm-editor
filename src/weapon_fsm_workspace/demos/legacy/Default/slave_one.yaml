@@ -1,0 +1,127 @@
+weapon:
+  initial_state: idle
+  variables: {}
+  clips:
+    audio_0:
+      path: assets/audio/slave1/slave1_shoot0.wav
+    audio_1:
+      path: assets/audio/slave1/slave1_shoot1.wav
+    audio_2:
+      path: assets/audio/slave1/slave1_shoot2.wav
+  light_sequences:
+    light_0:
+      path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
+    muzzle_flash:
+      path: assets/lights/legacy/legacy_3f36a020a1d2.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_f1ecb659d2b0.yaml
+    light_3:
+      path: assets/lights/legacy/legacy_fb47467a16e5.yaml
+  states:
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: play_light
+      sequence: light_0
+      mode: loop
+  - id: auto_firing
+    label: Auto Firing
+    on_entry:
+    - type: play_light
+      sequence: light_2
+      mode: loop
+  - id: auto_wait
+    label: Auto Wait
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_3
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 700
+  transitions:
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: auto_firing
+    actions:
+    - type: play_random_audio
+      clips:
+      - audio_0
+      - audio_1
+      - audio_2
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+    - type: schedule_event
+      event: auto_step
+      delay_ms: 60
+  - id: idle_1_ammo_empty
+    source: idle
+    trigger: ammo_empty
+    target: empty
+  - id: idle_2_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+  - id: auto_firing_0_auto_step
+    source: auto_firing
+    trigger: auto_step
+    target: auto_wait
+  - id: auto_firing_1_trigger_released
+    source: auto_firing
+    trigger: trigger_released
+    target: idle
+  - id: auto_firing_2_ammo_empty
+    source: auto_firing
+    trigger: ammo_empty
+    target: empty
+  - id: auto_firing_3_reload
+    source: auto_firing
+    trigger: reload_pressed
+    target: reloading
+  - id: auto_wait_0_trigger_held
+    source: auto_wait
+    trigger: trigger_held
+    target: auto_firing
+    actions:
+    - type: play_random_audio
+      clips:
+      - audio_0
+      - audio_1
+      - audio_2
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+    - type: schedule_event
+      event: auto_step
+      delay_ms: 60
+  - id: auto_wait_1_trigger_released
+    source: auto_wait
+    trigger: trigger_released
+    target: idle
+  - id: auto_wait_2_ammo_empty
+    source: auto_wait
+    trigger: ammo_empty
+    target: empty
+  - id: auto_wait_3_reload
+    source: auto_wait
+    trigger: reload_pressed
+    target: reloading
+  - id: empty_0_reload_complete
+    source: empty
+    trigger: reload_complete
+    target: idle
+  - id: empty_1_reload
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle

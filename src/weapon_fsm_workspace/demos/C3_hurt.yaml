@@ -1,14 +1,11 @@
 weapon:
   initial_state: alive
-
   variables:
     health: 4
     max_health: 4
-
   clips:
     reload:
       path: assets/audio/PickupHeart.wav
-
     C3_Hurt1:
       path: assets/audio/C3/C3_Hurt1.wav
     C3_Hurt2:
@@ -19,96 +16,114 @@ weapon:
       path: assets/audio/C3/C3_Death1.wav
     C3_Death2:
       path: assets/audio/C3/C3_Death2.wav
-
-  clip_sets:
-    c3_hurt:
-      mode: random
-      clips:
-        - C3_Hurt1
-        - C3_Hurt2
-        - C3_Hurt3
-
-    c3_die:
-      mode: random
-      clips:
-        - C3_Death1
-        - C3_Death2
-
+    change_character:
+      path: assets/audio/lego_util/lego-star-wars-switch-character-sound.wav
   states:
-    - id: alive
-      label: Alive
-
-    - id: hurt
-      label: Hurt
-      on_entry:
-        - type: play_audio_random
-          clip_set: c3_hurt
-          interrupt: schedule
-        - type: add_var
-          name: health
-          value: -1
-        - type: schedule_event
-          event: hurt_done
-          delay_ms: 150
-
-    - id: dead
-      label: Dead
-      on_entry:
-        - type: play_audio_random
-          clip_set: c3_die
-
-    - id: healing
-      label: Healing
-      on_entry:
-        - type: play_audio
-          clip: reload
-        - type: schedule_event
-          event: heal_done
-          delay_ms: 700
-
+  - id: alive
+    label: Alive
+  - id: hurt
+    label: Hurt
+    on_entry:
+    - type: play_random_audio
+      interrupt: schedule
+      clips:
+      - C3_Hurt1
+      - C3_Hurt2
+      - C3_Hurt3
+    - type: play_light
+      sequence: hurt_amber
+      mode: once
+    - type: add_var
+      name: health
+      value: -1
+    - type: schedule_event
+      event: hurt_done
+      delay_ms: 150
+  - id: dead
+    label: Dead
+    on_entry:
+    - type: play_random_audio
+      clips:
+      - C3_Death1
+      - C3_Death2
+    - type: play_light
+      sequence: death_red
+      mode: loop
+  - id: healing
+    label: Healing
+    on_entry:
+    - type: play_audio
+      clip: reload
+    - type: play_light
+      sequence: heal_heart
+      mode: once
+      interrupt: interrupt
+    - type: schedule_event
+      event: heal_done
+      delay_ms: 700
+    on_exit:
+    - type: stop_light
   transitions:
-    - id: take_hit
-      source: alive
-      trigger: trigger_pressed
-      guard:
-        var_gt:
-          name: health
-          value: 0
-      target: hurt
-
-    - id: hurt_done_alive
-      source: hurt
-      trigger: hurt_done
-      guard:
-        var_gt:
-          name: health
-          value: 0
-      target: alive
-
-    - id: hurt_done_dead
-      source: hurt
-      trigger: hurt_done
-      guard:
-        var_eq:
-          name: health
-          value: 0
-      target: dead
-
-    - id: heal_from_alive
-      source: alive
-      trigger: reload_pressed
-      target: healing
-
-    - id: heal_from_dead
-      source: dead
-      trigger: reload_pressed
-      target: healing
-
-    - id: heal_done
-      source: healing
-      trigger: heal_done
-      target: alive
-      actions:
-        - type: set_var
-          name: health
-          value_from_var: max_health
+  - id: on_equip_character_wipe
+    source: alive
+    trigger: on_equip
+    target: alive
+    internal: true
+    actions:
+    - type: play_audio
+      clip: change_character
+      mode: once
+      interrupt: interrupt_all
+    - type: play_light
+      sequence: equip_wipe
+      mode: once
+      interrupt: interrupt
+  - id: take_hit
+    source: alive
+    trigger: trigger_pressed
+    guard:
+      var_gt:
+        name: health
+        value: 0
+    target: hurt
+  - id: hurt_done_alive
+    source: hurt
+    trigger: hurt_done
+    guard:
+      var_gt:
+        name: health
+        value: 0
+    target: alive
+  - id: hurt_done_dead
+    source: hurt
+    trigger: hurt_done
+    guard:
+      var_eq:
+        name: health
+        value: 0
+    target: dead
+  - id: heal_from_alive
+    source: alive
+    trigger: reload_pressed
+    target: healing
+  - id: heal_from_dead
+    source: dead
+    trigger: reload_pressed
+    target: healing
+  - id: heal_done
+    source: healing
+    trigger: heal_done
+    target: alive
+    actions:
+    - type: set_var
+      name: health
+      value_from_var: max_health
+  light_sequences:
+    heal_heart:
+      path: assets/lights/heart_heal_red.yaml
+    hurt_amber:
+      path: assets/lights/special/hurt_amber.yaml
+    death_red:
+      path: assets/lights/special/death_red.yaml
+    equip_wipe:
+      path: assets/lights/equip/C3_hurt_wipe.yaml

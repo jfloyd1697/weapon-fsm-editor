@@ -13,6 +13,7 @@ from weapon_fsm_lights.infrastructure.animation_loader import load_canvas_animat
 from weapon_fsm_lights.infrastructure.authored_project_io import load_authored_project, load_project_layout
 from weapon_fsm_lights.infrastructure.loader import load_light_sequence
 from weapon_fsm_workspace.audio_export import export_audio_wav
+from weapon_fsm_workspace.runtime_validation import normalize_action_payload, normalize_runtime_payload, validate_runtime_payload
 from weapon_fsm_workspace.runtime_binary import encode_runtime
 from weapon_fsm_workspace.compiled_assets import (
     encode_layout, encode_manifest, encode_sequence, decode_manifest,
@@ -30,7 +31,7 @@ def _slug(value: str) -> str:
 
 
 def _action_payload(action: ActionDef) -> dict[str, Any]:
-    return {"type": action.type, **action.arguments}
+    return normalize_action_payload(action.type, action.arguments)
 
 
 def _guard_payload(guard: GuardDef) -> dict[str, Any]:
@@ -59,20 +60,33 @@ class SdCardExporter:
         weapon_name: str | None = None,
     ) -> Path:
         source = Path(profile_path).expanduser().resolve()
+        assets_root = next((parent for parent in (source.parent, *source.parents)
+                            if (parent / "assets").is_dir()), source.parent)
         weapon = self.repository.load_weapon_text(
             source.read_text(encoding="utf-8"),
-            source_path=source.parent,
+            source_path=assets_root,
         )
-        weapon = replace(weapon, source_path=source.parent)
+        weapon = replace(weapon, source_path=assets_root)
         name = weapon_name or source.stem
         bank_slug = _slug(bank_name)
         weapon_slug = _slug(name)
         weapon_dir = self.sd_root / "assets" / "weapons" / bank_slug / weapon_slug
+        # Validate before converting audio or modifying any files on the SD card.
+        # The compiled payload uses the same named references as the source.
+        preflight = normalize_runtime_payload(self._build_runtime_payload(
+            weapon,
+            {name: clip.path for name, clip in weapon.clips.items()},
+            {name: sequence.path for name, sequence in weapon.light_sequences.items()},
+        ))
+        errors = validate_runtime_payload(preflight)
+        if errors:
+            raise ValueError(f"Invalid weapon profile {source.name}:\n  " + "\n  ".join(errors))
+
         weapon_dir.mkdir(parents=True, exist_ok=True)
 
         clip_paths = self._copy_audio_assets(weapon, weapon_dir)
         light_paths = self._compile_light_assets(weapon, weapon_dir)
-        runtime = self._build_runtime_payload(weapon, clip_paths, light_paths)
+        runtime = normalize_runtime_payload(self._build_runtime_payload(weapon, clip_paths, light_paths))
         runtime_path = weapon_dir / "weapon.bin"
         runtime_path.write_bytes(encode_runtime(runtime))
         # Remove source-format output left by earlier exporter revisions.
@@ -195,39 +209,83 @@ class SdCardExporter:
         # A legacy manifest must never be preferred by old embedded firmware.
         manifest_path.with_suffix(".json").unlink(missing_ok=True)
 
+    def replace_bank(self, bank_name: str, weapon_paths: list[Path]) -> None:
+        """Make a complete bank export authoritative, dropping stale manifest entries."""
+        manifest_path = self.sd_root / MANIFEST_RELATIVE_PATH
+        banks = decode_manifest(manifest_path.read_bytes()) if manifest_path.exists() else {}
+        banks[bank_name] = [
+            path.relative_to(self.sd_root / "assets" / "weapons").as_posix()
+            for path in weapon_paths
+        ]
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        manifest_path.write_bytes(encode_manifest(banks))
+        manifest_path.with_suffix(".json").unlink(missing_ok=True)
+
+
+def _default_profiles(demos: Path) -> list[Path]:
+    """Standalone weapon examples, excluding editor-only gun configuration documents."""
+    import yaml
+
+    return [
+        path for path in sorted(demos.glob("*.yaml"))
+        if "weapon" in (yaml.safe_load(path.read_text(encoding="utf-8")) or {})
+    ]
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export weapon FSM profiles and assets to an SD card")
-    parser.add_argument("profiles", nargs="*", type=Path, help="Weapon profile YAML files (default: demos)")
+    parser.add_argument("profiles", nargs="*", type=Path, help="Weapon YAML files (default: demo banks)")
     parser.add_argument("--sd-root", required=True, type=Path, help="Mounted SD card or staging directory")
-    parser.add_argument("--bank", default="Default", help="Manifest bank name")
+    parser.add_argument("--bank", default="Default", help="Bank for explicit profiles")
+    parser.add_argument("--all-banks", action="store_true", help="Export all migrated and curated profiles in their banks")
     args = parser.parse_args(argv)
 
-    profiles = args.profiles or sorted((Path(__file__).parent / "demos").glob("*.yaml"))
+    if args.all_banks:
+        if args.profiles:
+            parser.error("--all-banks cannot be combined with positional profiles")
+        # Use the same validated, deduplicating compiler as the reproducible
+        # standalone build. Do not maintain a second incompatible export path.
+        from weapon_fsm_workspace.merged_sd import compile_bank_library
 
-    success = []
-    failed = []
+        banks = compile_bank_library(args.sd_root)
+        for name, weapons in banks.items():
+            print(f"{name}: {len(weapons)} compiled weapons")
+        print(f"Total: {sum(map(len, banks.values()))} compiled weapons")
+        return 0
+
+    demos = Path(__file__).parent / "demos"
+    if args.profiles:
+        batches = [(args.bank, args.profiles, False)]
+    elif args.bank.lower() == "farts":
+        batches = [("Farts", sorted((demos / "farts").glob("*.yaml")), True)]
+    else:
+        batches = [(args.bank, _default_profiles(demos), True)]
+        if args.bank == "Default":
+            # A complete Default export creates both usable demo banks.
+            batches.append(("Farts", sorted((demos / "farts").glob("*.yaml")), True))
+
     exporter = SdCardExporter(args.sd_root)
-    for profile in profiles:
-        print(profile)
-        try:
-            path = exporter.export_weapon(profile, bank_name=args.bank)
-            success.append((profile.name, path))
+    failed: list[tuple[str, Path, Exception]] = []
+    for bank, profiles, complete_bank in batches:
+        success: list[Path] = []
+        print(f"Exporting bank {bank} ({len(profiles)} profiles)")
+        for profile in profiles:
+            try:
+                output = exporter.export_weapon(profile, bank_name=bank)
+                success.append(output)
+                print(f"  OK: {profile.name} -> {output}")
+            except Exception as exc:
+                failed.append((bank, profile, exc))
+                print(f"  FAILED: {profile.name}: {exc}")
 
-        except Exception as e:
-            failed.append((profile.name, e))
-
-
-    if success:
-        print("Success")
-        for profile in success:
-            print(" - ", *profile)
+        if complete_bank and success:
+            # Drop previously exported entries for profiles that no longer validate.
+            exporter.replace_bank(bank, success)
 
     if failed:
-        print("Failed")
-        for profile in failed:
-            print(" - ", *profile)
-
+        print("Export errors:")
+        for bank, profile, exc in failed:
+            print(f"  {bank}/{profile.name}: {exc}")
     return 1 if failed else 0
 
 

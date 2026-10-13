@@ -14,50 +14,54 @@ weapon:
   light_sequences:
     idle_glow:
       path: assets/lights/idle_glow.yaml
+    saw_active:
+      path: assets/lights/saw_active.yaml
 
   states:
-    - id: idle
-      label: Idle
-      on_entry:
-        - type: play_audio
-          clip: idle_loop
-          mode: loop
-          interrupt: schedule
-        - type: start_light_sequence
-          sequence: idle_glow
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: stop_audio
+    - type: play_audio
+      clip: idle_loop
+      mode: loop
+      channel: engine
+      interrupt: restart
+    - type: start_light_sequence
+      sequence: idle_glow
 
-    - id: rev_up
-      label: Rev
-      on_entry:
-        - type: stop_audio
-        - type: stop_light_sequence
-
-    - id: active
-      label: Active
-      on_entry:
-        - type: stop_audio
-        - type: play_audio
-          clip: rev_loop
-          mode: loop
-          interrupt: ignore
+  - id: active
+    label: Active
+    on_entry:
+    - type: stop_audio
+      channel: engine
+    - type: stop_light_sequence
+    - type: play_audio
+      clip: rev_start
+      channel: oneshot
+      interrupt: restart
+    - type: play_audio
+      clip: rev_loop
+      mode: loop
+      channel: engine
+      interrupt: restart
+    - type: start_light_sequence
+      sequence: saw_active
 
   transitions:
-    - id: start_saw
-      source: idle
-      trigger: on_equip
-      target: idle
+  - id: start_saw
+    source: idle
+    trigger: trigger_pressed
+    target: active
 
-    - id: rev
-      source: idle
-      trigger: trigger_pressed
-      target: active
-
-    - id: release
-      source: active
-      trigger: trigger_released
-      target: idle
-      actions:
-        - type: stop_audio
-        - type: play_audio
-          clip: rev_stop
-          interrupt: schedule
+  - id: stop_saw
+    source: active
+    trigger: trigger_released
+    target: idle
+    actions:
+    - type: stop_audio
+      channel: engine
+    - type: play_audio
+      clip: rev_stop
+      channel: oneshot
+      interrupt: restart

@@ -1,0 +1,96 @@
+weapon:
+  initial_state: idle
+  variables:
+    mag_capacity: 2
+    ammo: 2
+  clips:
+    audio_0:
+      path: assets/audio/shotgun/12_sound_shotgunFire.wav
+    audio_1:
+      path: assets/audio/shotgun/13_sound_shotgunPump.wav
+  light_sequences:
+    light_0:
+      path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
+    muzzle_flash:
+      path: assets/lights/legacy/legacy_3f36a020a1d2.yaml
+    light_2:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+    light_3:
+      path: assets/lights/legacy/legacy_fb47467a16e5.yaml
+    light_4:
+      path: assets/lights/legacy/legacy_a328b0717f38.yaml
+  states:
+  - id: idle
+    label: Idle
+    on_entry:
+    - type: play_light
+      sequence: light_0
+      mode: loop
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_3
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 700
+  transitions:
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: idle
+    actions:
+    - type: play_audio
+      clip: audio_0
+    - type: play_light
+      sequence: muzzle_flash
+      mode: once
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+    internal: true
+  - id: idle_1_ammo_empty
+    source: idle
+    trigger: ammo_empty
+    target: empty
+    guard:
+      var_lte:
+        name: ammo
+        value: 0
+  - id: idle_2_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_2
+      mode: loop
+  - id: empty_0_reload_complete
+    source: empty
+    trigger: reload_complete
+    target: idle
+  - id: empty_1_reload
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_1
+      mode: once
+    - type: play_light
+      sequence: light_4
+      mode: loop
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle
+    actions:
+    - type: set_ammo_full

@@ -1,5 +1,5 @@
 layout:
-  path: layouts/cpx_ring_61.json
+  path: layouts/cpx_ring_61_outside_in.json
 animations:
   prime_charge_warm_build:
     name: prime_charge_warm_build

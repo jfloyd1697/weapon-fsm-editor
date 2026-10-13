@@ -1,0 +1,244 @@
+weapon:
+  initial_state: equip
+  variables:
+    mag_capacity: 4
+    ammo: 4
+  clips:
+    audio_0:
+      path: assets/audio/lego_util/lego-star-wars-switch-character-sound.wav
+    audio_1:
+      path: assets/audio/jarjar_hurt/jarjar_hurt0.wav
+    audio_2:
+      path: assets/audio/jarjar_hurt/jarjar_hurt1.wav
+    audio_3:
+      path: assets/audio/jarjar_hurt/jarjar_hurt2.wav
+    audio_4:
+      path: assets/audio/lego_util/lego-star-wars-heart-sound.wav
+    audio_5:
+      path: assets/audio/jarjar_hurt/jarjar_die.wav
+  light_sequences:
+    light_2:
+      path: assets/lights/legacy/legacy_0c7cbd98f20a.yaml
+    light_3:
+      path: assets/lights/legacy/legacy_68a5affafdfa.yaml
+    light_4:
+      path: assets/lights/legacy/legacy_e5762b18aedc.yaml
+    light_5:
+      path: assets/lights/legacy/legacy_0c7cbd98f20a.yaml
+    light_6:
+      path: assets/lights/legacy/legacy_68a5affafdfa.yaml
+    light_7:
+      path: assets/lights/legacy/legacy_24c749e65dfe.yaml
+    light_8:
+      path: assets/lights/legacy/legacy_0c7cbd98f20a.yaml
+    light_9:
+      path: assets/lights/legacy/legacy_68a5affafdfa.yaml
+    light_10:
+      path: assets/lights/legacy/legacy_54637b47f061.yaml
+    light_11:
+      path: assets/lights/legacy/legacy_f96d9b9a9730.yaml
+    light_12:
+      path: assets/lights/legacy/legacy_68a5affafdfa.yaml
+    light_13:
+      path: assets/lights/legacy/legacy_ecfdbed32ecd.yaml
+    light_14:
+      path: assets/lights/legacy/legacy_f96d9b9a9730.yaml
+    light_15:
+      path: assets/lights/legacy/legacy_68a5affafdfa.yaml
+    equip_wipe:
+      path: assets/lights/equip/jarjar_hurt_wipe.yaml
+  states:
+  - id: equip
+    label: Equip
+    on_entry:
+    - type: play_audio
+      clip: audio_0
+      mode: once
+      interrupt: interrupt_all
+    - type: play_light
+      sequence: equip_wipe
+      mode: once
+      interrupt: interrupt
+    - type: schedule_event
+      event: idle
+      delay_ms: 500
+  - id: idle
+    label: Idle
+  - id: shot_4
+    label: Shot 4
+    on_entry:
+    - type: play_light
+      sequence: light_4
+      mode: loop
+  - id: shot_3
+    label: Shot 3
+    on_entry:
+    - type: play_light
+      sequence: light_7
+      mode: loop
+  - id: shot_2
+    label: Shot 2
+    on_entry:
+    - type: play_light
+      sequence: light_10
+      mode: loop
+  - id: empty
+    label: Empty
+    on_entry:
+    - type: play_light
+      sequence: light_13
+      mode: loop
+  - id: reloading
+    label: Reloading
+    on_entry:
+    - type: schedule_event
+      event: reload_complete
+      delay_ms: 700
+  transitions:
+  - id: equip_0_idle
+    source: equip
+    trigger: idle
+    target: idle
+  - id: idle_0_trigger_pressed
+    source: idle
+    trigger: trigger_pressed
+    target: shot_4
+    actions:
+    - type: play_random_audio
+      clips:
+      - audio_1
+      - audio_2
+      - audio_3
+    - type: play_light
+      sequence: light_2
+      mode: once
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+  - id: idle_1_reload
+    source: idle
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_4
+      mode: once
+    - type: play_light
+      sequence: light_3
+      mode: loop
+  - id: shot_4_0_trigger_pressed
+    source: shot_4
+    trigger: trigger_pressed
+    target: shot_3
+    actions:
+    - type: play_random_audio
+      clips:
+      - audio_1
+      - audio_2
+      - audio_3
+    - type: play_light
+      sequence: light_5
+      mode: once
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+  - id: shot_4_1_reload
+    source: shot_4
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_4
+      mode: once
+    - type: play_light
+      sequence: light_6
+      mode: loop
+  - id: shot_3_0_trigger_pressed
+    source: shot_3
+    trigger: trigger_pressed
+    target: shot_2
+    actions:
+    - type: play_random_audio
+      clips:
+      - audio_1
+      - audio_2
+      - audio_3
+    - type: play_light
+      sequence: light_8
+      mode: once
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+  - id: shot_3_1_reload
+    source: shot_3
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_4
+      mode: once
+    - type: play_light
+      sequence: light_9
+      mode: loop
+  - id: shot_2_0_trigger_pressed
+    source: shot_2
+    trigger: trigger_pressed
+    target: empty
+    actions:
+    - type: play_audio
+      clip: audio_5
+      mode: once
+    - type: play_light
+      sequence: light_11
+      mode: loop
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+  - id: shot_2_1_reload
+    source: shot_2
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_4
+      mode: once
+    - type: play_light
+      sequence: light_12
+      mode: loop
+  - id: empty_0_trigger_pressed
+    source: empty
+    trigger: trigger_pressed
+    target: empty
+    actions:
+    - type: play_audio
+      clip: audio_5
+      mode: once
+    - type: play_light
+      sequence: light_14
+      mode: loop
+    - type: adjust_ammo
+      delta: -1
+    - type: emit_event
+      event: ammo_empty
+    internal: true
+  - id: empty_1_reload
+    source: empty
+    trigger: reload_pressed
+    target: reloading
+    actions:
+    - type: play_audio
+      clip: audio_4
+      mode: once
+    - type: play_light
+      sequence: light_15
+      mode: loop
+  - id: reloading_0_reload_complete
+    source: reloading
+    trigger: reload_complete
+    target: idle
+    actions:
+    - type: set_ammo_full

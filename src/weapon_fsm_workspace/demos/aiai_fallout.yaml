@@ -1,20 +1,15 @@
 weapon:
   initial_state: ready
-
   variables:
     charge_ticks: 0
     charge_threshold: 80
-
   clips:
     aiai_fall:
       path: assets/audio/aiai_fallout/aiai_fall.wav
-
     fallout:
       path: assets/audio/aiai_fallout/fallout.wav
-
     reload:
       path: assets/audio/reload.wav
-
     aiai_scare1:
       path: assets/audio/aiai_fallout/aiai_scare1.wav
     aiai_scare2:
@@ -29,140 +24,128 @@ weapon:
       path: assets/audio/aiai_fallout/aiai_scare6.wav
     aiai_scare7:
       path: assets/audio/aiai_fallout/aiai_scare7.wav
-
-  clip_sets:
-    aiai_scare:
-      mode: random
-      clips:
-        - aiai_scare1
-        - aiai_scare2
-        - aiai_scare3
-        - aiai_scare4
-        - aiai_scare5
-        - aiai_scare6
-        - aiai_scare7
-
+    aiai_big_shot:
+      path: assets/audio/aiai_fallout/big_shot.wav
   states:
-    - id: ready
-      label: Ready
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-#        - type: start_light_sequence
-#          sequence: charge_glow
-
-    - id: charging
-      label: Charging
-      on_entry:
-#        - type: start_light_sequence
-#          sequence: charge_glow
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 100
-
-    - id: normal_shot
-      label: Normal Shot
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-#        - type: stop_light_sequence
-        - type: play_random_audio
-          clips: [aiai_scare1, aiai_scare2, aiai_scare3, aiai_scare4, aiai_scare5, aiai_scare6, aiai_scare7]
-#        - type: start_light_sequence
-#          sequence: muzzle_flash
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 80
-
-    - id: big_shot
-      label: Big Shot
-      on_entry:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: stop_audio
-#        - type: stop_light_sequence
-        - type: play_audio
-          clip: aiai_fall
-          channel: voice
-          interrupt: restart
-#        - type: start_light_sequence
-#          sequence: big_flash
-        - type: play_audio
-          clip: fallout
-          channel: impact
-          interrupt: schedule
-        - type: set_var
-          name: charge_ticks
-          value: 0
-        - type: schedule_event
-          event: shot_done
-          delay_ms: 300
-
+  - id: ready
+    label: Ready
+    on_entry:
+    - type: cancel_scheduled_events
+      event: charge_tick
+  - id: charging
+    label: Charging
+    on_entry:
+    - type: play_light
+      sequence: charge_cyan
+      mode: loop
+    - type: schedule_event
+      event: charge_tick
+      delay_ms: 100
+  - id: normal_shot
+    label: Normal Shot
+    on_entry:
+    - type: cancel_scheduled_events
+      event: charge_tick
+    - type: stop_audio
+    - type: play_random_audio
+      interrupt: restart
+      clips:
+      - aiai_scare1
+      - aiai_scare2
+      - aiai_scare3
+      - aiai_scare4
+      - aiai_scare5
+      - aiai_scare6
+      - aiai_scare7
+    - type: play_light
+      sequence: shot_blue
+      mode: once
+    - type: set_var
+      name: charge_ticks
+      value: 0
+    - type: schedule_event
+      event: shot_done
+      delay_ms: 80
+  - id: big_shot
+    label: Big Shot
+    on_entry:
+    - type: cancel_scheduled_events
+      event: charge_tick
+    - type: stop_audio
+    - type: play_audio
+      clip: aiai_big_shot
+      mode: once
+    - type: play_light
+      sequence: big_shot_purple
+      mode: once
+    - type: set_var
+      name: charge_ticks
+      value: 0
+    - type: schedule_event
+      event: shot_done
+      delay_ms: 300
   transitions:
-    - id: start_charge
-      source: ready
-      trigger: trigger_pressed
-      target: charging
-      actions:
-        - type: set_var
-          name: charge_ticks
-          value: 0
-
-    - id: charge_done_auto_big_shot
-      source: charging
-      trigger: charge_tick
-      guard:
-        all:
-          - trigger_pressed: true
-          - var_gte:
-              name: charge_ticks
-              value_from_var: charge_threshold
-      target: big_shot
-
-    - id: charge_tick_continue
-      source: charging
-      trigger: charge_tick
-      guard:
-        all:
-          - trigger_pressed: true
-          - var_lt:
-              name: charge_ticks
-              value_from_var: charge_threshold
-      target: charging
-      actions:
-        - type: add_var
-          name: charge_ticks
-          value: 1
-        - type: schedule_event
-          event: charge_tick
-          delay_ms: 100
-
-    - id: release_early
-      source: charging
-      trigger: trigger_released
-      guard:
-        var_lt:
+  - id: start_charge
+    source: ready
+    trigger: trigger_pressed
+    target: charging
+    actions:
+    - type: set_var
+      name: charge_ticks
+      value: 0
+  - id: charge_done_auto_big_shot
+    source: charging
+    trigger: charge_tick
+    guard:
+      all:
+      - trigger_pressed: true
+      - var_gte:
           name: charge_ticks
           value_from_var: charge_threshold
-      target: normal_shot
-      actions:
-        - type: cancel_scheduled_events
-          event: charge_tick
-        - type: set_var
+    target: big_shot
+  - id: charge_tick_continue
+    source: charging
+    trigger: charge_tick
+    guard:
+      all:
+      - trigger_pressed: true
+      - var_lt:
           name: charge_ticks
-          value: 0
-
-    - id: shot_done_normal_ready
-      source: normal_shot
-      trigger: shot_done
-      target: ready
-
-
-    - id: shot_done_big_ready
-      source: big_shot
-      trigger: shot_done
-      target: ready
+          value_from_var: charge_threshold
+    target: charging
+    actions:
+    - type: add_var
+      name: charge_ticks
+      value: 1
+    - type: schedule_event
+      event: charge_tick
+      delay_ms: 100
+  - id: release_early
+    source: charging
+    trigger: trigger_released
+    guard:
+      var_lt:
+        name: charge_ticks
+        value_from_var: charge_threshold
+    target: normal_shot
+    actions:
+    - type: cancel_scheduled_events
+      event: charge_tick
+    - type: set_var
+      name: charge_ticks
+      value: 0
+  - id: shot_done_normal_ready
+    source: normal_shot
+    trigger: shot_done
+    target: ready
+  - id: shot_done_big_ready
+    source: big_shot
+    trigger: shot_done
+    target: ready
+  light_sequences:
+    shot_blue:
+      path: assets/lights/special/shot_blue.yaml
+    big_shot_purple:
+      path: assets/lights/special/big_shot_purple.yaml
+    charge_cyan:
+      path: assets/lights/special/charge_cyan.yaml
