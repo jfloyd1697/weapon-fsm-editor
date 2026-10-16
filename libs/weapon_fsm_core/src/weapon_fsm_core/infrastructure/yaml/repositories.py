@@ -11,9 +11,9 @@ class ProfileRepository:
     def asset_root_for_profile(path: str | Path) -> Path:
         """Locate the directory against which assets/... paths are resolved."""
         profile = Path(path).expanduser().resolve()
-        for parent in profile.parents:
-            if (parent / "assets").is_dir():
-                return parent
+        for directory in profile.parents:
+            if directory.name == "assets" and (directory / "profiles").is_dir():
+                return directory.parent
         return profile.parent
 
     def load_weapon(self, path: str | Path) -> WeaponConfig:

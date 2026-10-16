@@ -378,12 +378,19 @@ class HardwareBridgeDialog(QDialog):
         payload = getattr(command, "payload", {})
         path = str(payload.get("path", ""))
         if kind == "play_audio" and path:
-            import re
             clip_id = str(payload.get("clip", ""))
-            if self._current_weapon and clip_id:
-                source, _ = self._current_weapon()
-                slug = lambda value: re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip("-.")
-                path = f"assets/weapons/{slug(self.bank.text().strip())}/{slug(source.stem)}/audio/{slug(clip_id)}.wav"
+            if self._current_weapon is None or not clip_id:
+                self._logs.put("[error] direct MCU audio requires a deployed weapon and a clip ID")
+                return True
+            from weapon_fsm_workspace.sd_export import SdCardExporter
+
+            source, _ = self._current_weapon()
+            bank = self.bank.text().strip()
+            try:
+                path = SdCardExporter.compiled_audio_path(bank, source.stem, clip_id).as_posix()
+            except ValueError as exc:
+                self._logs.put(f"[error] {exc}")
+                return True
             self._run(kind, lambda: self.client.play_audio(path, payload.get("mode") == "loop"))
         elif kind == "stop_audio":
             self._run(kind, self.client.stop_audio)

@@ -16,8 +16,12 @@ class WeaponRuntime:
     last_transition_id: str | None = field(default=None, init=False)
     pending_events: list[ScheduledEvent] = field(default_factory=list, init=False)
     clip_set_state: dict[str, dict[str, int | str | tuple[int, ...]]] = field(default_factory=dict, init=False)
+    _transitions_by_event: dict[tuple[str, str], list[TransitionDef]] = field(default_factory=dict, init=False)
 
     def __post_init__(self) -> None:
+        # Preserve authored priority when several guarded transitions share a trigger.
+        for transition in self.weapon.transitions:
+            self._transitions_by_event.setdefault((transition.source, transition.trigger), []).append(transition)
         self.reset()
 
     def reset(self) -> None:
@@ -29,13 +33,12 @@ class WeaponRuntime:
         self.pending_events = []
         self.clip_set_state = {}
         self._run_actions(self.weapon.states[self.current_state].on_entry)
-        self.clip_set_state = {}
 
     def valid_transitions(self) -> list[TransitionDef]:
         return [
             transition
-            for transition in self.weapon.transitions_from(self.current_state)
-            if self._guard_allows(transition.guard)
+            for transition in self.weapon.transitions
+            if transition.source == self.current_state and self._guard_allows(transition.guard)
         ]
 
     def handle_event(self, event_id: str) -> TransitionResult:
@@ -49,9 +52,7 @@ class WeaponRuntime:
         try:
             self._apply_input_event(event_id)
 
-            for transition in self.weapon.transitions_from(self.current_state):
-                if transition.trigger != event_id:
-                    continue
+            for transition in self._transitions_by_event.get((self.current_state, event_id), ()):
                 if not self._guard_allows(transition.guard):
                     continue
 
@@ -92,22 +93,27 @@ class WeaponRuntime:
             reason=f"No transition for event '{event_id}' from state '{state_at_start}'",
         )
 
-    def consume_due_events(self, elapsed_ms: int) -> list[str]:
-        ready: list[str] = []
-        remaining: list[ScheduledEvent] = []
+    def time_until_next_event_ms(self) -> int | None:
+        """Milliseconds until the earliest scheduled event, or None if idle."""
+        return min((event.delay_ms for event in self.pending_events), default=None)
 
-        for pending in self.pending_events:
-            updated = ScheduledEvent(
-                event_id=pending.event_id,
-                delay_ms=pending.delay_ms - elapsed_ms,
-            )
-            if updated.delay_ms <= 0:
-                ready.append(updated.event_id)
-            else:
-                remaining.append(updated)
+    def elapse_pending_events(self, elapsed_ms: int) -> None:
+        if elapsed_ms < 0:
+            raise ValueError("Elapsed time cannot be negative")
+        if elapsed_ms == 0 or not self.pending_events:
+            return
+        self.pending_events[:] = [
+            ScheduledEvent(event.event_id, event.delay_ms - elapsed_ms)
+            for event in self.pending_events
+        ]
 
-        self.pending_events = remaining
-        return ready
+    def pop_next_due_event(self) -> str | None:
+        """Remove only one due event so its actions can cancel other pending events."""
+        for index, event in enumerate(self.pending_events):
+            if event.delay_ms <= 0:
+                self.pending_events.pop(index)
+                return event.event_id
+        return None
 
     def _apply_input_event(self, event_id: str) -> None:
         if event_id in ["trigger_pressed", "trigger_held", "trigger_released"]:
@@ -141,7 +147,6 @@ class WeaponRuntime:
             scheduled_events.extend(transition_scheduled)
             commands.extend(transition_commands)
             self.last_transition_id = transition.id
-            self.pending_events.extend(scheduled_events)
             return self._result(
                 event_id=event_id,
                 previous_state=previous_state,
@@ -171,8 +176,6 @@ class WeaponRuntime:
         emitted_events.extend(entry_emits)
         scheduled_events.extend(entry_scheduled)
         commands.extend(entry_commands)
-
-        self.pending_events.extend(scheduled_events)
 
         return self._result(
             event_id=event_id,
@@ -221,12 +224,14 @@ class WeaponRuntime:
             weapon=self.weapon,
             variables=self.variables,
             clip_set_state=self.clip_set_state,
+            pending_events=self.pending_events,
         )
 
         for action in actions:
             command = RuntimeCommand.from_action(action)
             command.execute(env)
 
+        self.pending_events.extend(env.scheduled_events)
         return (
             env.emitted_events,
             env.scheduled_events,

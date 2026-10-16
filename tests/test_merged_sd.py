@@ -21,7 +21,7 @@ def test_all_original_weapons_and_added_banks_are_present() -> None:
     banks = profiles_by_bank()
     assert {name: len(profiles) for name, profiles in banks.items()} == {
         "Blaster": 28, "Characters": 11, "Default": 7,
-        "Farts": 8, "SciFi": 3, "Tools": 1,
+        "Farts": 8, "Memes": 2, "SciFi": 3, "Tools": 1,
     }
     for profiles in banks.values():
         for profile in profiles:

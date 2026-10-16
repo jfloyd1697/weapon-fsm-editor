@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import re
-from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -48,6 +47,19 @@ def _guard_payload(guard: GuardDef) -> dict[str, Any]:
 
 
 class SdCardExporter:
+    @staticmethod
+    def weapon_directory(bank_name: str, weapon_name: str) -> Path:
+        """Paths encoded into weapon.bin are relative to the MCU's SD root."""
+        return Path("assets/weapons") / _slug(bank_name) / _slug(weapon_name)
+
+    @classmethod
+    def compiled_audio_path(cls, bank_name: str, weapon_name: str, clip_name: str) -> Path:
+        return cls.weapon_directory(bank_name, weapon_name) / "audio" / f"{_slug(clip_name)}.wav"
+
+    @classmethod
+    def compiled_light_path(cls, bank_name: str, weapon_name: str, sequence_name: str) -> Path:
+        return cls.weapon_directory(bank_name, weapon_name) / "lights" / f"{_slug(sequence_name)}.bin"
+
     def __init__(self, sd_root: str | Path) -> None:
         self.sd_root = Path(sd_root).expanduser().resolve()
         self.repository = ProfileRepository()
@@ -65,11 +77,8 @@ class SdCardExporter:
             source.read_text(encoding="utf-8"),
             source_path=assets_root,
         )
-        weapon = replace(weapon, source_path=assets_root)
         name = weapon_name or source.stem
-        bank_slug = _slug(bank_name)
-        weapon_slug = _slug(name)
-        weapon_dir = self.sd_root / "assets" / "weapons" / bank_slug / weapon_slug
+        weapon_dir = self.sd_root / self.weapon_directory(bank_name, name)
         # Validate before converting audio or modifying any files on the SD card.
         # The compiled payload uses the same named references as the source.
         preflight = normalize_runtime_payload(self._build_runtime_payload(
@@ -83,8 +92,8 @@ class SdCardExporter:
 
         weapon_dir.mkdir(parents=True, exist_ok=True)
 
-        clip_paths = self._copy_audio_assets(weapon, weapon_dir)
-        light_paths = self._compile_light_assets(weapon, weapon_dir)
+        clip_paths = self._copy_audio_assets(weapon, bank_name, name)
+        light_paths = self._compile_light_assets(weapon, bank_name, name)
         runtime = normalize_runtime_payload(self._build_runtime_payload(weapon, clip_paths, light_paths))
         runtime_path = weapon_dir / "weapon.bin"
         runtime_path.write_bytes(encode_runtime(runtime))
@@ -97,33 +106,32 @@ class SdCardExporter:
         self._upsert_manifest(bank_name=bank_name, weapon_path=manifest_relative)
         return runtime_path
 
-    def _copy_audio_assets(self, weapon: WeaponConfig, weapon_dir: Path) -> dict[str, str]:
-        destination_dir = weapon_dir / "audio"
-        destination_dir.mkdir(parents=True, exist_ok=True)
+    def _copy_audio_assets(self, weapon: WeaponConfig, bank_name: str, weapon_name: str) -> dict[str, str]:
         result: dict[str, str] = {}
         for clip_name, clip in weapon.clips.items():
             source = weapon.resolve_asset_path(clip.path).resolve()
             if not source.is_file():
                 raise FileNotFoundError(f"Audio clip '{clip_name}' does not exist: {source}")
-            destination = destination_dir / f"{_slug(clip_name)}.wav"
+            relative_path = self.compiled_audio_path(bank_name, weapon_name, clip_name)
+            destination = self.sd_root / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
             export_audio_wav(source, destination)
-            result[clip_name] = destination.relative_to(self.sd_root).as_posix()
+            result[clip_name] = relative_path.as_posix()
         return result
 
-    def _compile_light_assets(self, weapon: WeaponConfig, weapon_dir: Path) -> dict[str, str]:
-        destination_dir = weapon_dir / "lights"
-        destination_dir.mkdir(parents=True, exist_ok=True)
+    def _compile_light_assets(self, weapon: WeaponConfig, bank_name: str, weapon_name: str) -> dict[str, str]:
         result: dict[str, str] = {}
         for sequence_name, sequence in weapon.light_sequences.items():
             source = weapon.resolve_asset_path(sequence.path).resolve()
             if not source.is_file():
                 raise FileNotFoundError(f"Light sequence '{sequence_name}' does not exist: {source}")
             asset = self._load_sequence_asset(source, sequence_name)
-            destination = destination_dir / f"{_slug(sequence_name)}.bin"
+            relative_path = self.compiled_light_path(bank_name, weapon_name, sequence_name)
+            destination = self.sd_root / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(encode_sequence(asset))
-            layout_destination = destination_dir / f"{_slug(sequence_name)}.layout.bin"
-            layout_destination.write_bytes(encode_layout(asset))
-            result[sequence_name] = destination.relative_to(self.sd_root).as_posix()
+            destination.with_suffix(".layout.bin").write_bytes(encode_layout(asset))
+            result[sequence_name] = relative_path.as_posix()
         return result
 
     @staticmethod

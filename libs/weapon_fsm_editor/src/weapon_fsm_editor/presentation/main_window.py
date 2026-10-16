@@ -1,4 +1,5 @@
 import traceback
+import time
 from pathlib import Path
 
 from PyQt6.QtCore import Qt, QTimer
@@ -39,6 +40,9 @@ from .panels.summary_panel import SummaryPanel
 from .weapon_document_editor.editor import WeaponDocumentEditor
 
 
+MAX_RUNTIME_LOG_BLOCKS = 4000
+
+
 def _format_runtime_variables(variables: dict[str, object]) -> str:
     parts = [f"{key}={value}" for key, value in sorted(variables.items())]
     return ", ".join(parts)
@@ -63,6 +67,7 @@ class MainWindow(QMainWindow):
         self._weapon: WeaponConfig | None = None
         self.log_output = QTextEdit()
         self.log_output.setReadOnly(True)
+        self.log_output.document().setMaximumBlockCount(MAX_RUNTIME_LOG_BLOCKS)
 
         self._audio_backend = PortAudioBackend(log=self._append_runtime_log)
         self.led_preview_panel = LedPreviewPanel(self)
@@ -82,10 +87,11 @@ class MainWindow(QMainWindow):
         self.gun_control_panel = GunControlPanel(self)
 
         self._clock_timer = QTimer(self)
-        self._tick_interval_ms = 1
-        self._clock_timer.setInterval(self._tick_interval_ms)
+        self._clock_timer.setSingleShot(True)
+        self._clock_timer.setTimerType(Qt.TimerType.PreciseTimer)
         self._clock_timer.timeout.connect(self._advance_time)
-        self._clock_timer.start()
+        self._clock_last_ns = time.monotonic_ns()
+        self._last_view_state: tuple[str, str | None, frozenset[str]] | None = None
 
         from weapon_fsm_workspace.paths import ASSETS_ROOT
         example_layout = ASSETS_ROOT / "lights/layouts/cpx_ring_61_outside_in.json"
@@ -331,6 +337,9 @@ class MainWindow(QMainWindow):
             self._gun = gun
             self._weapon = weapon
             self._simulation = SimulationService(gun, weapon)
+            self._clock_last_ns = time.monotonic_ns()
+            self._last_view_state = None
+            self._schedule_next_tick()
             self.weapon_editor.set_source_path(self._repository.asset_root_for_profile(self._weapon_path))
             self.weapon_editor.set_gun_config(self._gun)
             self.audio_library.set_weapon(self._weapon)
@@ -357,6 +366,8 @@ class MainWindow(QMainWindow):
 
         self._command_bridge.reset()
         self._simulation.reset()
+        self._clock_last_ns = time.monotonic_ns()
+        self._schedule_next_tick()
         self.gun_control_panel.reset_trigger()
         self.log_output.append("[system] weapon equipped")
         self._dispatch_event("on_equip")
@@ -408,41 +419,48 @@ class MainWindow(QMainWindow):
         if self._simulation is None:
             return
 
+        self._advance_time()
         records = self._simulation.dispatch_external_event(event_id)
         self._handle_records(records, source_prefix=None)
+        self._schedule_next_tick()
 
     def _handle_records(self, records, source_prefix: str | None) -> None:
         if not records:
             return
 
+        lines: list[str] = []
         for record in records:
             result = record.result
+            if not result.accepted and result.event_id == "trigger_held" and (
+                result.reason or ""
+            ).startswith("No transition for event"):
+                continue
 
             if result.accepted:
                 transition_id = result.transition.id if result.transition else "?"
                 prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
                 if source_prefix is not None:
-                    self.log_output.append(
+                    lines.append(
                         f"{prefix}{result.event_id}: {result.previous_state} -> {result.current_state} via {transition_id}"
                     )
                 else:
-                    self.log_output.append(
+                    lines.append(
                         f"{prefix}event={result.event_id} "
                         f"{result.previous_state} -> {result.current_state} via {transition_id}"
                     )
 
-                self.log_output.append(
+                lines.append(
                     f"[vars] before: {_format_runtime_variables(result.variables_before)}"
                 )
-                self.log_output.append(
+                lines.append(
                     f"[vars] after:  {_format_runtime_variables(result.variables_after)}"
                 )
 
                 for emitted_event in result.emitted_events:
-                    self.log_output.append(f"[emit] {emitted_event}")
+                    lines.append(f"[emit] {emitted_event}")
 
                 for scheduled in result.scheduled_events:
-                    self.log_output.append(
+                    lines.append(
                         f"[scheduler] scheduled {scheduled.event_id} in {scheduled.delay_ms} ms"
                     )
 
@@ -463,32 +481,50 @@ class MainWindow(QMainWindow):
                 else:
                     self._command_bridge.dispatch_commands(result.commands)
                 for command in result.commands:
-                    self.log_output.append(f"[command] {command.type}: {command.payload}")
+                    lines.append(f"[command] {command.type}: {command.payload}")
             else:
                 prefix = f"[{source_prefix}] " if source_prefix is not None else f"[{record.machine_id}] "
                 if source_prefix is not None:
-                    self.log_output.append(
+                    lines.append(
                         f"{prefix}{result.event_id} ignored in {result.current_state}: {result.reason}"
                     )
                 else:
-                    self.log_output.append(
+                    lines.append(
                         f"{prefix}event={result.event_id} ignored in "
                         f"{result.current_state}: {result.reason}"
                     )
 
-            self.log_output.append("")
+            lines.append("")
 
+        if not lines:
+            return
+        self.log_output.append("\n".join(lines))
         self._refresh_views()
 
+    def _schedule_next_tick(self) -> None:
+        if self._simulation is None:
+            self._clock_timer.stop()
+            return
+        delay_ms = self._simulation.runtime.time_until_next_event_ms()
+        if delay_ms is None:
+            self._clock_timer.stop()
+        else:
+            self._clock_timer.start(max(1, delay_ms))
+
     def _advance_time(self) -> None:
+        now_ns = time.monotonic_ns()
+        elapsed_ms = (now_ns - self._clock_last_ns) // 1_000_000
+        self._clock_last_ns += elapsed_ms * 1_000_000
         if self._hardware_bridge_dialog is not None and self._hardware_bridge_dialog.client.mode == 1:
-            # The MCU exclusively owns the FSM scheduler in Remote Input mode.
+            self._clock_last_ns = now_ns
+            self._clock_timer.stop()
             return
         if self._simulation is None:
             return
-
-        records = self._simulation.advance_time(self._tick_interval_ms)
-        self._handle_records(records, source_prefix="timer")
+        if self._simulation.runtime.time_until_next_event_ms() is not None:
+            records = self._simulation.advance_time(int(elapsed_ms))
+            self._handle_records(records, source_prefix="timer")
+        self._schedule_next_tick()
 
     def _refresh_views(self) -> None:
         if self._simulation is None or self._weapon is None:
@@ -502,7 +538,10 @@ class MainWindow(QMainWindow):
         last_id = self._simulation.runtime.last_transition_id
         current_state = self._simulation.runtime.current_state
 
-        self.behavior_widget.set_active_state(current_state, valid_ids, last_id)
+        view_state = (current_state, last_id, frozenset(valid_ids))
+        if view_state != self._last_view_state:
+            self.behavior_widget.set_active_state(current_state, valid_ids, last_id)
+            self._last_view_state = view_state
         self.summary_panel.update_summary(self._simulation)
 
     def _reset_simulation(self) -> None:
@@ -510,6 +549,8 @@ class MainWindow(QMainWindow):
             return
         self._command_bridge.reset()
         self._simulation.reset()
+        self._clock_last_ns = time.monotonic_ns()
+        self._schedule_next_tick()
         self.gun_control_panel.reset_trigger()
         self.log_output.append("[system] simulation reset")
         self._refresh_views()

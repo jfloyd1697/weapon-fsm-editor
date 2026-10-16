@@ -16,6 +16,7 @@ class QtLightBackend(LightBackend):
         self._preview_panel = preview_panel
         self._active_sequence: str | None = None
         self._active_path: Path | None = None
+        self._sequence_cache: dict[Path, tuple[int, int, object]] = {}
 
     def play_light(self, *, sequence: str, path: str, mode: str = LightMode.ONCE) -> None:
         self._active_sequence = sequence
@@ -26,7 +27,14 @@ class QtLightBackend(LightBackend):
             return
 
         try:
-            asset = load_light_sequence(self._active_path)
+            path = self._active_path.resolve()
+            stat = path.stat()
+            cached = self._sequence_cache.get(path)
+            if cached is None or cached[:2] != (stat.st_mtime_ns, stat.st_size):
+                asset = load_light_sequence(path)
+                self._sequence_cache[path] = (stat.st_mtime_ns, stat.st_size, asset)
+            else:
+                asset = cached[2]
             self._preview_panel.play_sequence(
                 asset,
                 sequence_name=sequence,

@@ -15,9 +15,11 @@ class RuntimeEnvironment:
     emitted_events: list[str] = field(default_factory=list)
     scheduled_events: list[ScheduledEvent] = field(default_factory=list)
     gun_commands: list["GunRuntimeCommand"] = field(default_factory=list)
+    pending_events: list[ScheduledEvent] = field(default_factory=list)
 
     def cancel_scheduled_events(self, event_id: str) -> None:
-        self.scheduled_events = [event for event in self.scheduled_events if not event.event_id == event_id]
+        self.scheduled_events[:] = [event for event in self.scheduled_events if event.event_id != event_id]
+        self.pending_events[:] = [event for event in self.pending_events if event.event_id != event_id]
 
 
 @dataclass(frozen=True)

@@ -74,6 +74,7 @@ class QtAudioBackend(AudioBackend, QObject, metaclass=QtAudioBackendMeta):
         )
 
     def _stop_clip(self, clip: str) -> None:
+        self._queued_by_clip.pop(clip, None)
         for effect in self._active_by_clip.get(clip, []):
             effect.stop()
             effect.deleteLater()
@@ -107,8 +108,10 @@ class QtAudioBackend(AudioBackend, QObject, metaclass=QtAudioBackendMeta):
         self._active_by_clip[clip] = active
         effect.deleteLater()
 
+        if active:
+            return
         pending = self._queued_by_clip.pop(clip, None)
-        if pending is not None and not active:
+        if pending is not None:
             self.play_audio(
                 clip=pending.clip,
                 path=pending.path,

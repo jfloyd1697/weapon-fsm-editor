@@ -33,7 +33,7 @@ class GunControlPanel(QWidget):
         self._trigger_button = QPushButton("Trigger")
 
         self._hold_timer = QTimer(self)
-        self._hold_timer.setSingleShot(True)
+        self._hold_timer.setSingleShot(False)
         self._hold_timer.setInterval(100)
 
         row.addWidget(self._equip_button)

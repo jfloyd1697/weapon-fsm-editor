@@ -47,6 +47,14 @@ def test_export_weapon_creates_runtime_manifest_and_assets(tmp_path: Path) -> No
         assert output.getsampwidth() == 2
     assert (runtime_path.parent / "lights/flash.bin").is_file()
     assert (runtime_path.parent / "lights/flash.layout.bin").is_file()
+    # Firmware treats compiled audio and lighting paths as SD-root-relative.
+    audio_ref = SdCardExporter.compiled_audio_path("Test", "weapon", "fire")
+    light_ref = SdCardExporter.compiled_light_path("Test", "weapon", "flash")
+    assert audio_ref.as_posix().encode() in runtime
+    assert light_ref.as_posix().encode() in runtime
+    assert (sd_root / audio_ref).is_file()
+    assert (sd_root / light_ref).is_file()
+    assert b"assets/assets/" not in runtime
 
     from weapon_fsm_workspace.compiled_assets import decode_manifest
 

@@ -1,7 +1,6 @@
 import abc
 import math
 import threading
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -11,17 +10,6 @@ import soundfile as sf
 from scipy import signal
 
 from weapon_fsm_hardware import AudioBackend, AudioPlayRequest
-
-
-def timeit(method):
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args, **kw)
-        te = time.time()
-        print(method.__name__, te - ts)
-        return result
-
-    return timed
 
 
 @dataclass(frozen=True)
@@ -96,7 +84,7 @@ class PortAudioBackend(AudioBackend):
         self._channel_count = channel_count
         self._log = log or (lambda message: None)
 
-        self._cache: dict[Path, LoadedAudioClip] = {}
+        self._cache: dict[tuple[Path, bool], LoadedAudioClip] = {}
         self._queued_by_clip: dict[str, AudioPlayRequest] = {}
         self._lock = threading.RLock()
 
@@ -145,7 +133,6 @@ class PortAudioBackend(AudioBackend):
     def get_volume(self) -> float:
         return self._volume
 
-    @timeit
     def load_clip(
             self,
             path: Path,
@@ -154,8 +141,9 @@ class PortAudioBackend(AudioBackend):
     ) -> LoadedAudioClip:
         resolved = path.resolve()
 
+        cache_key = (resolved, match_backend_format)
         with self._lock:
-            cached = self._cache.get(resolved)
+            cached = self._cache.get(cache_key)
             if cached is not None:
                 return cached
 
@@ -183,17 +171,17 @@ class PortAudioBackend(AudioBackend):
         )
 
         with self._lock:
-            self._cache[resolved] = loaded
+            self._cache[cache_key] = loaded
 
         return loaded
 
-    @timeit
     def play_queued_if_ready(self, clip: str) -> None:
         with self._lock:
-            still_playing = self._player.is_clip_playing(clip)
+            if self._player.is_clip_playing(clip):
+                return
             pending = self._queued_by_clip.pop(clip, None)
 
-        if pending is not None and not still_playing:
+        if pending is not None:
             self.play_audio(
                 clip=pending.clip,
                 path=pending.path,
@@ -201,23 +189,20 @@ class PortAudioBackend(AudioBackend):
                 interrupt="interrupt",
             )
 
-    @timeit
     def _play_once(self, request: AudioPlayRequest) -> None:
         self._player.play(request, loop=False)
 
-    @timeit
     def _play_loop(self, request: AudioPlayRequest) -> None:
         self._player.play(request, loop=True)
 
-    @timeit
     def _stop_clip(self, clip: str) -> None:
-        self._player.stop_clip(clip)
+        with self._lock:
+            self._queued_by_clip.pop(clip, None)
+            self._player.stop_clip(clip)
 
-    @timeit
     def _is_clip_playing(self, clip: str) -> bool:
         return self._player.is_clip_playing(clip)
 
-    @timeit
     def _queue_audio(self, request: AudioPlayRequest) -> None:
         self._queued_by_clip[request.clip] = request
 
