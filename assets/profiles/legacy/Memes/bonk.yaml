@@ -1,0 +1,25 @@
+weapon:
+  initial_state: ready
+  clips:
+    sound:
+      path: assets/audio/memes/bonk.wav
+  light_sequences:
+    sound_reactive:
+      path: assets/lights/memes/bonk.yaml
+  states:
+  - id: ready
+    label: Ready
+  transitions:
+  - id: play_sound
+    source: ready
+    trigger: trigger_pressed
+    target: ready
+    internal: true
+    actions:
+    - type: play_audio
+      clip: sound
+      mode: once
+      interrupt: interrupt_all
+    - type: play_light
+      sequence: sound_reactive
+      mode: once

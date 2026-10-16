@@ -2,5 +2,6 @@ gun:
   events:
     - id: on_equip
     - id: trigger_pressed
+    - id: trigger_held
     - id: trigger_released
     - id: reload_pressed

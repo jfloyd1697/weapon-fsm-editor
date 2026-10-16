@@ -8,6 +8,8 @@ weapon:
       path: assets/audio/shotgun/12_sound_shotgunFire.wav
     audio_1:
       path: assets/audio/shotgun/13_sound_shotgunPump.wav
+    audio_2:
+      path: assets/audio/sawn_off/32_sound_sawnOffShellReload.wav
   light_sequences:
     light_0:
       path: assets/lights/legacy/legacy_c8660d0b1dd8.yaml
@@ -33,11 +35,26 @@ weapon:
       sequence: light_3
       mode: loop
   - id: reloading
-    label: Reloading
+    label: Loading shells
     on_entry:
+    - type: play_light
+      sequence: light_2
+      mode: loop
+    - type: play_audio
+      clip: audio_2
+      mode: once
+    - type: schedule_event
+      event: shell_loaded
+      delay_ms: 600
+  - id: pumping
+    label: Pumping
+    on_entry:
+    - type: play_audio
+      clip: audio_1
+      mode: once
     - type: schedule_event
       event: reload_complete
-      delay_ms: 700
+      delay_ms: 1150
   transitions:
   - id: idle_0_trigger_pressed
     source: idle
@@ -62,35 +79,49 @@ weapon:
       var_lte:
         name: ammo
         value: 0
-  - id: idle_2_reload
+  - id: idle_reload
     source: idle
     trigger: reload_pressed
     target: reloading
-    actions:
-    - type: play_audio
-      clip: audio_1
-      mode: once
-    - type: play_light
-      sequence: light_2
-      mode: loop
-  - id: empty_0_reload_complete
-    source: empty
-    trigger: reload_complete
-    target: idle
-  - id: empty_1_reload
+    guard:
+      var_lt:
+        name: ammo
+        value_from_var: mag_capacity
+  - id: empty_reload
     source: empty
     trigger: reload_pressed
     target: reloading
-    actions:
-    - type: play_audio
-      clip: audio_1
-      mode: once
-    - type: play_light
-      sequence: light_4
-      mode: loop
-  - id: reloading_0_reload_complete
+    guard:
+      var_lt:
+        name: ammo
+        value_from_var: mag_capacity
+  - id: shell_loaded
     source: reloading
+    trigger: shell_loaded
+    target: reloading
+    internal: true
+    actions:
+    - type: adjust_ammo
+      delta: 1
+    - type: emit_event
+      event: check_reload
+  - id: load_next_shell
+    source: reloading
+    trigger: check_reload
+    target: reloading
+    guard:
+      var_lt:
+        name: ammo
+        value_from_var: mag_capacity
+  - id: finish_loading
+    source: reloading
+    trigger: check_reload
+    target: pumping
+    guard:
+      var_gte:
+        name: ammo
+        value_from_var: mag_capacity
+  - id: pumping_complete
+    source: pumping
     trigger: reload_complete
     target: idle
-    actions:
-    - type: set_ammo_full

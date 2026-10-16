@@ -30,8 +30,9 @@ weapon:
     - type: play_light
       sequence: light_2
       mode: loop
-  - id: auto_wait
-    label: Auto Wait
+    on_exit:
+    - type: cancel_scheduled_events
+      event: auto_step
   - id: empty
     label: Empty
     on_entry:
@@ -72,23 +73,8 @@ weapon:
   - id: auto_firing_0_auto_step
     source: auto_firing
     trigger: auto_step
-    target: auto_wait
-  - id: auto_firing_1_trigger_released
-    source: auto_firing
-    trigger: trigger_released
-    target: idle
-  - id: auto_firing_2_ammo_empty
-    source: auto_firing
-    trigger: ammo_empty
-    target: empty
-  - id: auto_firing_3_reload
-    source: auto_firing
-    trigger: reload_pressed
-    target: reloading
-  - id: auto_wait_0_trigger_held
-    source: auto_wait
-    trigger: trigger_held
     target: auto_firing
+    internal: true
     actions:
     - type: play_random_audio
       clips:
@@ -101,16 +87,16 @@ weapon:
     - type: schedule_event
       event: auto_step
       delay_ms: 60
-  - id: auto_wait_1_trigger_released
-    source: auto_wait
+  - id: auto_firing_1_trigger_released
+    source: auto_firing
     trigger: trigger_released
     target: idle
-  - id: auto_wait_2_ammo_empty
-    source: auto_wait
+  - id: auto_firing_2_ammo_empty
+    source: auto_firing
     trigger: ammo_empty
     target: empty
-  - id: auto_wait_3_reload
-    source: auto_wait
+  - id: auto_firing_3_reload
+    source: auto_firing
     trigger: reload_pressed
     target: reloading
   - id: empty_0_reload_complete

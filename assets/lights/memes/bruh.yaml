@@ -1,0 +1,4885 @@
+layout:
+  path: ../layouts/cpx_ring_61_outside_in.json
+frames:
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#deb099'
+      intensity: 0.0186
+    '1':
+      color: '#deb099'
+      intensity: 0.0124
+    '3':
+      color: '#deb099'
+      intensity: 0.0147
+    '6':
+      color: '#c49cd1'
+      intensity: 0.0142
+    '9':
+      color: '#c49cd1'
+      intensity: 0.0138
+    '15':
+      color: '#a5e2b9'
+      intensity: 0.0138
+    '18':
+      color: '#a5e2b9'
+      intensity: 0.0142
+    '19':
+      color: '#a5e2b9'
+      intensity: 0.0123
+    '21':
+      color: '#fbeec5'
+      intensity: 0.0147
+    '25':
+      color: '#fdddbd'
+      intensity: 0.0167
+    '27':
+      color: '#fdddbd'
+      intensity: 0.0185
+    '37':
+      color: '#c49cd1'
+      intensity: 0.0185
+    '39':
+      color: '#c49cd1'
+      intensity: 0.0167
+    '40':
+      color: '#afa2b1'
+      intensity: 0.0143
+    '42':
+      color: '#afa2b1'
+      intensity: 0.0127
+    '43':
+      color: '#afa2b1'
+      intensity: 0.0142
+    '45':
+      color: '#a5e2b9'
+      intensity: 0.0121
+    '46':
+      color: '#a5e2b9'
+      intensity: 0.0186
+    '49':
+      color: '#a5e2b9'
+      intensity: 0.0142
+    '60':
+      color: '#deb099'
+      intensity: 0.0141
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#feeedd'
+      intensity: 0.068
+    '1':
+      color: '#feeedd'
+      intensity: 0.0564
+    '3':
+      color: '#feeedd'
+      intensity: 0.0706
+    '4':
+      color: '#feeedd'
+      intensity: 0.0363
+    '5':
+      color: '#ebae7b'
+      intensity: 0.0301
+    '6':
+      color: '#ebae7b'
+      intensity: 0.0697
+    '7':
+      color: '#ebae7b'
+      intensity: 0.0421
+    '8':
+      color: '#ebae7b'
+      intensity: 0.0178
+    '9':
+      color: '#ebae7b'
+      intensity: 0.0686
+    '10':
+      color: '#bca9e2'
+      intensity: 0.0437
+    '11':
+      color: '#bca9e2'
+      intensity: 0.0125
+    '12':
+      color: '#bca9e2'
+      intensity: 0.0525
+    '13':
+      color: '#bca9e2'
+      intensity: 0.0406
+    '14':
+      color: '#bca9e2'
+      intensity: 0.0155
+    '15':
+      color: '#c58ca9'
+      intensity: 0.0686
+    '16':
+      color: '#c58ca9'
+      intensity: 0.0459
+    '17':
+      color: '#c58ca9'
+      intensity: 0.0139
+    '18':
+      color: '#c58ca9'
+      intensity: 0.0697
+    '19':
+      color: '#c58ca9'
+      intensity: 0.0582
+    '21':
+      color: '#89e2c2'
+      intensity: 0.0706
+    '22':
+      color: '#89e2c2'
+      intensity: 0.0363
+    '23':
+      color: '#89e2c2'
+      intensity: 0.0282
+    '24':
+      color: '#89e2c2'
+      intensity: 0.0497
+    '25':
+      color: '#f9e8b2'
+      intensity: 0.0658
+    '26':
+      color: '#f9e8b2'
+      intensity: 0.0223
+    '27':
+      color: '#f9e8b2'
+      intensity: 0.0607
+    '28':
+      color: '#f9e8b2'
+      intensity: 0.052
+    '29':
+      color: '#f9e8b2'
+      intensity: 0.0446
+    '30':
+      color: '#feeedd'
+      intensity: 0.0283
+    '31':
+      color: '#feeedd'
+      intensity: 0.0547
+    '32':
+      color: '#feeedd'
+      intensity: 0.0535
+    '33':
+      color: '#feeedd'
+      intensity: 0.0547
+    '34':
+      color: '#feeedd'
+      intensity: 0.0283
+    '35':
+      color: '#ebae7b'
+      intensity: 0.0446
+    '36':
+      color: '#ebae7b'
+      intensity: 0.052
+    '37':
+      color: '#ebae7b'
+      intensity: 0.0607
+    '38':
+      color: '#ebae7b'
+      intensity: 0.0223
+    '39':
+      color: '#ebae7b'
+      intensity: 0.0658
+    '40':
+      color: '#bca9e2'
+      intensity: 0.0387
+    '41':
+      color: '#bca9e2'
+      intensity: 0.0193
+    '42':
+      color: '#bca9e2'
+      intensity: 0.0572
+    '43':
+      color: '#bca9e2'
+      intensity: 0.0685
+    '44':
+      color: '#bca9e2'
+      intensity: 0.012
+    '45':
+      color: '#c58ca9'
+      intensity: 0.0648
+    '46':
+      color: '#c58ca9'
+      intensity: 0.0483
+    '47':
+      color: '#c58ca9'
+      intensity: 0.0352
+    '48':
+      color: '#c58ca9'
+      intensity: 0.0416
+    '49':
+      color: '#c58ca9'
+      intensity: 0.0685
+    '50':
+      color: '#89e2c2'
+      intensity: 0.0276
+    '51':
+      color: '#89e2c2'
+      intensity: 0.0488
+    '52':
+      color: '#89e2c2'
+      intensity: 0.039
+    '53':
+      color: '#89e2c2'
+      intensity: 0.0183
+    '54':
+      color: '#89e2c2'
+      intensity: 0.0434
+    '55':
+      color: '#f9e8b2'
+      intensity: 0.0142
+    '56':
+      color: '#f9e8b2'
+      intensity: 0.0227
+    '57':
+      color: '#f9e8b2'
+      intensity: 0.0142
+    '58':
+      color: '#f9e8b2'
+      intensity: 0.0434
+    '59':
+      color: '#f9e8b2'
+      intensity: 0.0183
+    '60':
+      color: '#feeedd'
+      intensity: 0.0672
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#fef0e1'
+      intensity: 0.122
+    '1':
+      color: '#fef0e1'
+      intensity: 0.1122
+    '2':
+      color: '#fef0e1'
+      intensity: 0.026
+    '3':
+      color: '#fef0e1'
+      intensity: 0.1019
+    '4':
+      color: '#fef0e1'
+      intensity: 0.0689
+    '5':
+      color: '#edae76'
+      intensity: 0.0671
+    '6':
+      color: '#edae76'
+      intensity: 0.0987
+    '7':
+      color: '#edae76'
+      intensity: 0.0601
+    '8':
+      color: '#edae76'
+      intensity: 0.0541
+    '9':
+      color: '#edae76'
+      intensity: 0.0954
+    '10':
+      color: '#bbaae4'
+      intensity: 0.0964
+    '11':
+      color: '#bbaae4'
+      intensity: 0.0142
+    '12':
+      color: '#bbaae4'
+      intensity: 0.0709
+    '13':
+      color: '#bbaae4'
+      intensity: 0.0605
+    '14':
+      color: '#bbaae4'
+      intensity: 0.0502
+    '15':
+      color: '#c88aa8'
+      intensity: 0.0954
+    '16':
+      color: '#c88aa8'
+      intensity: 0.1004
+    '17':
+      color: '#c88aa8'
+      intensity: 0.0139
+    '18':
+      color: '#c88aa8'
+      intensity: 0.0987
+    '19':
+      color: '#c88aa8'
+      intensity: 0.1133
+    '20':
+      color: '#85e2c3'
+      intensity: 0.0226
+    '21':
+      color: '#85e2c3'
+      intensity: 0.1019
+    '22':
+      color: '#85e2c3'
+      intensity: 0.0722
+    '23':
+      color: '#85e2c3'
+      intensity: 0.066
+    '24':
+      color: '#85e2c3'
+      intensity: 0.0602
+    '25':
+      color: '#f9e7b0'
+      intensity: 0.1064
+    '26':
+      color: '#f9e7b0'
+      intensity: 0.0504
+    '27':
+      color: '#f9e7b0'
+      intensity: 0.1129
+    '28':
+      color: '#f9e7b0'
+      intensity: 0.0665
+    '29':
+      color: '#f9e7b0'
+      intensity: 0.06
+    '30':
+      color: '#fef0e1'
+      intensity: 0.0701
+    '31':
+      color: '#fef0e1'
+      intensity: 0.0701
+    '32':
+      color: '#fef0e1'
+      intensity: 0.0727
+    '33':
+      color: '#fef0e1'
+      intensity: 0.0701
+    '34':
+      color: '#fef0e1'
+      intensity: 0.0701
+    '35':
+      color: '#edae76'
+      intensity: 0.06
+    '36':
+      color: '#edae76'
+      intensity: 0.0665
+    '37':
+      color: '#edae76'
+      intensity: 0.1129
+    '38':
+      color: '#edae76'
+      intensity: 0.0504
+    '39':
+      color: '#edae76'
+      intensity: 0.1064
+    '40':
+      color: '#bbaae4'
+      intensity: 0.0751
+    '41':
+      color: '#bbaae4'
+      intensity: 0.0153
+    '42':
+      color: '#bbaae4'
+      intensity: 0.1141
+    '43':
+      color: '#bbaae4'
+      intensity: 0.0967
+    '44':
+      color: '#bbaae4'
+      intensity: 0.0141
+    '45':
+      color: '#c88aa8'
+      intensity: 0.1164
+    '46':
+      color: '#c88aa8'
+      intensity: 0.1066
+    '47':
+      color: '#c88aa8'
+      intensity: 0.0677
+    '48':
+      color: '#c88aa8'
+      intensity: 0.0629
+    '49':
+      color: '#c88aa8'
+      intensity: 0.0967
+    '50':
+      color: '#85e2c3'
+      intensity: 0.0654
+    '51':
+      color: '#85e2c3'
+      intensity: 0.064
+    '52':
+      color: '#85e2c3'
+      intensity: 0.0763
+    '53':
+      color: '#85e2c3'
+      intensity: 0.0528
+    '54':
+      color: '#85e2c3'
+      intensity: 0.0525
+    '55':
+      color: '#f9e7b0'
+      intensity: 0.0394
+    '56':
+      color: '#f9e7b0'
+      intensity: 0.0227
+    '57':
+      color: '#f9e7b0'
+      intensity: 0.0394
+    '58':
+      color: '#f9e7b0'
+      intensity: 0.0525
+    '59':
+      color: '#f9e7b0'
+      intensity: 0.0528
+    '60':
+      color: '#fef0e1'
+      intensity: 0.0946
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#fef1e4'
+      intensity: 0.157
+    '1':
+      color: '#fef1e4'
+      intensity: 0.1512
+    '2':
+      color: '#fef1e4'
+      intensity: 0.0613
+    '3':
+      color: '#fef1e4'
+      intensity: 0.1175
+    '4':
+      color: '#fef1e4'
+      intensity: 0.1141
+    '5':
+      color: '#efae74'
+      intensity: 0.0909
+    '6':
+      color: '#efae74'
+      intensity: 0.1136
+    '7':
+      color: '#efae74'
+      intensity: 0.0883
+    '8':
+      color: '#efae74'
+      intensity: 0.0917
+    '9':
+      color: '#efae74'
+      intensity: 0.11
+    '10':
+      color: '#bbace5'
+      intensity: 0.148
+    '11':
+      color: '#bbace5'
+      intensity: 0.0327
+    '12':
+      color: '#bbace5'
+      intensity: 0.0981
+    '13':
+      color: '#bbace5'
+      intensity: 0.0915
+    '14':
+      color: '#bbace5'
+      intensity: 0.0892
+    '15':
+      color: '#ca88a7'
+      intensity: 0.11
+    '16':
+      color: '#ca88a7'
+      intensity: 0.1505
+    '17':
+      color: '#ca88a7'
+      intensity: 0.0295
+    '18':
+      color: '#ca88a7'
+      intensity: 0.1136
+    '19':
+      color: '#ca88a7'
+      intensity: 0.1496
+    '20':
+      color: '#83e2c4'
+      intensity: 0.0554
+    '21':
+      color: '#83e2c4'
+      intensity: 0.1175
+    '22':
+      color: '#83e2c4'
+      intensity: 0.12
+    '23':
+      color: '#83e2c4'
+      intensity: 0.0925
+    '24':
+      color: '#83e2c4'
+      intensity: 0.0559
+    '25':
+      color: '#f9e7ae'
+      intensity: 0.1274
+    '26':
+      color: '#f9e7ae'
+      intensity: 0.0907
+    '27':
+      color: '#f9e7ae'
+      intensity: 0.1482
+    '28':
+      color: '#f9e7ae'
+      intensity: 0.0625
+    '29':
+      color: '#f9e7ae'
+      intensity: 0.0872
+    '30':
+      color: '#fef1e4'
+      intensity: 0.1133
+    '31':
+      color: '#fef1e4'
+      intensity: 0.0855
+    '32':
+      color: '#fef1e4'
+      intensity: 0.0703
+    '33':
+      color: '#fef1e4'
+      intensity: 0.0855
+    '34':
+      color: '#fef1e4'
+      intensity: 0.1133
+    '35':
+      color: '#efae74'
+      intensity: 0.0872
+    '36':
+      color: '#efae74'
+      intensity: 0.0625
+    '37':
+      color: '#efae74'
+      intensity: 0.1482
+    '38':
+      color: '#efae74'
+      intensity: 0.0907
+    '39':
+      color: '#efae74'
+      intensity: 0.1274
+    '40':
+      color: '#bbace5'
+      intensity: 0.1299
+    '41':
+      color: '#bbace5'
+      intensity: 0.0214
+    '42':
+      color: '#bbace5'
+      intensity: 0.1548
+    '43':
+      color: '#bbace5'
+      intensity: 0.111
+    '44':
+      color: '#bbace5'
+      intensity: 0.0331
+    '45':
+      color: '#ca88a7'
+      intensity: 0.1444
+    '46':
+      color: '#ca88a7'
+      intensity: 0.1662
+    '47':
+      color: '#ca88a7'
+      intensity: 0.0818
+    '48':
+      color: '#ca88a7'
+      intensity: 0.0956
+    '49':
+      color: '#ca88a7'
+      intensity: 0.111
+    '50':
+      color: '#83e2c4'
+      intensity: 0.0922
+    '51':
+      color: '#83e2c4'
+      intensity: 0.084
+    '52':
+      color: '#83e2c4'
+      intensity: 0.0941
+    '53':
+      color: '#83e2c4'
+      intensity: 0.0925
+    '54':
+      color: '#83e2c4'
+      intensity: 0.0445
+    '55':
+      color: '#f9e7ae'
+      intensity: 0.0769
+    '56':
+      color: '#f9e7ae'
+      intensity: 0.0322
+    '57':
+      color: '#f9e7ae'
+      intensity: 0.0769
+    '58':
+      color: '#f9e7ae'
+      intensity: 0.0445
+    '59':
+      color: '#f9e7ae'
+      intensity: 0.0925
+    '60':
+      color: '#fef1e4'
+      intensity: 0.1083
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#fef2e5'
+      intensity: 0.1777
+    '1':
+      color: '#fef2e5'
+      intensity: 0.1624
+    '2':
+      color: '#fef2e5'
+      intensity: 0.0903
+    '3':
+      color: '#fef2e5'
+      intensity: 0.1323
+    '4':
+      color: '#fef2e5'
+      intensity: 0.1415
+    '5':
+      color: '#efae73'
+      intensity: 0.1012
+    '6':
+      color: '#efae73'
+      intensity: 0.1289
+    '7':
+      color: '#efae73'
+      intensity: 0.1079
+    '8':
+      color: '#efae73'
+      intensity: 0.1141
+    '9':
+      color: '#efae73'
+      intensity: 0.1261
+    '10':
+      color: '#baace6'
+      intensity: 0.1711
+    '11':
+      color: '#baace6'
+      intensity: 0.0551
+    '12':
+      color: '#baace6'
+      intensity: 0.1288
+    '13':
+      color: '#baace6'
+      intensity: 0.1128
+    '14':
+      color: '#baace6'
+      intensity: 0.1135
+    '15':
+      color: '#ca87a7'
+      intensity: 0.1261
+    '16':
+      color: '#ca87a7'
+      intensity: 0.1717
+    '17':
+      color: '#ca87a7'
+      intensity: 0.0503
+    '18':
+      color: '#ca87a7'
+      intensity: 0.1289
+    '19':
+      color: '#ca87a7'
+      intensity: 0.1588
+    '20':
+      color: '#83e2c4'
+      intensity: 0.0839
+    '21':
+      color: '#83e2c4'
+      intensity: 0.1323
+    '22':
+      color: '#83e2c4'
+      intensity: 0.148
+    '23':
+      color: '#83e2c4'
+      intensity: 0.1047
+    '24':
+      color: '#83e2c4'
+      intensity: 0.0495
+    '25':
+      color: '#f9e7ae'
+      intensity: 0.1427
+    '26':
+      color: '#f9e7ae'
+      intensity: 0.1137
+    '27':
+      color: '#f9e7ae'
+      intensity: 0.1704
+    '28':
+      color: '#f9e7ae'
+      intensity: 0.0545
+    '29':
+      color: '#f9e7ae'
+      intensity: 0.1197
+    '30':
+      color: '#fef2e5'
+      intensity: 0.1326
+    '31':
+      color: '#fef2e5'
+      intensity: 0.1079
+    '32':
+      color: '#fef2e5'
+      intensity: 0.0614
+    '33':
+      color: '#fef2e5'
+      intensity: 0.1079
+    '34':
+      color: '#fef2e5'
+      intensity: 0.1326
+    '35':
+      color: '#efae73'
+      intensity: 0.1197
+    '36':
+      color: '#efae73'
+      intensity: 0.0545
+    '37':
+      color: '#efae73'
+      intensity: 0.1704
+    '38':
+      color: '#efae73'
+      intensity: 0.1137
+    '39':
+      color: '#efae73'
+      intensity: 0.1427
+    '40':
+      color: '#baace6'
+      intensity: 0.1757
+    '41':
+      color: '#baace6'
+      intensity: 0.0355
+    '42':
+      color: '#baace6'
+      intensity: 0.1672
+    '43':
+      color: '#baace6'
+      intensity: 0.1264
+    '44':
+      color: '#baace6'
+      intensity: 0.0551
+    '45':
+      color: '#ca87a7'
+      intensity: 0.1486
+    '46':
+      color: '#ca87a7'
+      intensity: 0.2059
+    '47':
+      color: '#ca87a7'
+      intensity: 0.0856
+    '48':
+      color: '#ca87a7'
+      intensity: 0.1181
+    '49':
+      color: '#ca87a7'
+      intensity: 0.1264
+    '50':
+      color: '#83e2c4'
+      intensity: 0.1042
+    '51':
+      color: '#83e2c4'
+      intensity: 0.0984
+    '52':
+      color: '#83e2c4'
+      intensity: 0.0944
+    '53':
+      color: '#83e2c4'
+      intensity: 0.1127
+    '54':
+      color: '#83e2c4'
+      intensity: 0.0363
+    '55':
+      color: '#f9e7ae'
+      intensity: 0.0999
+    '56':
+      color: '#f9e7ae'
+      intensity: 0.0431
+    '57':
+      color: '#f9e7ae'
+      intensity: 0.0999
+    '58':
+      color: '#f9e7ae'
+      intensity: 0.0363
+    '59':
+      color: '#f9e7ae'
+      intensity: 0.1127
+    '60':
+      color: '#fef2e5'
+      intensity: 0.1237
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#fef1e3'
+      intensity: 0.2643
+    '1':
+      color: '#fef1e3'
+      intensity: 0.2168
+    '2':
+      color: '#fef1e3'
+      intensity: 0.1497
+    '3':
+      color: '#fef1e3'
+      intensity: 0.1999
+    '4':
+      color: '#fef1e3'
+      intensity: 0.1993
+    '5':
+      color: '#eeae75'
+      intensity: 0.1523
+    '6':
+      color: '#eeae75'
+      intensity: 0.1957
+    '7':
+      color: '#eeae75'
+      intensity: 0.1494
+    '8':
+      color: '#eeae75'
+      intensity: 0.1772
+    '9':
+      color: '#eeae75'
+      intensity: 0.1924
+    '10':
+      color: '#bbabe5'
+      intensity: 0.2362
+    '11':
+      color: '#bbabe5'
+      intensity: 0.0984
+    '12':
+      color: '#bbabe5'
+      intensity: 0.2053
+    '13':
+      color: '#bbabe5'
+      intensity: 0.1569
+    '14':
+      color: '#bbabe5'
+      intensity: 0.1776
+    '15':
+      color: '#c988a7'
+      intensity: 0.1924
+    '16':
+      color: '#c988a7'
+      intensity: 0.2357
+    '17':
+      color: '#c988a7'
+      intensity: 0.0908
+    '18':
+      color: '#c988a7'
+      intensity: 0.1957
+    '19':
+      color: '#c988a7'
+      intensity: 0.2108
+    '20':
+      color: '#84e2c3'
+      intensity: 0.1408
+    '21':
+      color: '#84e2c3'
+      intensity: 0.1999
+    '22':
+      color: '#84e2c3'
+      intensity: 0.2082
+    '23':
+      color: '#84e2c3'
+      intensity: 0.1582
+    '24':
+      color: '#84e2c3'
+      intensity: 0.0568
+    '25':
+      color: '#f9e7ae'
+      intensity: 0.217
+    '26':
+      color: '#f9e7ae'
+      intensity: 0.1614
+    '27':
+      color: '#f9e7ae'
+      intensity: 0.2582
+    '28':
+      color: '#f9e7ae'
+      intensity: 0.0625
+    '29':
+      color: '#f9e7ae'
+      intensity: 0.197
+    '30':
+      color: '#fef1e3'
+      intensity: 0.1841
+    '31':
+      color: '#fef1e3'
+      intensity: 0.175
+    '32':
+      color: '#fef1e3'
+      intensity: 0.0712
+    '33':
+      color: '#fef1e3'
+      intensity: 0.175
+    '34':
+      color: '#fef1e3'
+      intensity: 0.1841
+    '35':
+      color: '#eeae75'
+      intensity: 0.197
+    '36':
+      color: '#eeae75'
+      intensity: 0.0625
+    '37':
+      color: '#eeae75'
+      intensity: 0.2582
+    '38':
+      color: '#eeae75'
+      intensity: 0.1614
+    '39':
+      color: '#eeae75'
+      intensity: 0.217
+    '40':
+      color: '#bbabe5'
+      intensity: 0.2783
+    '41':
+      color: '#bbabe5'
+      intensity: 0.0659
+    '42':
+      color: '#bbabe5'
+      intensity: 0.2242
+    '43':
+      color: '#bbabe5'
+      intensity: 0.1931
+    '44':
+      color: '#bbabe5'
+      intensity: 0.0974
+    '45':
+      color: '#c988a7'
+      intensity: 0.1941
+    '46':
+      color: '#c988a7'
+      intensity: 0.3147
+    '47':
+      color: '#c988a7'
+      intensity: 0.1265
+    '48':
+      color: '#c988a7'
+      intensity: 0.165
+    '49':
+      color: '#c988a7'
+      intensity: 0.1931
+    '50':
+      color: '#84e2c3'
+      intensity: 0.1566
+    '51':
+      color: '#84e2c3'
+      intensity: 0.1336
+    '52':
+      color: '#84e2c3'
+      intensity: 0.126
+    '53':
+      color: '#84e2c3'
+      intensity: 0.1631
+    '54':
+      color: '#84e2c3'
+      intensity: 0.0429
+    '55':
+      color: '#f9e7ae'
+      intensity: 0.1476
+    '56':
+      color: '#f9e7ae'
+      intensity: 0.0641
+    '57':
+      color: '#f9e7ae'
+      intensity: 0.1476
+    '58':
+      color: '#f9e7ae'
+      intensity: 0.0429
+    '59':
+      color: '#f9e7ae'
+      intensity: 0.1631
+    '60':
+      color: '#fef1e3'
+      intensity: 0.1901
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#bcaae3'
+      intensity: 0.6136
+    '1':
+      color: '#bcaae3'
+      intensity: 0.4331
+    '2':
+      color: '#bcaae3'
+      intensity: 0.3263
+    '3':
+      color: '#bcaae3'
+      intensity: 0.4661
+    '4':
+      color: '#bcaae3'
+      intensity: 0.34
+    '5':
+      color: '#c68ba8'
+      intensity: 0.3886
+    '6':
+      color: '#c68ba8'
+      intensity: 0.4538
+    '7':
+      color: '#c68ba8'
+      intensity: 0.2354
+    '8':
+      color: '#c68ba8'
+      intensity: 0.4165
+    '9':
+      color: '#c68ba8'
+      intensity: 0.443
+    '10':
+      color: '#87e2c2'
+      intensity: 0.4469
+    '11':
+      color: '#87e2c2'
+      intensity: 0.2148
+    '12':
+      color: '#87e2c2'
+      intensity: 0.4327
+    '13':
+      color: '#87e2c2'
+      intensity: 0.2498
+    '14':
+      color: '#87e2c2'
+      intensity: 0.4119
+    '15':
+      color: '#f9e8b1'
+      intensity: 0.443
+    '16':
+      color: '#f9e8b1'
+      intensity: 0.4515
+    '17':
+      color: '#f9e8b1'
+      intensity: 0.2003
+    '18':
+      color: '#f9e8b1'
+      intensity: 0.4538
+    '19':
+      color: '#f9e8b1'
+      intensity: 0.4236
+    '20':
+      color: '#feefdf'
+      intensity: 0.305
+    '21':
+      color: '#feefdf'
+      intensity: 0.4661
+    '22':
+      color: '#feefdf'
+      intensity: 0.3613
+    '23':
+      color: '#feefdf'
+      intensity: 0.3981
+    '24':
+      color: '#feefdf'
+      intensity: 0.1047
+    '25':
+      color: '#edae78'
+      intensity: 0.5292
+    '26':
+      color: '#edae78'
+      intensity: 0.2848
+    '27':
+      color: '#edae78'
+      intensity: 0.6145
+    '28':
+      color: '#edae78'
+      intensity: 0.124
+    '29':
+      color: '#edae78'
+      intensity: 0.4272
+    '30':
+      color: '#bcaae3'
+      intensity: 0.3544
+    '31':
+      color: '#bcaae3'
+      intensity: 0.4005
+    '32':
+      color: '#bcaae3'
+      intensity: 0.1488
+    '33':
+      color: '#bcaae3'
+      intensity: 0.4005
+    '34':
+      color: '#bcaae3'
+      intensity: 0.3544
+    '35':
+      color: '#c68ba8'
+      intensity: 0.4272
+    '36':
+      color: '#c68ba8'
+      intensity: 0.124
+    '37':
+      color: '#c68ba8'
+      intensity: 0.6145
+    '38':
+      color: '#c68ba8'
+      intensity: 0.2848
+    '39':
+      color: '#c68ba8'
+      intensity: 0.5292
+    '40':
+      color: '#87e2c2'
+      intensity: 0.5796
+    '41':
+      color: '#87e2c2'
+      intensity: 0.1527
+    '42':
+      color: '#87e2c2'
+      intensity: 0.4472
+    '43':
+      color: '#87e2c2'
+      intensity: 0.4519
+    '44':
+      color: '#87e2c2'
+      intensity: 0.2092
+    '45':
+      color: '#f9e8b1'
+      intensity: 0.3947
+    '46':
+      color: '#f9e8b1'
+      intensity: 0.6911
+    '47':
+      color: '#f9e8b1'
+      intensity: 0.3381
+    '48':
+      color: '#f9e8b1'
+      intensity: 0.2658
+    '49':
+      color: '#f9e8b1'
+      intensity: 0.4519
+    '50':
+      color: '#feefdf'
+      intensity: 0.3906
+    '51':
+      color: '#feefdf'
+      intensity: 0.2092
+    '52':
+      color: '#feefdf'
+      intensity: 0.295
+    '53':
+      color: '#feefdf'
+      intensity: 0.3308
+    '54':
+      color: '#feefdf'
+      intensity: 0.1077
+    '55':
+      color: '#edae78'
+      intensity: 0.2832
+    '56':
+      color: '#edae78'
+      intensity: 0.1052
+    '57':
+      color: '#edae78'
+      intensity: 0.2832
+    '58':
+      color: '#edae78'
+      intensity: 0.1077
+    '59':
+      color: '#edae78'
+      intensity: 0.3308
+    '60':
+      color: '#bcaae3'
+      intensity: 0.4491
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#bca9e3'
+      intensity: 0.7957
+    '1':
+      color: '#bca9e3'
+      intensity: 0.5201
+    '2':
+      color: '#bca9e3'
+      intensity: 0.5114
+    '3':
+      color: '#bca9e3'
+      intensity: 0.6047
+    '4':
+      color: '#bca9e3'
+      intensity: 0.4444
+    '5':
+      color: '#c68ba9'
+      intensity: 0.5445
+    '6':
+      color: '#c68ba9'
+      intensity: 0.5911
+    '7':
+      color: '#c68ba9'
+      intensity: 0.3007
+    '8':
+      color: '#c68ba9'
+      intensity: 0.6051
+    '9':
+      color: '#c68ba9'
+      intensity: 0.5798
+    '10':
+      color: '#88e2c2'
+      intensity: 0.5639
+    '11':
+      color: '#88e2c2'
+      intensity: 0.362
+    '12':
+      color: '#88e2c2'
+      intensity: 0.6001
+    '13':
+      color: '#88e2c2'
+      intensity: 0.3219
+    '14':
+      color: '#88e2c2'
+      intensity: 0.604
+    '15':
+      color: '#f9e8b1'
+      intensity: 0.5798
+    '16':
+      color: '#f9e8b1'
+      intensity: 0.565
+    '17':
+      color: '#f9e8b1'
+      intensity: 0.3408
+    '18':
+      color: '#f9e8b1'
+      intensity: 0.5911
+    '19':
+      color: '#f9e8b1'
+      intensity: 0.5043
+    '20':
+      color: '#feefdf'
+      intensity: 0.4845
+    '21':
+      color: '#feefdf'
+      intensity: 0.6047
+    '22':
+      color: '#feefdf'
+      intensity: 0.4712
+    '23':
+      color: '#feefdf'
+      intensity: 0.5602
+    '24':
+      color: '#feefdf'
+      intensity: 0.1108
+    '25':
+      color: '#ecae79'
+      intensity: 0.6968
+    '26':
+      color: '#ecae79'
+      intensity: 0.3943
+    '27':
+      color: '#ecae79'
+      intensity: 0.8149
+    '28':
+      color: '#ecae79'
+      intensity: 0.1305
+    '29':
+      color: '#ecae79'
+      intensity: 0.6122
+    '30':
+      color: '#bca9e3'
+      intensity: 0.4696
+    '31':
+      color: '#bca9e3'
+      intensity: 0.5576
+    '32':
+      color: '#bca9e3'
+      intensity: 0.1586
+    '33':
+      color: '#bca9e3'
+      intensity: 0.5576
+    '34':
+      color: '#bca9e3'
+      intensity: 0.4696
+    '35':
+      color: '#c68ba9'
+      intensity: 0.6122
+    '36':
+      color: '#c68ba9'
+      intensity: 0.1305
+    '37':
+      color: '#c68ba9'
+      intensity: 0.8149
+    '38':
+      color: '#c68ba9'
+      intensity: 0.3943
+    '39':
+      color: '#c68ba9'
+      intensity: 0.6968
+    '40':
+      color: '#88e2c2'
+      intensity: 0.8146
+    '41':
+      color: '#88e2c2'
+      intensity: 0.2667
+    '42':
+      color: '#88e2c2'
+      intensity: 0.5383
+    '43':
+      color: '#88e2c2'
+      intensity: 0.5922
+    '44':
+      color: '#88e2c2'
+      intensity: 0.3529
+    '45':
+      color: '#f9e8b1'
+      intensity: 0.4564
+    '46':
+      color: '#f9e8b1'
+      intensity: 0.9352
+    '47':
+      color: '#f9e8b1'
+      intensity: 0.4673
+    '48':
+      color: '#f9e8b1'
+      intensity: 0.342
+    '49':
+      color: '#f9e8b1'
+      intensity: 0.5922
+    '50':
+      color: '#feefdf'
+      intensity: 0.5491
+    '51':
+      color: '#feefdf'
+      intensity: 0.2558
+    '52':
+      color: '#feefdf'
+      intensity: 0.3788
+    '53':
+      color: '#feefdf'
+      intensity: 0.4666
+    '54':
+      color: '#feefdf'
+      intensity: 0.1336
+    '55':
+      color: '#ecae79'
+      intensity: 0.4151
+    '56':
+      color: '#ecae79'
+      intensity: 0.1733
+    '57':
+      color: '#ecae79'
+      intensity: 0.4151
+    '58':
+      color: '#ecae79'
+      intensity: 0.1336
+    '59':
+      color: '#ecae79'
+      intensity: 0.4666
+    '60':
+      color: '#bca9e3'
+      intensity: 0.592
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#feeede'
+      intensity: 0.6934
+    '1':
+      color: '#feeede'
+      intensity: 0.4227
+    '2':
+      color: '#feeede'
+      intensity: 0.5413
+    '3':
+      color: '#feeede'
+      intensity: 0.5301
+    '4':
+      color: '#feeede'
+      intensity: 0.4036
+    '5':
+      color: '#ecae7a'
+      intensity: 0.5211
+    '6':
+      color: '#ecae7a'
+      intensity: 0.5208
+    '7':
+      color: '#ecae7a'
+      intensity: 0.2725
+    '8':
+      color: '#ecae7a'
+      intensity: 0.5979
+    '9':
+      color: '#ecae7a'
+      intensity: 0.5138
+    '10':
+      color: '#bca9e2'
+      intensity: 0.4864
+    '11':
+      color: '#bca9e2'
+      intensity: 0.4085
+    '12':
+      color: '#bca9e2'
+      intensity: 0.5655
+    '13':
+      color: '#bca9e2'
+      intensity: 0.2931
+    '14':
+      color: '#bca9e2'
+      intensity: 0.6018
+    '15':
+      color: '#c58ca9'
+      intensity: 0.5138
+    '16':
+      color: '#c58ca9'
+      intensity: 0.4825
+    '17':
+      color: '#c58ca9'
+      intensity: 0.3879
+    '18':
+      color: '#c58ca9'
+      intensity: 0.5208
+    '19':
+      color: '#c58ca9'
+      intensity: 0.4057
+    '20':
+      color: '#88e2c2'
+      intensity: 0.519
+    '21':
+      color: '#88e2c2'
+      intensity: 0.5301
+    '22':
+      color: '#88e2c2'
+      intensity: 0.4258
+    '23':
+      color: '#88e2c2'
+      intensity: 0.5381
+    '24':
+      color: '#88e2c2'
+      intensity: 0.0887
+    '25':
+      color: '#f9e8b2'
+      intensity: 0.6184
+    '26':
+      color: '#f9e8b2'
+      intensity: 0.3821
+    '27':
+      color: '#f9e8b2'
+      intensity: 0.727
+    '28':
+      color: '#f9e8b2'
+      intensity: 0.1
+    '29':
+      color: '#f9e8b2'
+      intensity: 0.5945
+    '30':
+      color: '#feeede'
+      intensity: 0.4313
+    '31':
+      color: '#feeede'
+      intensity: 0.5275
+    '32':
+      color: '#feeede'
+      intensity: 0.1199
+    '33':
+      color: '#feeede'
+      intensity: 0.5275
+    '34':
+      color: '#feeede'
+      intensity: 0.4313
+    '35':
+      color: '#ecae7a'
+      intensity: 0.5945
+    '36':
+      color: '#ecae7a'
+      intensity: 0.1
+    '37':
+      color: '#ecae7a'
+      intensity: 0.727
+    '38':
+      color: '#ecae7a'
+      intensity: 0.3821
+    '39':
+      color: '#ecae7a'
+      intensity: 0.6184
+    '40':
+      color: '#bca9e2'
+      intensity: 0.7733
+    '41':
+      color: '#bca9e2'
+      intensity: 0.3122
+    '42':
+      color: '#bca9e2'
+      intensity: 0.438
+    '43':
+      color: '#bca9e2'
+      intensity: 0.5251
+    '44':
+      color: '#bca9e2'
+      intensity: 0.3992
+    '45':
+      color: '#c58ca9'
+      intensity: 0.354
+    '46':
+      color: '#c58ca9'
+      intensity: 0.8521
+    '47':
+      color: '#c58ca9'
+      intensity: 0.4434
+    '48':
+      color: '#c58ca9'
+      intensity: 0.3097
+    '49':
+      color: '#c58ca9'
+      intensity: 0.5251
+    '50':
+      color: '#88e2c2'
+      intensity: 0.5275
+    '51':
+      color: '#88e2c2'
+      intensity: 0.2228
+    '52':
+      color: '#88e2c2'
+      intensity: 0.3379
+    '53':
+      color: '#88e2c2'
+      intensity: 0.4553
+    '54':
+      color: '#88e2c2'
+      intensity: 0.1258
+    '55':
+      color: '#f9e8b2'
+      intensity: 0.4216
+    '56':
+      color: '#f9e8b2'
+      intensity: 0.2036
+    '57':
+      color: '#f9e8b2'
+      intensity: 0.4216
+    '58':
+      color: '#f9e8b2'
+      intensity: 0.1258
+    '59':
+      color: '#f9e8b2'
+      intensity: 0.4553
+    '60':
+      color: '#feeede'
+      intensity: 0.5283
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#feeedd'
+      intensity: 0.6458
+    '1':
+      color: '#feeedd'
+      intensity: 0.3703
+    '2':
+      color: '#feeedd'
+      intensity: 0.6156
+    '3':
+      color: '#feeedd'
+      intensity: 0.5014
+    '4':
+      color: '#feeedd'
+      intensity: 0.4074
+    '5':
+      color: '#ecae7a'
+      intensity: 0.5404
+    '6':
+      color: '#ecae7a'
+      intensity: 0.4959
+    '7':
+      color: '#ecae7a'
+      intensity: 0.2818
+    '8':
+      color: '#ecae7a'
+      intensity: 0.6378
+    '9':
+      color: '#ecae7a'
+      intensity: 0.493
+    '10':
+      color: '#bca9e2'
+      intensity: 0.4577
+    '11':
+      color: '#bca9e2'
+      intensity: 0.4922
+    '12':
+      color: '#bca9e2'
+      intensity: 0.5793
+    '13':
+      color: '#bca9e2'
+      intensity: 0.3028
+    '14':
+      color: '#bca9e2'
+      intensity: 0.6471
+    '15':
+      color: '#c58ca9'
+      intensity: 0.493
+    '16':
+      color: '#c58ca9'
+      intensity: 0.4484
+    '17':
+      color: '#c58ca9'
+      intensity: 0.4712
+    '18':
+      color: '#c58ca9'
+      intensity: 0.4959
+    '19':
+      color: '#c58ca9'
+      intensity: 0.351
+    '20':
+      color: '#89e2c2'
+      intensity: 0.5968
+    '21':
+      color: '#89e2c2'
+      intensity: 0.5014
+    '22':
+      color: '#89e2c2'
+      intensity: 0.4262
+    '23':
+      color: '#89e2c2'
+      intensity: 0.5596
+    '24':
+      color: '#89e2c2'
+      intensity: 0.0915
+    '25':
+      color: '#f9e8b2'
+      intensity: 0.5893
+    '26':
+      color: '#f9e8b2'
+      intensity: 0.4112
+    '27':
+      color: '#f9e8b2'
+      intensity: 0.6944
+    '28':
+      color: '#f9e8b2'
+      intensity: 0.095
+    '29':
+      color: '#f9e8b2'
+      intensity: 0.6255
+    '30':
+      color: '#feeedd'
+      intensity: 0.4368
+    '31':
+      color: '#feeedd'
+      intensity: 0.542
+    '32':
+      color: '#feeedd'
+      intensity: 0.1077
+    '33':
+      color: '#feeedd'
+      intensity: 0.542
+    '34':
+      color: '#feeedd'
+      intensity: 0.4368
+    '35':
+      color: '#ecae7a'
+      intensity: 0.6255
+    '36':
+      color: '#ecae7a'
+      intensity: 0.095
+    '37':
+      color: '#ecae7a'
+      intensity: 0.6944
+    '38':
+      color: '#ecae7a'
+      intensity: 0.4112
+    '39':
+      color: '#ecae7a'
+      intensity: 0.5893
+    '40':
+      color: '#bca9e2'
+      intensity: 0.7915
+    '41':
+      color: '#bca9e2'
+      intensity: 0.3899
+    '42':
+      color: '#bca9e2'
+      intensity: 0.3837
+    '43':
+      color: '#bca9e2'
+      intensity: 0.5034
+    '44':
+      color: '#bca9e2'
+      intensity: 0.4824
+    '45':
+      color: '#c58ca9'
+      intensity: 0.2928
+    '46':
+      color: '#c58ca9'
+      intensity: 0.8325
+    '47':
+      color: '#c58ca9'
+      intensity: 0.4582
+    '48':
+      color: '#c58ca9'
+      intensity: 0.317
+    '49':
+      color: '#c58ca9'
+      intensity: 0.5034
+    '50':
+      color: '#89e2c2'
+      intensity: 0.5491
+    '51':
+      color: '#89e2c2'
+      intensity: 0.2246
+    '52':
+      color: '#89e2c2'
+      intensity: 0.3331
+    '53':
+      color: '#89e2c2'
+      intensity: 0.4868
+    '54':
+      color: '#89e2c2'
+      intensity: 0.1427
+    '55':
+      color: '#f9e8b2'
+      intensity: 0.4693
+    '56':
+      color: '#f9e8b2'
+      intensity: 0.2633
+    '57':
+      color: '#f9e8b2'
+      intensity: 0.4693
+    '58':
+      color: '#f9e8b2'
+      intensity: 0.1427
+    '59':
+      color: '#f9e8b2'
+      intensity: 0.4868
+    '60':
+      color: '#feeedd'
+      intensity: 0.5098
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#feeedd'
+      intensity: 0.5553
+    '1':
+      color: '#feeedd'
+      intensity: 0.2949
+    '2':
+      color: '#feeedd'
+      intensity: 0.6642
+    '3':
+      color: '#feeedd'
+      intensity: 0.4557
+    '4':
+      color: '#feeedd'
+      intensity: 0.412
+    '5':
+      color: '#ecae7a'
+      intensity: 0.5152
+    '6':
+      color: '#ecae7a'
+      intensity: 0.4565
+    '7':
+      color: '#ecae7a'
+      intensity: 0.3088
+    '8':
+      color: '#ecae7a'
+      intensity: 0.6324
+    '9':
+      color: '#ecae7a'
+      intensity: 0.4599
+    '10':
+      color: '#bca9e2'
+      intensity: 0.4079
+    '11':
+      color: '#bca9e2'
+      intensity: 0.569
+    '12':
+      color: '#bca9e2'
+      intensity: 0.5882
+    '13':
+      color: '#bca9e2'
+      intensity: 0.3283
+    '14':
+      color: '#bca9e2'
+      intensity: 0.6486
+    '15':
+      color: '#c58ca9'
+      intensity: 0.4599
+    '16':
+      color: '#c58ca9'
+      intensity: 0.3917
+    '17':
+      color: '#c58ca9'
+      intensity: 0.5495
+    '18':
+      color: '#c58ca9'
+      intensity: 0.4565
+    '19':
+      color: '#c58ca9'
+      intensity: 0.2745
+    '20':
+      color: '#89e2c2'
+      intensity: 0.6527
+    '21':
+      color: '#89e2c2'
+      intensity: 0.4557
+    '22':
+      color: '#89e2c2'
+      intensity: 0.4235
+    '23':
+      color: '#89e2c2'
+      intensity: 0.5356
+    '24':
+      color: '#89e2c2'
+      intensity: 0.1101
+    '25':
+      color: '#f9e8b2'
+      intensity: 0.525
+    '26':
+      color: '#f9e8b2'
+      intensity: 0.4329
+    '27':
+      color: '#f9e8b2'
+      intensity: 0.6127
+    '28':
+      color: '#f9e8b2'
+      intensity: 0.1015
+    '29':
+      color: '#f9e8b2'
+      intensity: 0.6469
+    '30':
+      color: '#feeedd'
+      intensity: 0.4203
+    '31':
+      color: '#feeedd'
+      intensity: 0.5484
+    '32':
+      color: '#feeedd'
+      intensity: 0.1021
+    '33':
+      color: '#feeedd'
+      intensity: 0.5484
+    '34':
+      color: '#feeedd'
+      intensity: 0.4203
+    '35':
+      color: '#ecae7a'
+      intensity: 0.6468
+    '36':
+      color: '#ecae7a'
+      intensity: 0.1015
+    '37':
+      color: '#ecae7a'
+      intensity: 0.6127
+    '38':
+      color: '#ecae7a'
+      intensity: 0.4329
+    '39':
+      color: '#ecae7a'
+      intensity: 0.525
+    '40':
+      color: '#bca9e2'
+      intensity: 0.7812
+    '41':
+      color: '#bca9e2'
+      intensity: 0.4689
+    '42':
+      color: '#bca9e2'
+      intensity: 0.306
+    '43':
+      color: '#bca9e2'
+      intensity: 0.4662
+    '44':
+      color: '#bca9e2'
+      intensity: 0.5592
+    '45':
+      color: '#c58ca9'
+      intensity: 0.215
+    '46':
+      color: '#c58ca9'
+      intensity: 0.7609
+    '47':
+      color: '#c58ca9'
+      intensity: 0.4352
+    '48':
+      color: '#c58ca9'
+      intensity: 0.339
+    '49':
+      color: '#c58ca9'
+      intensity: 0.4662
+    '50':
+      color: '#89e2c2'
+      intensity: 0.5261
+    '51':
+      color: '#89e2c2'
+      intensity: 0.2488
+    '52':
+      color: '#89e2c2'
+      intensity: 0.3014
+    '53':
+      color: '#89e2c2'
+      intensity: 0.4921
+    '54':
+      color: '#89e2c2'
+      intensity: 0.1651
+    '55':
+      color: '#f9e8b2'
+      intensity: 0.5008
+    '56':
+      color: '#f9e8b2'
+      intensity: 0.336
+    '57':
+      color: '#f9e8b2'
+      intensity: 0.5008
+    '58':
+      color: '#f9e8b2'
+      intensity: 0.1651
+    '59':
+      color: '#f9e8b2'
+      intensity: 0.4921
+    '60':
+      color: '#feeedd'
+      intensity: 0.4749
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7b'
+      intensity: 0.4532
+    '1':
+      color: '#ebae7b'
+      intensity: 0.2275
+    '2':
+      color: '#ebae7b'
+      intensity: 0.663
+    '3':
+      color: '#ebae7b'
+      intensity: 0.3958
+    '4':
+      color: '#ebae7b'
+      intensity: 0.3868
+    '5':
+      color: '#bca9e2'
+      intensity: 0.4796
+    '6':
+      color: '#bca9e2'
+      intensity: 0.401
+    '7':
+      color: '#bca9e2'
+      intensity: 0.3108
+    '8':
+      color: '#bca9e2'
+      intensity: 0.5973
+    '9':
+      color: '#bca9e2'
+      intensity: 0.4083
+    '10':
+      color: '#c58da9'
+      intensity: 0.3455
+    '11':
+      color: '#c58da9'
+      intensity: 0.5979
+    '12':
+      color: '#c58da9'
+      intensity: 0.5513
+    '13':
+      color: '#c58da9'
+      intensity: 0.3269
+    '14':
+      color: '#c58da9'
+      intensity: 0.6165
+    '15':
+      color: '#89e2c2'
+      intensity: 0.4083
+    '16':
+      color: '#89e2c2'
+      intensity: 0.3263
+    '17':
+      color: '#89e2c2'
+      intensity: 0.5818
+    '18':
+      color: '#89e2c2'
+      intensity: 0.401
+    '19':
+      color: '#89e2c2'
+      intensity: 0.2087
+    '20':
+      color: '#f9e8b2'
+      intensity: 0.6578
+    '21':
+      color: '#f9e8b2'
+      intensity: 0.3958
+    '22':
+      color: '#f9e8b2'
+      intensity: 0.392
+    '23':
+      color: '#f9e8b2'
+      intensity: 0.4985
+    '24':
+      color: '#f9e8b2'
+      intensity: 0.1373
+    '25':
+      color: '#feeedd'
+      intensity: 0.4486
+    '26':
+      color: '#feeedd'
+      intensity: 0.4259
+    '27':
+      color: '#feeedd'
+      intensity: 0.5146
+    '28':
+      color: '#feeedd'
+      intensity: 0.1213
+    '29':
+      color: '#feeedd'
+      intensity: 0.6162
+    '30':
+      color: '#ebae7b'
+      intensity: 0.3882
+    '31':
+      color: '#ebae7b'
+      intensity: 0.5184
+    '32':
+      color: '#ebae7b'
+      intensity: 0.1134
+    '33':
+      color: '#ebae7b'
+      intensity: 0.5184
+    '34':
+      color: '#ebae7b'
+      intensity: 0.3882
+    '35':
+      color: '#bca9e2'
+      intensity: 0.6162
+    '36':
+      color: '#bca9e2'
+      intensity: 0.1213
+    '37':
+      color: '#bca9e2'
+      intensity: 0.5146
+    '38':
+      color: '#bca9e2'
+      intensity: 0.4259
+    '39':
+      color: '#bca9e2'
+      intensity: 0.4486
+    '40':
+      color: '#c58da9'
+      intensity: 0.7102
+    '41':
+      color: '#c58da9'
+      intensity: 0.5104
+    '42':
+      color: '#c58da9'
+      intensity: 0.2351
+    '43':
+      color: '#c58da9'
+      intensity: 0.412
+    '44':
+      color: '#c58da9'
+      intensity: 0.589
+    '45':
+      color: '#89e2c2'
+      intensity: 0.1543
+    '46':
+      color: '#89e2c2'
+      intensity: 0.6497
+    '47':
+      color: '#89e2c2'
+      intensity: 0.4098
+    '48':
+      color: '#89e2c2'
+      intensity: 0.3335
+    '49':
+      color: '#89e2c2'
+      intensity: 0.412
+    '50':
+      color: '#f9e8b2'
+      intensity: 0.4906
+    '51':
+      color: '#f9e8b2'
+      intensity: 0.2549
+    '52':
+      color: '#f9e8b2'
+      intensity: 0.2786
+    '53':
+      color: '#f9e8b2'
+      intensity: 0.4734
+    '54':
+      color: '#f9e8b2'
+      intensity: 0.1951
+    '55':
+      color: '#feeedd'
+      intensity: 0.4992
+    '56':
+      color: '#feeedd'
+      intensity: 0.3816
+    '57':
+      color: '#feeedd'
+      intensity: 0.4992
+    '58':
+      color: '#feeedd'
+      intensity: 0.1951
+    '59':
+      color: '#feeedd'
+      intensity: 0.4734
+    '60':
+      color: '#ebae7b'
+      intensity: 0.4223
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7b'
+      intensity: 0.3649
+    '1':
+      color: '#ebae7b'
+      intensity: 0.1778
+    '2':
+      color: '#ebae7b'
+      intensity: 0.6509
+    '3':
+      color: '#ebae7b'
+      intensity: 0.3466
+    '4':
+      color: '#ebae7b'
+      intensity: 0.3652
+    '5':
+      color: '#bda8e1'
+      intensity: 0.4475
+    '6':
+      color: '#bda8e1'
+      intensity: 0.3552
+    '7':
+      color: '#bda8e1'
+      intensity: 0.3163
+    '8':
+      color: '#bda8e1'
+      intensity: 0.5596
+    '9':
+      color: '#bda8e1'
+      intensity: 0.3656
+    '10':
+      color: '#c48da9'
+      intensity: 0.2941
+    '11':
+      color: '#c48da9'
+      intensity: 0.6151
+    '12':
+      color: '#c48da9'
+      intensity: 0.5139
+    '13':
+      color: '#c48da9'
+      intensity: 0.3288
+    '14':
+      color: '#c48da9'
+      intensity: 0.5804
+    '15':
+      color: '#8ae2c1'
+      intensity: 0.3656
+    '16':
+      color: '#8ae2c1'
+      intensity: 0.2733
+    '17':
+      color: '#8ae2c1'
+      intensity: 0.6026
+    '18':
+      color: '#8ae2c1'
+      intensity: 0.3552
+    '19':
+      color: '#8ae2c1'
+      intensity: 0.1612
+    '20':
+      color: '#f9e8b3'
+      intensity: 0.6515
+    '21':
+      color: '#f9e8b3'
+      intensity: 0.3466
+    '22':
+      color: '#f9e8b3'
+      intensity: 0.3646
+    '23':
+      color: '#f9e8b3'
+      intensity: 0.4641
+    '24':
+      color: '#f9e8b3'
+      intensity: 0.174
+    '25':
+      color: '#feeddc'
+      intensity: 0.3832
+    '26':
+      color: '#feeddc'
+      intensity: 0.4185
+    '27':
+      color: '#feeddc'
+      intensity: 0.427
+    '28':
+      color: '#feeddc'
+      intensity: 0.1525
+    '29':
+      color: '#feeddc'
+      intensity: 0.5814
+    '30':
+      color: '#ebae7b'
+      intensity: 0.3612
+    '31':
+      color: '#ebae7b'
+      intensity: 0.4892
+    '32':
+      color: '#ebae7b'
+      intensity: 0.1376
+    '33':
+      color: '#ebae7b'
+      intensity: 0.4892
+    '34':
+      color: '#ebae7b'
+      intensity: 0.3612
+    '35':
+      color: '#bda8e1'
+      intensity: 0.5814
+    '36':
+      color: '#bda8e1'
+      intensity: 0.1525
+    '37':
+      color: '#bda8e1'
+      intensity: 0.427
+    '38':
+      color: '#bda8e1'
+      intensity: 0.4185
+    '39':
+      color: '#bda8e1'
+      intensity: 0.3832
+    '40':
+      color: '#c48da9'
+      intensity: 0.6356
+    '41':
+      color: '#c48da9'
+      intensity: 0.5428
+    '42':
+      color: '#c48da9'
+      intensity: 0.1819
+    '43':
+      color: '#c48da9'
+      intensity: 0.367
+    '44':
+      color: '#c48da9'
+      intensity: 0.6073
+    '45':
+      color: '#8ae2c1'
+      intensity: 0.1141
+    '46':
+      color: '#8ae2c1'
+      intensity: 0.5437
+    '47':
+      color: '#8ae2c1'
+      intensity: 0.39
+    '48':
+      color: '#8ae2c1'
+      intensity: 0.3314
+    '49':
+      color: '#8ae2c1'
+      intensity: 0.367
+    '50':
+      color: '#f9e8b3'
+      intensity: 0.4578
+    '51':
+      color: '#f9e8b3'
+      intensity: 0.2669
+    '52':
+      color: '#f9e8b3'
+      intensity: 0.2661
+    '53':
+      color: '#f9e8b3'
+      intensity: 0.4545
+    '54':
+      color: '#f9e8b3'
+      intensity: 0.2321
+    '55':
+      color: '#feeddc'
+      intensity: 0.4937
+    '56':
+      color: '#feeddc'
+      intensity: 0.4225
+    '57':
+      color: '#feeddc'
+      intensity: 0.4937
+    '58':
+      color: '#feeddc'
+      intensity: 0.2321
+    '59':
+      color: '#feeddc'
+      intensity: 0.4545
+    '60':
+      color: '#ebae7b'
+      intensity: 0.3783
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7c'
+      intensity: 0.3113
+    '1':
+      color: '#ebae7c'
+      intensity: 0.1683
+    '2':
+      color: '#ebae7c'
+      intensity: 0.6752
+    '3':
+      color: '#ebae7c'
+      intensity: 0.3126
+    '4':
+      color: '#ebae7c'
+      intensity: 0.3712
+    '5':
+      color: '#bda8e1'
+      intensity: 0.46
+    '6':
+      color: '#bda8e1'
+      intensity: 0.323
+    '7':
+      color: '#bda8e1'
+      intensity: 0.3356
+    '8':
+      color: '#bda8e1'
+      intensity: 0.5703
+    '9':
+      color: '#bda8e1'
+      intensity: 0.335
+    '10':
+      color: '#c38ea9'
+      intensity: 0.2846
+    '11':
+      color: '#c38ea9'
+      intensity: 0.6538
+    '12':
+      color: '#c38ea9'
+      intensity: 0.4871
+    '13':
+      color: '#c38ea9'
+      intensity: 0.3464
+    '14':
+      color: '#c38ea9'
+      intensity: 0.592
+    '15':
+      color: '#8be2c1'
+      intensity: 0.335
+    '16':
+      color: '#8be2c1'
+      intensity: 0.2629
+    '17':
+      color: '#8be2c1'
+      intensity: 0.6431
+    '18':
+      color: '#8be2c1'
+      intensity: 0.323
+    '19':
+      color: '#8be2c1'
+      intensity: 0.1526
+    '20':
+      color: '#fae8b3'
+      intensity: 0.6786
+    '21':
+      color: '#fae8b3'
+      intensity: 0.3126
+    '22':
+      color: '#fae8b3'
+      intensity: 0.3678
+    '23':
+      color: '#fae8b3'
+      intensity: 0.4757
+    '24':
+      color: '#fae8b3'
+      intensity: 0.2207
+    '25':
+      color: '#feeddb'
+      intensity: 0.3445
+    '26':
+      color: '#feeddb'
+      intensity: 0.4451
+    '27':
+      color: '#feeddb'
+      intensity: 0.3776
+    '28':
+      color: '#feeddb'
+      intensity: 0.1962
+    '29':
+      color: '#feeddb'
+      intensity: 0.5596
+    '30':
+      color: '#ebae7c'
+      intensity: 0.3775
+    '31':
+      color: '#ebae7c'
+      intensity: 0.4695
+    '32':
+      color: '#ebae7c'
+      intensity: 0.1778
+    '33':
+      color: '#ebae7c'
+      intensity: 0.4695
+    '34':
+      color: '#ebae7c'
+      intensity: 0.3775
+    '35':
+      color: '#bda8e1'
+      intensity: 0.5596
+    '36':
+      color: '#bda8e1'
+      intensity: 0.1962
+    '37':
+      color: '#bda8e1'
+      intensity: 0.3776
+    '38':
+      color: '#bda8e1'
+      intensity: 0.4451
+    '39':
+      color: '#bda8e1'
+      intensity: 0.3445
+    '40':
+      color: '#c38ea9'
+      intensity: 0.5917
+    '41':
+      color: '#c38ea9'
+      intensity: 0.5895
+    '42':
+      color: '#c38ea9'
+      intensity: 0.1691
+    '43':
+      color: '#c38ea9'
+      intensity: 0.3358
+    '44':
+      color: '#c38ea9'
+      intensity: 0.6475
+    '45':
+      color: '#8be2c1'
+      intensity: 0.1071
+    '46':
+      color: '#8be2c1'
+      intensity: 0.4833
+    '47':
+      color: '#8be2c1'
+      intensity: 0.4092
+    '48':
+      color: '#8be2c1'
+      intensity: 0.3454
+    '49':
+      color: '#8be2c1'
+      intensity: 0.3358
+    '50':
+      color: '#fae8b3'
+      intensity: 0.4712
+    '51':
+      color: '#fae8b3'
+      intensity: 0.2874
+    '52':
+      color: '#fae8b3'
+      intensity: 0.2928
+    '53':
+      color: '#fae8b3'
+      intensity: 0.4795
+    '54':
+      color: '#fae8b3'
+      intensity: 0.2835
+    '55':
+      color: '#feeddb'
+      intensity: 0.5258
+    '56':
+      color: '#feeddb'
+      intensity: 0.4774
+    '57':
+      color: '#feeddb'
+      intensity: 0.5258
+    '58':
+      color: '#feeddb'
+      intensity: 0.2835
+    '59':
+      color: '#feeddb'
+      intensity: 0.4795
+    '60':
+      color: '#ebae7c'
+      intensity: 0.3482
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7c'
+      intensity: 0.2379
+    '1':
+      color: '#ebae7c'
+      intensity: 0.124
+    '2':
+      color: '#ebae7c'
+      intensity: 0.6152
+    '3':
+      color: '#ebae7c'
+      intensity: 0.2926
+    '4':
+      color: '#ebae7c'
+      intensity: 0.3386
+    '5':
+      color: '#bda8e1'
+      intensity: 0.4009
+    '6':
+      color: '#bda8e1'
+      intensity: 0.3063
+    '7':
+      color: '#bda8e1'
+      intensity: 0.345
+    '8':
+      color: '#bda8e1'
+      intensity: 0.4889
+    '9':
+      color: '#bda8e1'
+      intensity: 0.3209
+    '10':
+      color: '#c48da9'
+      intensity: 0.2226
+    '11':
+      color: '#c48da9'
+      intensity: 0.6366
+    '12':
+      color: '#c48da9'
+      intensity: 0.4601
+    '13':
+      color: '#c48da9'
+      intensity: 0.3493
+    '14':
+      color: '#c48da9'
+      intensity: 0.5099
+    '15':
+      color: '#8ae2c1'
+      intensity: 0.3209
+    '16':
+      color: '#8ae2c1'
+      intensity: 0.2016
+    '17':
+      color: '#8ae2c1'
+      intensity: 0.6322
+    '18':
+      color: '#8ae2c1'
+      intensity: 0.3063
+    '19':
+      color: '#8ae2c1'
+      intensity: 0.1136
+    '20':
+      color: '#fae8b3'
+      intensity: 0.6259
+    '21':
+      color: '#fae8b3'
+      intensity: 0.2926
+    '22':
+      color: '#fae8b3'
+      intensity: 0.3279
+    '23':
+      color: '#fae8b3'
+      intensity: 0.4113
+    '24':
+      color: '#fae8b3'
+      intensity: 0.2749
+    '25':
+      color: '#feeddc'
+      intensity: 0.2964
+    '26':
+      color: '#feeddc'
+      intensity: 0.4094
+    '27':
+      color: '#feeddc'
+      intensity: 0.2948
+    '28':
+      color: '#feeddc'
+      intensity: 0.2461
+    '29':
+      color: '#feeddc'
+      intensity: 0.5251
+    '30':
+      color: '#ebae7c'
+      intensity: 0.3238
+    '31':
+      color: '#ebae7c'
+      intensity: 0.4545
+    '32':
+      color: '#ebae7c'
+      intensity: 0.2207
+    '33':
+      color: '#ebae7c'
+      intensity: 0.4545
+    '34':
+      color: '#ebae7c'
+      intensity: 0.3238
+    '35':
+      color: '#bda8e1'
+      intensity: 0.5251
+    '36':
+      color: '#bda8e1'
+      intensity: 0.2461
+    '37':
+      color: '#bda8e1'
+      intensity: 0.2948
+    '38':
+      color: '#bda8e1'
+      intensity: 0.4094
+    '39':
+      color: '#bda8e1'
+      intensity: 0.2964
+    '40':
+      color: '#c48da9'
+      intensity: 0.4998
+    '41':
+      color: '#c48da9'
+      intensity: 0.5997
+    '42':
+      color: '#c48da9'
+      intensity: 0.1218
+    '43':
+      color: '#c48da9'
+      intensity: 0.3183
+    '44':
+      color: '#c48da9'
+      intensity: 0.6308
+    '45':
+      color: '#8ae2c1'
+      intensity: 0.0857
+    '46':
+      color: '#8ae2c1'
+      intensity: 0.3628
+    '47':
+      color: '#8ae2c1'
+      intensity: 0.3718
+    '48':
+      color: '#8ae2c1'
+      intensity: 0.3448
+    '49':
+      color: '#8ae2c1'
+      intensity: 0.3183
+    '50':
+      color: '#fae8b3'
+      intensity: 0.4079
+    '51':
+      color: '#fae8b3'
+      intensity: 0.3137
+    '52':
+      color: '#fae8b3'
+      intensity: 0.2689
+    '53':
+      color: '#fae8b3'
+      intensity: 0.4223
+    '54':
+      color: '#fae8b3'
+      intensity: 0.3287
+    '55':
+      color: '#feeddc'
+      intensity: 0.4808
+    '56':
+      color: '#feeddc'
+      intensity: 0.5023
+    '57':
+      color: '#feeddc'
+      intensity: 0.4808
+    '58':
+      color: '#feeddc'
+      intensity: 0.3287
+    '59':
+      color: '#feeddc'
+      intensity: 0.4223
+    '60':
+      color: '#ebae7c'
+      intensity: 0.3302
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#eaae7d'
+      intensity: 0.1762
+    '1':
+      color: '#eaae7d'
+      intensity: 0.1185
+    '2':
+      color: '#eaae7d'
+      intensity: 0.5506
+    '3':
+      color: '#eaae7d'
+      intensity: 0.2427
+    '4':
+      color: '#eaae7d'
+      intensity: 0.3121
+    '5':
+      color: '#bda8e1'
+      intensity: 0.3615
+    '6':
+      color: '#bda8e1'
+      intensity: 0.2559
+    '7':
+      color: '#bda8e1'
+      intensity: 0.3319
+    '8':
+      color: '#bda8e1'
+      intensity: 0.4318
+    '9':
+      color: '#bda8e1'
+      intensity: 0.2697
+    '10':
+      color: '#c38eaa'
+      intensity: 0.1996
+    '11':
+      color: '#c38eaa'
+      intensity: 0.584
+    '12':
+      color: '#c38eaa'
+      intensity: 0.3884
+    '13':
+      color: '#c38eaa'
+      intensity: 0.3335
+    '14':
+      color: '#c38eaa'
+      intensity: 0.4501
+    '15':
+      color: '#8be2c1'
+      intensity: 0.2697
+    '16':
+      color: '#8be2c1'
+      intensity: 0.1813
+    '17':
+      color: '#8be2c1'
+      intensity: 0.5824
+    '18':
+      color: '#8be2c1'
+      intensity: 0.2559
+    '19':
+      color: '#8be2c1'
+      intensity: 0.111
+    '20':
+      color: '#fae8b4'
+      intensity: 0.5626
+    '21':
+      color: '#fae8b4'
+      intensity: 0.2427
+    '22':
+      color: '#fae8b4'
+      intensity: 0.3001
+    '23':
+      color: '#fae8b4'
+      intensity: 0.369
+    '24':
+      color: '#fae8b4'
+      intensity: 0.2966
+    '25':
+      color: '#feeddb'
+      intensity: 0.2384
+    '26':
+      color: '#feeddb'
+      intensity: 0.385
+    '27':
+      color: '#feeddb'
+      intensity: 0.2253
+    '28':
+      color: '#feeddb'
+      intensity: 0.2696
+    '29':
+      color: '#feeddb'
+      intensity: 0.4451
+    '30':
+      color: '#eaae7d'
+      intensity: 0.3033
+    '31':
+      color: '#eaae7d'
+      intensity: 0.3893
+    '32':
+      color: '#eaae7d'
+      intensity: 0.2448
+    '33':
+      color: '#eaae7d'
+      intensity: 0.3893
+    '34':
+      color: '#eaae7d'
+      intensity: 0.3033
+    '35':
+      color: '#bda8e1'
+      intensity: 0.4451
+    '36':
+      color: '#bda8e1'
+      intensity: 0.2696
+    '37':
+      color: '#bda8e1'
+      intensity: 0.2253
+    '38':
+      color: '#bda8e1'
+      intensity: 0.385
+    '39':
+      color: '#bda8e1'
+      intensity: 0.2384
+    '40':
+      color: '#c38eaa'
+      intensity: 0.4018
+    '41':
+      color: '#c38eaa'
+      intensity: 0.5621
+    '42':
+      color: '#c38eaa'
+      intensity: 0.114
+    '43':
+      color: '#c38eaa'
+      intensity: 0.2665
+    '44':
+      color: '#c38eaa'
+      intensity: 0.5805
+    '45':
+      color: '#8be2c1'
+      intensity: 0.0908
+    '46':
+      color: '#8be2c1'
+      intensity: 0.271
+    '47':
+      color: '#8be2c1'
+      intensity: 0.3445
+    '48':
+      color: '#8be2c1'
+      intensity: 0.3268
+    '49':
+      color: '#8be2c1'
+      intensity: 0.2665
+    '50':
+      color: '#fae8b4'
+      intensity: 0.3677
+    '51':
+      color: '#fae8b4'
+      intensity: 0.3084
+    '52':
+      color: '#fae8b4'
+      intensity: 0.2667
+    '53':
+      color: '#fae8b4'
+      intensity: 0.3909
+    '54':
+      color: '#fae8b4'
+      intensity: 0.3429
+    '55':
+      color: '#feeddb'
+      intensity: 0.4468
+    '56':
+      color: '#feeddb'
+      intensity: 0.4895
+    '57':
+      color: '#feeddb'
+      intensity: 0.4468
+    '58':
+      color: '#feeddb'
+      intensity: 0.3429
+    '59':
+      color: '#feeddb'
+      intensity: 0.3909
+    '60':
+      color: '#eaae7d'
+      intensity: 0.2771
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7c'
+      intensity: 0.1767
+    '1':
+      color: '#ebae7c'
+      intensity: 0.1207
+    '2':
+      color: '#ebae7c'
+      intensity: 0.5335
+    '3':
+      color: '#ebae7c'
+      intensity: 0.2923
+    '4':
+      color: '#ebae7c'
+      intensity: 0.2999
+    '5':
+      color: '#bda8e1'
+      intensity: 0.3718
+    '6':
+      color: '#bda8e1'
+      intensity: 0.3073
+    '7':
+      color: '#bda8e1'
+      intensity: 0.3627
+    '8':
+      color: '#bda8e1'
+      intensity: 0.4081
+    '9':
+      color: '#bda8e1'
+      intensity: 0.322
+    '10':
+      color: '#c48da9'
+      intensity: 0.1711
+    '11':
+      color: '#c48da9'
+      intensity: 0.609
+    '12':
+      color: '#c48da9'
+      intensity: 0.41
+    '13':
+      color: '#c48da9'
+      intensity: 0.3571
+    '14':
+      color: '#c48da9'
+      intensity: 0.4231
+    '15':
+      color: '#8ae2c1'
+      intensity: 0.322
+    '16':
+      color: '#8ae2c1'
+      intensity: 0.1561
+    '17':
+      color: '#8ae2c1'
+      intensity: 0.6147
+    '18':
+      color: '#8ae2c1'
+      intensity: 0.3073
+    '19':
+      color: '#8ae2c1'
+      intensity: 0.1199
+    '20':
+      color: '#f9e8b3'
+      intensity: 0.5519
+    '21':
+      color: '#f9e8b3'
+      intensity: 0.2923
+    '22':
+      color: '#f9e8b3'
+      intensity: 0.2816
+    '23':
+      color: '#f9e8b3'
+      intensity: 0.3727
+    '24':
+      color: '#f9e8b3'
+      intensity: 0.3972
+    '25':
+      color: '#feeddc'
+      intensity: 0.2684
+    '26':
+      color: '#feeddc'
+      intensity: 0.3749
+    '27':
+      color: '#feeddc'
+      intensity: 0.2193
+    '28':
+      color: '#feeddc'
+      intensity: 0.3693
+    '29':
+      color: '#feeddc'
+      intensity: 0.4609
+    '30':
+      color: '#ebae7c'
+      intensity: 0.2851
+    '31':
+      color: '#ebae7c'
+      intensity: 0.4343
+    '32':
+      color: '#ebae7c'
+      intensity: 0.3402
+    '33':
+      color: '#ebae7c'
+      intensity: 0.4343
+    '34':
+      color: '#ebae7c'
+      intensity: 0.2851
+    '35':
+      color: '#bda8e1'
+      intensity: 0.4609
+    '36':
+      color: '#bda8e1'
+      intensity: 0.3693
+    '37':
+      color: '#bda8e1'
+      intensity: 0.2193
+    '38':
+      color: '#bda8e1'
+      intensity: 0.3749
+    '39':
+      color: '#bda8e1'
+      intensity: 0.2684
+    '40':
+      color: '#c48da9'
+      intensity: 0.3531
+    '41':
+      color: '#c48da9'
+      intensity: 0.6186
+    '42':
+      color: '#c48da9'
+      intensity: 0.1128
+    '43':
+      color: '#c48da9'
+      intensity: 0.3179
+    '44':
+      color: '#c48da9'
+      intensity: 0.605
+    '45':
+      color: '#8ae2c1'
+      intensity: 0.1211
+    '46':
+      color: '#8ae2c1'
+      intensity: 0.2092
+    '47':
+      color: '#8ae2c1'
+      intensity: 0.3793
+    '48':
+      color: '#8ae2c1'
+      intensity: 0.3467
+    '49':
+      color: '#8ae2c1'
+      intensity: 0.3179
+    '50':
+      color: '#f9e8b3'
+      intensity: 0.371
+    '51':
+      color: '#f9e8b3'
+      intensity: 0.3603
+    '52':
+      color: '#f9e8b3'
+      intensity: 0.3028
+    '53':
+      color: '#f9e8b3'
+      intensity: 0.3731
+    '54':
+      color: '#f9e8b3'
+      intensity: 0.4438
+    '55':
+      color: '#feeddc'
+      intensity: 0.4345
+    '56':
+      color: '#feeddc'
+      intensity: 0.5477
+    '57':
+      color: '#feeddc'
+      intensity: 0.4345
+    '58':
+      color: '#feeddc'
+      intensity: 0.4438
+    '59':
+      color: '#feeddc'
+      intensity: 0.3731
+    '60':
+      color: '#ebae7c'
+      intensity: 0.3288
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7c'
+      intensity: 0.1785
+    '1':
+      color: '#ebae7c'
+      intensity: 0.1644
+    '2':
+      color: '#ebae7c'
+      intensity: 0.5588
+    '3':
+      color: '#ebae7c'
+      intensity: 0.3188
+    '4':
+      color: '#ebae7c'
+      intensity: 0.3327
+    '5':
+      color: '#bda8e1'
+      intensity: 0.4148
+    '6':
+      color: '#bda8e1'
+      intensity: 0.3345
+    '7':
+      color: '#bda8e1'
+      intensity: 0.4179
+    '8':
+      color: '#bda8e1'
+      intensity: 0.4318
+    '9':
+      color: '#bda8e1'
+      intensity: 0.3495
+    '10':
+      color: '#c48da9'
+      intensity: 0.1972
+    '11':
+      color: '#c48da9'
+      intensity: 0.656
+    '12':
+      color: '#c48da9'
+      intensity: 0.4193
+    '13':
+      color: '#c48da9'
+      intensity: 0.4084
+    '14':
+      color: '#c48da9'
+      intensity: 0.4448
+    '15':
+      color: '#8ae2c1'
+      intensity: 0.3495
+    '16':
+      color: '#8ae2c1'
+      intensity: 0.1843
+    '17':
+      color: '#8ae2c1'
+      intensity: 0.6654
+    '18':
+      color: '#8ae2c1'
+      intensity: 0.3345
+    '19':
+      color: '#8ae2c1'
+      intensity: 0.1672
+    '20':
+      color: '#fae8b3'
+      intensity: 0.5803
+    '21':
+      color: '#fae8b3'
+      intensity: 0.3188
+    '22':
+      color: '#fae8b3'
+      intensity: 0.3112
+    '23':
+      color: '#fae8b3'
+      intensity: 0.412
+    '24':
+      color: '#fae8b3'
+      intensity: 0.5012
+    '25':
+      color: '#feeddb'
+      intensity: 0.2859
+    '26':
+      color: '#feeddb'
+      intensity: 0.4191
+    '27':
+      color: '#feeddb'
+      intensity: 0.218
+    '28':
+      color: '#feeddb'
+      intensity: 0.4733
+    '29':
+      color: '#feeddb'
+      intensity: 0.4674
+    '30':
+      color: '#ebae7c'
+      intensity: 0.3264
+    '31':
+      color: '#ebae7c'
+      intensity: 0.4571
+    '32':
+      color: '#ebae7c'
+      intensity: 0.4425
+    '33':
+      color: '#ebae7c'
+      intensity: 0.4571
+    '34':
+      color: '#ebae7c'
+      intensity: 0.3264
+    '35':
+      color: '#bda8e1'
+      intensity: 0.4674
+    '36':
+      color: '#bda8e1'
+      intensity: 0.4733
+    '37':
+      color: '#bda8e1'
+      intensity: 0.218
+    '38':
+      color: '#bda8e1'
+      intensity: 0.4191
+    '39':
+      color: '#bda8e1'
+      intensity: 0.2859
+    '40':
+      color: '#c48da9'
+      intensity: 0.3251
+    '41':
+      color: '#c48da9'
+      intensity: 0.6841
+    '42':
+      color: '#c48da9'
+      intensity: 0.1531
+    '43':
+      color: '#c48da9'
+      intensity: 0.3451
+    '44':
+      color: '#c48da9'
+      intensity: 0.6533
+    '45':
+      color: '#8ae2c1'
+      intensity: 0.1784
+    '46':
+      color: '#8ae2c1'
+      intensity: 0.1766
+    '47':
+      color: '#8ae2c1'
+      intensity: 0.4371
+    '48':
+      color: '#8ae2c1'
+      intensity: 0.3946
+    '49':
+      color: '#8ae2c1'
+      intensity: 0.3451
+    '50':
+      color: '#fae8b3'
+      intensity: 0.4118
+    '51':
+      color: '#fae8b3'
+      intensity: 0.4253
+    '52':
+      color: '#fae8b3'
+      intensity: 0.3741
+    '53':
+      color: '#fae8b3'
+      intensity: 0.4138
+    '54':
+      color: '#fae8b3'
+      intensity: 0.548
+    '55':
+      color: '#feeddb'
+      intensity: 0.4772
+    '56':
+      color: '#feeddb'
+      intensity: 0.6269
+    '57':
+      color: '#feeddb'
+      intensity: 0.4772
+    '58':
+      color: '#feeddb'
+      intensity: 0.548
+    '59':
+      color: '#feeddb'
+      intensity: 0.4138
+    '60':
+      color: '#ebae7c'
+      intensity: 0.3561
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7b'
+      intensity: 0.2314
+    '1':
+      color: '#ebae7b'
+      intensity: 0.2282
+    '2':
+      color: '#ebae7b'
+      intensity: 0.5144
+    '3':
+      color: '#ebae7b'
+      intensity: 0.3828
+    '4':
+      color: '#ebae7b'
+      intensity: 0.3022
+    '5':
+      color: '#bca9e2'
+      intensity: 0.4733
+    '6':
+      color: '#bca9e2'
+      intensity: 0.3943
+    '7':
+      color: '#bca9e2'
+      intensity: 0.4136
+    '8':
+      color: '#bca9e2'
+      intensity: 0.4329
+    '9':
+      color: '#bca9e2'
+      intensity: 0.4041
+    '10':
+      color: '#c58ca9'
+      intensity: 0.2016
+    '11':
+      color: '#c58ca9'
+      intensity: 0.6312
+    '12':
+      color: '#c58ca9'
+      intensity: 0.3985
+    '13':
+      color: '#c58ca9'
+      intensity: 0.3975
+    '14':
+      color: '#c58ca9'
+      intensity: 0.4353
+    '15':
+      color: '#89e2c2'
+      intensity: 0.4041
+    '16':
+      color: '#89e2c2'
+      intensity: 0.1992
+    '17':
+      color: '#89e2c2'
+      intensity: 0.6473
+    '18':
+      color: '#89e2c2'
+      intensity: 0.3943
+    '19':
+      color: '#89e2c2'
+      intensity: 0.2396
+    '20':
+      color: '#f9e8b2'
+      intensity: 0.5359
+    '21':
+      color: '#f9e8b2'
+      intensity: 0.3828
+    '22':
+      color: '#f9e8b2'
+      intensity: 0.2807
+    '23':
+      color: '#f9e8b2'
+      intensity: 0.4619
+    '24':
+      color: '#f9e8b2'
+      intensity: 0.6065
+    '25':
+      color: '#feeedd'
+      intensity: 0.354
+    '26':
+      color: '#feeedd'
+      intensity: 0.3974
+    '27':
+      color: '#feeedd'
+      intensity: 0.2627
+    '28':
+      color: '#feeedd'
+      intensity: 0.5892
+    '29':
+      color: '#feeedd'
+      intensity: 0.4358
+    '30':
+      color: '#ebae7b'
+      intensity: 0.3331
+    '31':
+      color: '#ebae7b'
+      intensity: 0.4728
+    '32':
+      color: '#ebae7b'
+      intensity: 0.5657
+    '33':
+      color: '#ebae7b'
+      intensity: 0.4728
+    '34':
+      color: '#ebae7b'
+      intensity: 0.3331
+    '35':
+      color: '#bca9e2'
+      intensity: 0.4358
+    '36':
+      color: '#bca9e2'
+      intensity: 0.5892
+    '37':
+      color: '#bca9e2'
+      intensity: 0.2627
+    '38':
+      color: '#bca9e2'
+      intensity: 0.3974
+    '39':
+      color: '#bca9e2'
+      intensity: 0.354
+    '40':
+      color: '#c58ca9'
+      intensity: 0.2458
+    '41':
+      color: '#c58ca9'
+      intensity: 0.6932
+    '42':
+      color: '#c58ca9'
+      intensity: 0.2129
+    '43':
+      color: '#c58ca9'
+      intensity: 0.4044
+    '44':
+      color: '#c58ca9'
+      intensity: 0.6289
+    '45':
+      color: '#89e2c2'
+      intensity: 0.2735
+    '46':
+      color: '#89e2c2'
+      intensity: 0.1428
+    '47':
+      color: '#89e2c2'
+      intensity: 0.5219
+    '48':
+      color: '#89e2c2'
+      intensity: 0.3805
+    '49':
+      color: '#89e2c2'
+      intensity: 0.4044
+    '50':
+      color: '#f9e8b2'
+      intensity: 0.4613
+    '51':
+      color: '#f9e8b2'
+      intensity: 0.4448
+    '52':
+      color: '#f9e8b2'
+      intensity: 0.4674
+    '53':
+      color: '#f9e8b2'
+      intensity: 0.4106
+    '54':
+      color: '#f9e8b2'
+      intensity: 0.661
+    '55':
+      color: '#feeedd'
+      intensity: 0.4546
+    '56':
+      color: '#feeedd'
+      intensity: 0.6428
+    '57':
+      color: '#feeedd'
+      intensity: 0.4546
+    '58':
+      color: '#feeedd'
+      intensity: 0.661
+    '59':
+      color: '#feeedd'
+      intensity: 0.4106
+    '60':
+      color: '#ebae7b'
+      intensity: 0.415
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ecae7a'
+      intensity: 0.2778
+    '1':
+      color: '#ecae7a'
+      intensity: 0.325
+    '2':
+      color: '#ecae7a'
+      intensity: 0.505
+    '3':
+      color: '#ecae7a'
+      intensity: 0.4204
+    '4':
+      color: '#ecae7a'
+      intensity: 0.3199
+    '5':
+      color: '#bca9e2'
+      intensity: 0.5458
+    '6':
+      color: '#bca9e2'
+      intensity: 0.4275
+    '7':
+      color: '#bca9e2'
+      intensity: 0.4383
+    '8':
+      color: '#bca9e2'
+      intensity: 0.4668
+    '9':
+      color: '#bca9e2'
+      intensity: 0.4323
+    '10':
+      color: '#c58ca9'
+      intensity: 0.2568
+    '11':
+      color: '#c58ca9'
+      intensity: 0.6234
+    '12':
+      color: '#c58ca9'
+      intensity: 0.3708
+    '13':
+      color: '#c58ca9'
+      intensity: 0.4192
+    '14':
+      color: '#c58ca9'
+      intensity: 0.461
+    '15':
+      color: '#89e2c2'
+      intensity: 0.4323
+    '16':
+      color: '#89e2c2'
+      intensity: 0.2626
+    '17':
+      color: '#89e2c2'
+      intensity: 0.6425
+    '18':
+      color: '#89e2c2'
+      intensity: 0.4275
+    '19':
+      color: '#89e2c2'
+      intensity: 0.3416
+    '20':
+      color: '#f9e8b2'
+      intensity: 0.5241
+    '21':
+      color: '#f9e8b2'
+      intensity: 0.4204
+    '22':
+      color: '#f9e8b2'
+      intensity: 0.3008
+    '23':
+      color: '#f9e8b2'
+      intensity: 0.5292
+    '24':
+      color: '#f9e8b2'
+      intensity: 0.7073
+    '25':
+      color: '#feeedd'
+      intensity: 0.4009
+    '26':
+      color: '#feeedd'
+      intensity: 0.4268
+    '27':
+      color: '#feeedd'
+      intensity: 0.3024
+    '28':
+      color: '#feeedd'
+      intensity: 0.7001
+    '29':
+      color: '#feeedd'
+      intensity: 0.3987
+    '30':
+      color: '#ecae7a'
+      intensity: 0.391
+    '31':
+      color: '#ecae7a'
+      intensity: 0.467
+    '32':
+      color: '#ecae7a'
+      intensity: 0.6846
+    '33':
+      color: '#ecae7a'
+      intensity: 0.467
+    '34':
+      color: '#ecae7a'
+      intensity: 0.391
+    '35':
+      color: '#bca9e2'
+      intensity: 0.3987
+    '36':
+      color: '#bca9e2'
+      intensity: 0.7001
+    '37':
+      color: '#bca9e2'
+      intensity: 0.3024
+    '38':
+      color: '#bca9e2'
+      intensity: 0.4268
+    '39':
+      color: '#bca9e2'
+      intensity: 0.4009
+    '40':
+      color: '#c58ca9'
+      intensity: 0.192
+    '41':
+      color: '#c58ca9'
+      intensity: 0.7054
+    '42':
+      color: '#c58ca9'
+      intensity: 0.3064
+    '43':
+      color: '#c58ca9'
+      intensity: 0.4364
+    '44':
+      color: '#c58ca9'
+      intensity: 0.6232
+    '45':
+      color: '#89e2c2'
+      intensity: 0.3865
+    '46':
+      color: '#89e2c2'
+      intensity: 0.1347
+    '47':
+      color: '#89e2c2'
+      intensity: 0.6101
+    '48':
+      color: '#89e2c2'
+      intensity: 0.3996
+    '49':
+      color: '#89e2c2'
+      intensity: 0.4364
+    '50':
+      color: '#f9e8b2'
+      intensity: 0.53
+    '51':
+      color: '#f9e8b2'
+      intensity: 0.4818
+    '52':
+      color: '#f9e8b2'
+      intensity: 0.5782
+    '53':
+      color: '#f9e8b2'
+      intensity: 0.4556
+    '54':
+      color: '#f9e8b2'
+      intensity: 0.7646
+    '55':
+      color: '#feeedd'
+      intensity: 0.4801
+    '56':
+      color: '#feeedd'
+      intensity: 0.6758
+    '57':
+      color: '#feeedd'
+      intensity: 0.4801
+    '58':
+      color: '#feeedd'
+      intensity: 0.7646
+    '59':
+      color: '#feeedd'
+      intensity: 0.4556
+    '60':
+      color: '#ecae7a'
+      intensity: 0.4461
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ecae7a'
+      intensity: 0.2682
+    '1':
+      color: '#ecae7a'
+      intensity: 0.3549
+    '2':
+      color: '#ecae7a'
+      intensity: 0.3883
+    '3':
+      color: '#ecae7a'
+      intensity: 0.3547
+    '4':
+      color: '#ecae7a'
+      intensity: 0.2728
+    '5':
+      color: '#bca9e2'
+      intensity: 0.497
+    '6':
+      color: '#bca9e2'
+      intensity: 0.355
+    '7':
+      color: '#bca9e2'
+      intensity: 0.3589
+    '8':
+      color: '#bca9e2'
+      intensity: 0.4059
+    '9':
+      color: '#bca9e2'
+      intensity: 0.3532
+    '10':
+      color: '#c58ca9'
+      intensity: 0.268
+    '11':
+      color: '#c58ca9'
+      intensity: 0.4689
+    '12':
+      color: '#c58ca9'
+      intensity: 0.2565
+    '13':
+      color: '#c58ca9'
+      intensity: 0.343
+    '14':
+      color: '#c58ca9'
+      intensity: 0.3939
+    '15':
+      color: '#88e2c2'
+      intensity: 0.3532
+    '16':
+      color: '#88e2c2'
+      intensity: 0.28
+    '17':
+      color: '#88e2c2'
+      intensity: 0.4847
+    '18':
+      color: '#88e2c2'
+      intensity: 0.355
+    '19':
+      color: '#88e2c2'
+      intensity: 0.3711
+    '20':
+      color: '#f9e8b2'
+      intensity: 0.3986
+    '21':
+      color: '#f9e8b2'
+      intensity: 0.3547
+    '22':
+      color: '#f9e8b2'
+      intensity: 0.2624
+    '23':
+      color: '#f9e8b2'
+      intensity: 0.4808
+    '24':
+      color: '#f9e8b2'
+      intensity: 0.6246
+    '25':
+      color: '#feeede'
+      intensity: 0.3549
+    '26':
+      color: '#feeede'
+      intensity: 0.3661
+    '27':
+      color: '#feeede'
+      intensity: 0.2819
+    '28':
+      color: '#feeede'
+      intensity: 0.6297
+    '29':
+      color: '#feeede'
+      intensity: 0.2698
+    '30':
+      color: '#ecae7a'
+      intensity: 0.3706
+    '31':
+      color: '#ecae7a'
+      intensity: 0.3466
+    '32':
+      color: '#ecae7a'
+      intensity: 0.6275
+    '33':
+      color: '#ecae7a'
+      intensity: 0.3466
+    '34':
+      color: '#ecae7a'
+      intensity: 0.3706
+    '35':
+      color: '#bca9e2'
+      intensity: 0.2698
+    '36':
+      color: '#bca9e2'
+      intensity: 0.6297
+    '37':
+      color: '#bca9e2'
+      intensity: 0.2819
+    '38':
+      color: '#bca9e2'
+      intensity: 0.3661
+    '39':
+      color: '#bca9e2'
+      intensity: 0.3549
+    '40':
+      color: '#c58ca9'
+      intensity: 0.1119
+    '41':
+      color: '#c58ca9'
+      intensity: 0.5438
+    '42':
+      color: '#c58ca9'
+      intensity: 0.3382
+    '43':
+      color: '#c58ca9'
+      intensity: 0.3606
+    '44':
+      color: '#c58ca9'
+      intensity: 0.4711
+    '45':
+      color: '#88e2c2'
+      intensity: 0.4112
+    '46':
+      color: '#88e2c2'
+      intensity: 0.1191
+    '47':
+      color: '#88e2c2'
+      intensity: 0.5559
+    '48':
+      color: '#88e2c2'
+      intensity: 0.3264
+    '49':
+      color: '#88e2c2'
+      intensity: 0.3606
+    '50':
+      color: '#f9e8b2'
+      intensity: 0.4829
+    '51':
+      color: '#f9e8b2'
+      intensity: 0.3991
+    '52':
+      color: '#f9e8b2'
+      intensity: 0.5541
+    '53':
+      color: '#f9e8b2'
+      intensity: 0.4066
+    '54':
+      color: '#f9e8b2'
+      intensity: 0.6715
+    '55':
+      color: '#feeede'
+      intensity: 0.4035
+    '56':
+      color: '#feeede'
+      intensity: 0.5418
+    '57':
+      color: '#feeede'
+      intensity: 0.4035
+    '58':
+      color: '#feeede'
+      intensity: 0.6715
+    '59':
+      color: '#feeede'
+      intensity: 0.4066
+    '60':
+      color: '#ecae7a'
+      intensity: 0.3671
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ecae79'
+      intensity: 0.2287
+    '1':
+      color: '#ecae79'
+      intensity: 0.3288
+    '2':
+      color: '#ecae79'
+      intensity: 0.2638
+    '3':
+      color: '#ecae79'
+      intensity: 0.2458
+    '4':
+      color: '#ecae79'
+      intensity: 0.2055
+    '5':
+      color: '#bca9e3'
+      intensity: 0.399
+    '6':
+      color: '#bca9e3'
+      intensity: 0.2404
+    '7':
+      color: '#bca9e3'
+      intensity: 0.2418
+    '8':
+      color: '#bca9e3'
+      intensity: 0.3225
+    '9':
+      color: '#bca9e3'
+      intensity: 0.2337
+    '10':
+      color: '#c68ba8'
+      intensity: 0.2499
+    '11':
+      color: '#c68ba8'
+      intensity: 0.2916
+    '12':
+      color: '#c68ba8'
+      intensity: 0.1341
+    '13':
+      color: '#c68ba8'
+      intensity: 0.2329
+    '14':
+      color: '#c68ba8'
+      intensity: 0.3086
+    '15':
+      color: '#87e2c2'
+      intensity: 0.2337
+    '16':
+      color: '#87e2c2'
+      intensity: 0.2638
+    '17':
+      color: '#87e2c2'
+      intensity: 0.3005
+    '18':
+      color: '#87e2c2'
+      intensity: 0.2404
+    '19':
+      color: '#87e2c2'
+      intensity: 0.3403
+    '20':
+      color: '#f9e8b1'
+      intensity: 0.2641
+    '21':
+      color: '#f9e8b1'
+      intensity: 0.2458
+    '22':
+      color: '#f9e8b1'
+      intensity: 0.2051
+    '23':
+      color: '#f9e8b1'
+      intensity: 0.3875
+    '24':
+      color: '#f9e8b1'
+      intensity: 0.4491
+    '25':
+      color: '#feefdf'
+      intensity: 0.2685
+    '26':
+      color: '#feefdf'
+      intensity: 0.2782
+    '27':
+      color: '#feefdf'
+      intensity: 0.2362
+    '28':
+      color: '#feefdf'
+      intensity: 0.463
+    '29':
+      color: '#feefdf'
+      intensity: 0.1382
+    '30':
+      color: '#ecae79'
+      intensity: 0.3147
+    '31':
+      color: '#ecae79'
+      intensity: 0.2012
+    '32':
+      color: '#ecae79'
+      intensity: 0.4722
+    '33':
+      color: '#ecae79'
+      intensity: 0.2012
+    '34':
+      color: '#ecae79'
+      intensity: 0.3147
+    '35':
+      color: '#bca9e3'
+      intensity: 0.1382
+    '36':
+      color: '#bca9e3'
+      intensity: 0.463
+    '37':
+      color: '#bca9e3'
+      intensity: 0.2362
+    '38':
+      color: '#bca9e3'
+      intensity: 0.2782
+    '39':
+      color: '#bca9e3'
+      intensity: 0.2685
+    '40':
+      color: '#c68ba8'
+      intensity: 0.0578
+    '41':
+      color: '#c68ba8'
+      intensity: 0.3407
+    '42':
+      color: '#c68ba8'
+      intensity: 0.3167
+    '43':
+      color: '#c68ba8'
+      intensity: 0.2432
+    '44':
+      color: '#c68ba8'
+      intensity: 0.2953
+    '45':
+      color: '#87e2c2'
+      intensity: 0.3642
+    '46':
+      color: '#87e2c2'
+      intensity: 0.1161
+    '47':
+      color: '#87e2c2'
+      intensity: 0.4377
+    '48':
+      color: '#87e2c2'
+      intensity: 0.2218
+    '49':
+      color: '#87e2c2'
+      intensity: 0.2432
+    '50':
+      color: '#f9e8b1'
+      intensity: 0.3902
+    '51':
+      color: '#f9e8b1'
+      intensity: 0.2672
+    '52':
+      color: '#f9e8b1'
+      intensity: 0.4552
+    '53':
+      color: '#f9e8b1'
+      intensity: 0.3269
+    '54':
+      color: '#f9e8b1'
+      intensity: 0.4842
+    '55':
+      color: '#feefdf'
+      intensity: 0.302
+    '56':
+      color: '#feefdf'
+      intensity: 0.3558
+    '57':
+      color: '#feefdf'
+      intensity: 0.302
+    '58':
+      color: '#feefdf'
+      intensity: 0.4842
+    '59':
+      color: '#feefdf'
+      intensity: 0.3269
+    '60':
+      color: '#ecae79'
+      intensity: 0.2465
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ecae79'
+      intensity: 0.1796
+    '1':
+      color: '#ecae79'
+      intensity: 0.285
+    '2':
+      color: '#ecae79'
+      intensity: 0.1862
+    '3':
+      color: '#ecae79'
+      intensity: 0.1739
+    '4':
+      color: '#ecae79'
+      intensity: 0.1756
+    '5':
+      color: '#bca9e3'
+      intensity: 0.3009
+    '6':
+      color: '#bca9e3'
+      intensity: 0.168
+    '7':
+      color: '#bca9e3'
+      intensity: 0.1907
+    '8':
+      color: '#bca9e3'
+      intensity: 0.2442
+    '9':
+      color: '#bca9e3'
+      intensity: 0.1614
+    '10':
+      color: '#c68ba9'
+      intensity: 0.2246
+    '11':
+      color: '#c68ba9'
+      intensity: 0.1936
+    '12':
+      color: '#c68ba9'
+      intensity: 0.0814
+    '13':
+      color: '#c68ba9'
+      intensity: 0.1855
+    '14':
+      color: '#c68ba9'
+      intensity: 0.2326
+    '15':
+      color: '#88e2c2'
+      intensity: 0.1614
+    '16':
+      color: '#88e2c2'
+      intensity: 0.2361
+    '17':
+      color: '#88e2c2'
+      intensity: 0.1987
+    '18':
+      color: '#88e2c2'
+      intensity: 0.168
+    '19':
+      color: '#88e2c2'
+      intensity: 0.2928
+    '20':
+      color: '#f9e8b1'
+      intensity: 0.1837
+    '21':
+      color: '#f9e8b1'
+      intensity: 0.1739
+    '22':
+      color: '#f9e8b1'
+      intensity: 0.1781
+    '23':
+      color: '#f9e8b1'
+      intensity: 0.2931
+    '24':
+      color: '#f9e8b1'
+      intensity: 0.3364
+    '25':
+      color: '#feefde'
+      intensity: 0.195
+    '26':
+      color: '#feefde'
+      intensity: 0.2251
+    '27':
+      color: '#feefde'
+      intensity: 0.1806
+    '28':
+      color: '#feefde'
+      intensity: 0.3498
+    '29':
+      color: '#feefde'
+      intensity: 0.0789
+    '30':
+      color: '#ecae79'
+      intensity: 0.2628
+    '31':
+      color: '#ecae79'
+      intensity: 0.1252
+    '32':
+      color: '#ecae79'
+      intensity: 0.3603
+    '33':
+      color: '#ecae79'
+      intensity: 0.1252
+    '34':
+      color: '#ecae79'
+      intensity: 0.2628
+    '35':
+      color: '#bca9e3'
+      intensity: 0.0789
+    '36':
+      color: '#bca9e3'
+      intensity: 0.3498
+    '37':
+      color: '#bca9e3'
+      intensity: 0.1806
+    '38':
+      color: '#bca9e3'
+      intensity: 0.2251
+    '39':
+      color: '#bca9e3'
+      intensity: 0.195
+    '40':
+      color: '#c68ba9'
+      intensity: 0.039
+    '41':
+      color: '#c68ba9'
+      intensity: 0.2263
+    '42':
+      color: '#c68ba9'
+      intensity: 0.2765
+    '43':
+      color: '#c68ba9'
+      intensity: 0.1686
+    '44':
+      color: '#c68ba9'
+      intensity: 0.1979
+    '45':
+      color: '#88e2c2'
+      intensity: 0.3072
+    '46':
+      color: '#88e2c2'
+      intensity: 0.0996
+    '47':
+      color: '#88e2c2'
+      intensity: 0.327
+    '48':
+      color: '#88e2c2'
+      intensity: 0.1781
+    '49':
+      color: '#88e2c2'
+      intensity: 0.1686
+    '50':
+      color: '#f9e8b1'
+      intensity: 0.2964
+    '51':
+      color: '#f9e8b1'
+      intensity: 0.2065
+    '52':
+      color: '#f9e8b1'
+      intensity: 0.3571
+    '53':
+      color: '#f9e8b1'
+      intensity: 0.2606
+    '54':
+      color: '#f9e8b1'
+      intensity: 0.3556
+    '55':
+      color: '#feefde'
+      intensity: 0.2347
+    '56':
+      color: '#feefde'
+      intensity: 0.254
+    '57':
+      color: '#feefde'
+      intensity: 0.2347
+    '58':
+      color: '#feefde'
+      intensity: 0.3556
+    '59':
+      color: '#feefde'
+      intensity: 0.2606
+    '60':
+      color: '#ecae79'
+      intensity: 0.1697
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ecae79'
+      intensity: 0.1336
+    '1':
+      color: '#ecae79'
+      intensity: 0.2274
+    '2':
+      color: '#ecae79'
+      intensity: 0.1274
+    '3':
+      color: '#ecae79'
+      intensity: 0.1114
+    '4':
+      color: '#ecae79'
+      intensity: 0.141
+    '5':
+      color: '#bca9e3'
+      intensity: 0.2136
+    '6':
+      color: '#bca9e3'
+      intensity: 0.1059
+    '7':
+      color: '#bca9e3'
+      intensity: 0.1383
+    '8':
+      color: '#bca9e3'
+      intensity: 0.1783
+    '9':
+      color: '#bca9e3'
+      intensity: 0.1
+    '10':
+      color: '#c68ba8'
+      intensity: 0.1878
+    '11':
+      color: '#c68ba8'
+      intensity: 0.1186
+    '12':
+      color: '#c68ba8'
+      intensity: 0.044
+    '13':
+      color: '#c68ba8'
+      intensity: 0.1366
+    '14':
+      color: '#c68ba8'
+      intensity: 0.1698
+    '15':
+      color: '#88e2c2'
+      intensity: 0.1
+    '16':
+      color: '#88e2c2'
+      intensity: 0.1963
+    '17':
+      color: '#88e2c2'
+      intensity: 0.1203
+    '18':
+      color: '#88e2c2'
+      intensity: 0.1059
+    '19':
+      color: '#88e2c2'
+      intensity: 0.2316
+    '20':
+      color: '#f9e8b1'
+      intensity: 0.123
+    '21':
+      color: '#f9e8b1'
+      intensity: 0.1114
+    '22':
+      color: '#f9e8b1'
+      intensity: 0.1454
+    '23':
+      color: '#f9e8b1'
+      intensity: 0.2094
+    '24':
+      color: '#f9e8b1'
+      intensity: 0.226
+    '25':
+      color: '#feefdf'
+      intensity: 0.1313
+    '26':
+      color: '#feefdf'
+      intensity: 0.1722
+    '27':
+      color: '#feefdf'
+      intensity: 0.1321
+    '28':
+      color: '#feefdf'
+      intensity: 0.2376
+    '29':
+      color: '#feefdf'
+      intensity: 0.0393
+    '30':
+      color: '#ecae79'
+      intensity: 0.2067
+    '31':
+      color: '#ecae79'
+      intensity: 0.0676
+    '32':
+      color: '#ecae79'
+      intensity: 0.2479
+    '33':
+      color: '#ecae79'
+      intensity: 0.0676
+    '34':
+      color: '#ecae79'
+      intensity: 0.2067
+    '35':
+      color: '#bca9e3'
+      intensity: 0.0393
+    '36':
+      color: '#bca9e3'
+      intensity: 0.2376
+    '37':
+      color: '#bca9e3'
+      intensity: 0.1321
+    '38':
+      color: '#bca9e3'
+      intensity: 0.1722
+    '39':
+      color: '#bca9e3'
+      intensity: 0.1313
+    '40':
+      color: '#c68ba8'
+      intensity: 0.0325
+    '41':
+      color: '#c68ba8'
+      intensity: 0.1351
+    '42':
+      color: '#c68ba8'
+      intensity: 0.2223
+    '43':
+      color: '#c68ba8'
+      intensity: 0.1053
+    '44':
+      color: '#c68ba8'
+      intensity: 0.1227
+    '45':
+      color: '#88e2c2'
+      intensity: 0.2367
+    '46':
+      color: '#88e2c2'
+      intensity: 0.0878
+    '47':
+      color: '#88e2c2'
+      intensity: 0.227
+    '48':
+      color: '#88e2c2'
+      intensity: 0.1324
+    '49':
+      color: '#88e2c2'
+      intensity: 0.1053
+    '50':
+      color: '#f9e8b1'
+      intensity: 0.2126
+    '51':
+      color: '#f9e8b1'
+      intensity: 0.1448
+    '52':
+      color: '#f9e8b1'
+      intensity: 0.2591
+    '53':
+      color: '#f9e8b1'
+      intensity: 0.1976
+    '54':
+      color: '#f9e8b1'
+      intensity: 0.2348
+    '55':
+      color: '#feefdf'
+      intensity: 0.174
+    '56':
+      color: '#feefdf'
+      intensity: 0.165
+    '57':
+      color: '#feefdf'
+      intensity: 0.174
+    '58':
+      color: '#feefdf'
+      intensity: 0.2348
+    '59':
+      color: '#feefdf'
+      intensity: 0.1976
+    '60':
+      color: '#ecae79'
+      intensity: 0.1051
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ecae79'
+      intensity: 0.0825
+    '1':
+      color: '#ecae79'
+      intensity: 0.1465
+    '2':
+      color: '#ecae79'
+      intensity: 0.072
+    '3':
+      color: '#ecae79'
+      intensity: 0.0624
+    '4':
+      color: '#ecae79'
+      intensity: 0.0945
+    '5':
+      color: '#bca9e2'
+      intensity: 0.1223
+    '6':
+      color: '#bca9e2'
+      intensity: 0.0588
+    '7':
+      color: '#bca9e2'
+      intensity: 0.0873
+    '8':
+      color: '#bca9e2'
+      intensity: 0.1046
+    '9':
+      color: '#bca9e2'
+      intensity: 0.055
+    '10':
+      color: '#c68ca9'
+      intensity: 0.1257
+    '11':
+      color: '#c68ca9'
+      intensity: 0.0612
+    '12':
+      color: '#c68ca9'
+      intensity: 0.024
+    '13':
+      color: '#c68ca9'
+      intensity: 0.0872
+    '14':
+      color: '#c68ca9'
+      intensity: 0.0997
+    '15':
+      color: '#88e2c2'
+      intensity: 0.055
+    '16':
+      color: '#88e2c2'
+      intensity: 0.1305
+    '17':
+      color: '#88e2c2'
+      intensity: 0.0614
+    '18':
+      color: '#88e2c2'
+      intensity: 0.0588
+    '19':
+      color: '#88e2c2'
+      intensity: 0.1482
+    '20':
+      color: '#f9e8b1'
+      intensity: 0.0685
+    '21':
+      color: '#f9e8b1'
+      intensity: 0.0624
+    '22':
+      color: '#f9e8b1'
+      intensity: 0.098
+    '23':
+      color: '#f9e8b1'
+      intensity: 0.1205
+    '24':
+      color: '#f9e8b1'
+      intensity: 0.1281
+    '25':
+      color: '#feeede'
+      intensity: 0.0746
+    '26':
+      color: '#feeede'
+      intensity: 0.1086
+    '27':
+      color: '#feeede'
+      intensity: 0.0796
+    '28':
+      color: '#feeede'
+      intensity: 0.1354
+    '29':
+      color: '#feeede'
+      intensity: 0.0191
+    '30':
+      color: '#ecae79'
+      intensity: 0.1311
+    '31':
+      color: '#ecae79'
+      intensity: 0.033
+    '32':
+      color: '#ecae79'
+      intensity: 0.1423
+    '33':
+      color: '#ecae79'
+      intensity: 0.033
+    '34':
+      color: '#ecae79'
+      intensity: 0.1311
+    '35':
+      color: '#bca9e2'
+      intensity: 0.0191
+    '36':
+      color: '#bca9e2'
+      intensity: 0.1354
+    '37':
+      color: '#bca9e2'
+      intensity: 0.0796
+    '38':
+      color: '#bca9e2'
+      intensity: 0.1086
+    '39':
+      color: '#bca9e2'
+      intensity: 0.0746
+    '40':
+      color: '#c68ca9'
+      intensity: 0.0252
+    '41':
+      color: '#c68ca9'
+      intensity: 0.0678
+    '42':
+      color: '#c68ca9'
+      intensity: 0.144
+    '43':
+      color: '#c68ca9'
+      intensity: 0.0578
+    '44':
+      color: '#c68ca9'
+      intensity: 0.0641
+    '45':
+      color: '#88e2c2'
+      intensity: 0.149
+    '46':
+      color: '#88e2c2'
+      intensity: 0.0612
+    '47':
+      color: '#88e2c2'
+      intensity: 0.1278
+    '48':
+      color: '#88e2c2'
+      intensity: 0.0854
+    '49':
+      color: '#88e2c2'
+      intensity: 0.0578
+    '50':
+      color: '#f9e8b1'
+      intensity: 0.1228
+    '51':
+      color: '#f9e8b1'
+      intensity: 0.0891
+    '52':
+      color: '#f9e8b1'
+      intensity: 0.1526
+    '53':
+      color: '#f9e8b1'
+      intensity: 0.1211
+    '54':
+      color: '#f9e8b1'
+      intensity: 0.1293
+    '55':
+      color: '#feeede'
+      intensity: 0.1057
+    '56':
+      color: '#feeede'
+      intensity: 0.0912
+    '57':
+      color: '#feeede'
+      intensity: 0.1057
+    '58':
+      color: '#feeede'
+      intensity: 0.1293
+    '59':
+      color: '#feeede'
+      intensity: 0.1211
+    '60':
+      color: '#ecae79'
+      intensity: 0.057
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#ebae7c'
+      intensity: 0.0422
+    '1':
+      color: '#ebae7c'
+      intensity: 0.072
+    '2':
+      color: '#ebae7c'
+      intensity: 0.0281
+    '3':
+      color: '#ebae7c'
+      intensity: 0.0333
+    '4':
+      color: '#ebae7c'
+      intensity: 0.0472
+    '5':
+      color: '#bda8e1'
+      intensity: 0.0522
+    '6':
+      color: '#bda8e1'
+      intensity: 0.0316
+    '7':
+      color: '#bda8e1'
+      intensity: 0.0444
+    '8':
+      color: '#bda8e1'
+      intensity: 0.0434
+    '9':
+      color: '#bda8e1'
+      intensity: 0.0298
+    '10':
+      color: '#c48da9'
+      intensity: 0.0618
+    '11':
+      color: '#c48da9'
+      intensity: 0.0236
+    '12':
+      color: '#c48da9'
+      intensity: 0.0148
+    '13':
+      color: '#c48da9'
+      intensity: 0.0443
+    '14':
+      color: '#c48da9'
+      intensity: 0.0411
+    '15':
+      color: '#8ae2c1'
+      intensity: 0.0298
+    '16':
+      color: '#8ae2c1'
+      intensity: 0.0641
+    '17':
+      color: '#8ae2c1'
+      intensity: 0.0237
+    '18':
+      color: '#8ae2c1'
+      intensity: 0.0316
+    '19':
+      color: '#8ae2c1'
+      intensity: 0.0729
+    '20':
+      color: '#fae8b3'
+      intensity: 0.0265
+    '21':
+      color: '#fae8b3'
+      intensity: 0.0333
+    '22':
+      color: '#fae8b3'
+      intensity: 0.0488
+    '23':
+      color: '#fae8b3'
+      intensity: 0.0513
+    '24':
+      color: '#fae8b3'
+      intensity: 0.0606
+    '25':
+      color: '#feeddc'
+      intensity: 0.0371
+    '26':
+      color: '#feeddc'
+      intensity: 0.0499
+    '27':
+      color: '#feeddc'
+      intensity: 0.039
+    '28':
+      color: '#feeddc'
+      intensity: 0.0641
+    '30':
+      color: '#ebae7c'
+      intensity: 0.0604
+    '31':
+      color: '#ebae7c'
+      intensity: 0.0176
+    '32':
+      color: '#ebae7c'
+      intensity: 0.0673
+    '33':
+      color: '#ebae7c'
+      intensity: 0.0176
+    '34':
+      color: '#ebae7c'
+      intensity: 0.0604
+    '36':
+      color: '#bda8e1'
+      intensity: 0.0641
+    '37':
+      color: '#bda8e1'
+      intensity: 0.039
+    '38':
+      color: '#bda8e1'
+      intensity: 0.0499
+    '39':
+      color: '#bda8e1'
+      intensity: 0.0371
+    '40':
+      color: '#c48da9'
+      intensity: 0.014
+    '41':
+      color: '#c48da9'
+      intensity: 0.0271
+    '42':
+      color: '#c48da9'
+      intensity: 0.0712
+    '43':
+      color: '#c48da9'
+      intensity: 0.0308
+    '44':
+      color: '#c48da9'
+      intensity: 0.0249
+    '45':
+      color: '#8ae2c1'
+      intensity: 0.074
+    '46':
+      color: '#8ae2c1'
+      intensity: 0.0309
+    '47':
+      color: '#8ae2c1'
+      intensity: 0.0552
+    '48':
+      color: '#8ae2c1'
+      intensity: 0.0437
+    '49':
+      color: '#8ae2c1'
+      intensity: 0.0308
+    '50':
+      color: '#fae8b3'
+      intensity: 0.0524
+    '51':
+      color: '#fae8b3'
+      intensity: 0.0459
+    '52':
+      color: '#fae8b3'
+      intensity: 0.0688
+    '53':
+      color: '#fae8b3'
+      intensity: 0.0532
+    '54':
+      color: '#fae8b3'
+      intensity: 0.0587
+    '55':
+      color: '#feeddc'
+      intensity: 0.0459
+    '56':
+      color: '#feeddc'
+      intensity: 0.0401
+    '57':
+      color: '#feeddc'
+      intensity: 0.0459
+    '58':
+      color: '#feeddc'
+      intensity: 0.0587
+    '59':
+      color: '#feeddc'
+      intensity: 0.0532
+    '60':
+      color: '#ebae7c'
+      intensity: 0.0301
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#bda7e0'
+      intensity: 0.0208
+    '1':
+      color: '#bda7e0'
+      intensity: 0.0329
+    '3':
+      color: '#bda7e0'
+      intensity: 0.0169
+    '4':
+      color: '#bda7e0'
+      intensity: 0.0217
+    '5':
+      color: '#c28faa'
+      intensity: 0.0211
+    '6':
+      color: '#c28faa'
+      intensity: 0.0161
+    '7':
+      color: '#c28faa'
+      intensity: 0.0205
+    '8':
+      color: '#c28faa'
+      intensity: 0.0171
+    '9':
+      color: '#c28faa'
+      intensity: 0.0153
+    '10':
+      color: '#8ce2c1'
+      intensity: 0.0282
+    '13':
+      color: '#8ce2c1'
+      intensity: 0.0205
+    '14':
+      color: '#8ce2c1'
+      intensity: 0.016
+    '15':
+      color: '#fae9b4'
+      intensity: 0.0153
+    '16':
+      color: '#fae9b4'
+      intensity: 0.0293
+    '18':
+      color: '#fae9b4'
+      intensity: 0.0161
+    '19':
+      color: '#fae9b4'
+      intensity: 0.0333
+    '21':
+      color: '#feecd9'
+      intensity: 0.0169
+    '22':
+      color: '#feecd9'
+      intensity: 0.0224
+    '23':
+      color: '#feecd9'
+      intensity: 0.0207
+    '24':
+      color: '#feecd9'
+      intensity: 0.0262
+    '25':
+      color: '#eaae7e'
+      intensity: 0.0179
+    '26':
+      color: '#eaae7e'
+      intensity: 0.0212
+    '27':
+      color: '#eaae7e'
+      intensity: 0.0187
+    '28':
+      color: '#eaae7e'
+      intensity: 0.0278
+    '30':
+      color: '#bda7e0'
+      intensity: 0.0259
+    '32':
+      color: '#bda7e0'
+      intensity: 0.0292
+    '34':
+      color: '#bda7e0'
+      intensity: 0.0259
+    '36':
+      color: '#c28faa'
+      intensity: 0.0278
+    '37':
+      color: '#c28faa'
+      intensity: 0.0187
+    '38':
+      color: '#c28faa'
+      intensity: 0.0212
+    '39':
+      color: '#c28faa'
+      intensity: 0.0179
+    '42':
+      color: '#8ce2c1'
+      intensity: 0.0327
+    '43':
+      color: '#8ce2c1'
+      intensity: 0.0156
+    '45':
+      color: '#fae9b4'
+      intensity: 0.034
+    '46':
+      color: '#fae9b4'
+      intensity: 0.0155
+    '47':
+      color: '#fae9b4'
+      intensity: 0.0224
+    '48':
+      color: '#fae9b4'
+      intensity: 0.0204
+    '49':
+      color: '#fae9b4'
+      intensity: 0.0156
+    '50':
+      color: '#feecd9'
+      intensity: 0.0211
+    '51':
+      color: '#feecd9'
+      intensity: 0.0214
+    '52':
+      color: '#feecd9'
+      intensity: 0.0289
+    '53':
+      color: '#feecd9'
+      intensity: 0.0217
+    '54':
+      color: '#feecd9'
+      intensity: 0.0244
+    '55':
+      color: '#eaae7e'
+      intensity: 0.0185
+    '56':
+      color: '#eaae7e'
+      intensity: 0.016
+    '57':
+      color: '#eaae7e'
+      intensity: 0.0185
+    '58':
+      color: '#eaae7e'
+      intensity: 0.0244
+    '59':
+      color: '#eaae7e'
+      intensity: 0.0217
+    '60':
+      color: '#bda7e0'
+      intensity: 0.0152
+- duration_ms: 20
+  leds:
+    '0':
+      color: '#bea6de'
+      intensity: 0.0124
+    '1':
+      color: '#bea6de'
+      intensity: 0.0171
+    '10':
+      color: '#8fe2c0'
+      intensity: 0.0143
+    '16':
+      color: '#fae9b6'
+      intensity: 0.0149
+    '19':
+      color: '#fae9b6'
+      intensity: 0.0174
+    '24':
+      color: '#feead6'
+      intensity: 0.0136
+    '28':
+      color: '#e9ae81'
+      intensity: 0.0144
+    '30':
+      color: '#bea6de'
+      intensity: 0.0121
+    '32':
+      color: '#bea6de'
+      intensity: 0.0151
+    '34':
+      color: '#bea6de'
+      intensity: 0.0121
+    '36':
+      color: '#c091ab'
+      intensity: 0.0144
+    '42':
+      color: '#8fe2c0'
+      intensity: 0.0171
+    '45':
+      color: '#fae9b6'
+      intensity: 0.0181
+    '52':
+      color: '#feead6'
+      intensity: 0.0138
+    '54':
+      color: '#feead6'
+      intensity: 0.0123
+    '58':
+      color: '#e9ae81'
+      intensity: 0.0123
+- duration_ms: 20
+  leds: {}
+- duration_ms: 20
+  leds: {}
+- duration_ms: 9
+  leds: {}
+- duration_ms: 1
+  leds: {}
